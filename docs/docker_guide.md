@@ -40,11 +40,17 @@ docker image rm <Image ID>
 
 ## Updating Container
 
-1. Stop and remove existing container
-2. Remove existing image
-3. Rebuild image:
-docker build -t bundestag-mining . --no-cache
-4. Run new container
+
+# 1. Stop and remove existing container
+docker stop bundestag-dashboard
+docker rm bundestag-dashboard
+
+# 2. Rebuild image
+docker build -t bundestag-dashboard . --no-cache
+
+# 3.  Run new container
+docker run -it -p 8050:8050 --name bundestag-dashboard bundestag-dashboard
+
 
 ## Troubleshooting
 
