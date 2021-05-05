@@ -140,30 +140,34 @@ sidebar = html.Div(
 content_first_row = dbc.Row(
     [# num per topic
         dbc.Col(
-            dcc.Graph(id='gender'), md=6
+            dcc.Graph(id='party'), md=4
         ),
-
         dbc.Col(
-            dcc.Graph(id='confession'), md=6
+            dcc.Graph(id='gender'), md=4
+        ),
+        
+        dbc.Col(
+            dcc.Graph(id='religion'), md=4
         )
 
     ]
 )
 
-# this is just test content to check callback functionality
-content_second_row = html.Div([
-        dcc.RangeSlider(
-        id='my-slider',
-        min=-10,
-        max=+10,
-        step=1,
-        value=[-1, 1],
-        marks={i:i for i in range(-10, 10)},
-        updatemode='drag'
-    ),
-    html.Div(id='slider-output-container'),
-    html.Div('ABC')
-])
+
+content_second_row = dbc.Row(
+    [# num per topic
+
+
+        dbc.Col(
+            dcc.Graph(id='familienstand'), md=6
+        ),
+        
+        dbc.Col(
+            dcc.Graph(id='beruf'), md=6
+        )
+
+    ]
+)
 
 
 
@@ -206,15 +210,7 @@ app.layout = html.Div([sidebar, content])
 
 
 # --------------------- callbacksf
-#TODO delete. just a test
-@app.callback(Output('slider-output-container', 'children'),
-             [Input('my-slider', 'value')])
-def compute_product(value):
-    return value[0] * value[1]
-    
-
-
-
+# click all parties
 @app.callback(
     Output('check_list', 'value'),
     [Input('select_all', 'n_clicks')],
@@ -231,7 +227,7 @@ def set_check_list_values(n_clicks, options, values):
         return []
             
     
-
+# gender
 @app.callback(
     Output('gender', 'figure'),
     [Input('submit_button', 'n_clicks')],
@@ -240,30 +236,103 @@ def set_check_list_values(n_clicks, options, values):
      State('check_list', 'value')
      ])
 def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):    
-    logging.info(f'entry of update_graph_gender, n_clicks: {n_clicks}')
-
     # select wahlperiode
     wps = range(start_date, end_date)
     selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
     
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    logging.info(f'selected {selected_df.shape} many entries')
     
-    
-    fig = {
-        'data': [{
-            #'x': selected_df.groupby([selected_df['at'].dt.date])['pos'].sum().index,
-            #'y': selected_df.groupby([selected_df['at'].dt.date])['pos'].sum().values
-            'x': selected_df[['ID', 'GESCHLECHT']].groupby('GESCHLECHT').count().sort_values(by='ID', ascending=False).index,
-            'y': selected_df[['ID', 'GESCHLECHT']].groupby('GESCHLECHT').count().sort_values(by='ID', ascending=False).values
-
-        }],
-        'layout':{
-            'title':'Overall Number of Customer Feedback'
-        }
-    }
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['GESCHLECHT']))
     return fig
+
+# party
+@app.callback(
+    Output('party', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list', 'value')
+     ])
+def update_graph_party(n_clicks, start_date, end_date, selected_parteien):    
+    # select wahlperiode
+    wps = range(start_date, end_date)
+    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    
+    # selct partei
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['PARTEI_KURZ']))
+    return fig
+
+
+
+@app.callback(
+    Output('religion', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list', 'value')
+     ])
+def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
+    # select wahlperiode
+    wps = range(start_date, end_date)
+    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    
+    # selct partei
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['RELIGION']))
+    return fig
+
+
+
+@app.callback(
+    Output('familienstand', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list', 'value')
+     ])
+def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
+    # select wahlperiode
+    wps = range(start_date, end_date)
+    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    
+    # selct partei
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['FAMILIENSTAND']))
+    return fig
+
+
+
+@app.callback(
+    Output('beruf', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list', 'value')
+     ])
+def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
+    # select wahlperiode
+    wps = range(start_date, end_date)
+    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    
+    # selct partei
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['BERUF']))
+    return fig
+
+
+
+
 
 @app.callback(
     Output('selected_records', 'data'),
@@ -283,8 +352,6 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
     logging.info(f'selected {selected_df.shape} many entries')
-    
-    logging.info(f'RECORDS: selected {selected_df.head()}')
     
     return selected_df.iloc[
         page_current*page_size:(page_current+ 1)*page_size
