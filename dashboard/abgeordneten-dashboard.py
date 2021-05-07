@@ -24,11 +24,12 @@ num_reloads = 0
 
 DATA_PATH = Path('../data')
 DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
+DF_MDB_WP_PATH = DATA_PATH / 'df_mdb_wp.csv'
 df_mdb = pd.read_csv(DF_MDB_PATH)
-logging.info(f'df_mdb: {df_mdb.head()}')
+df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
 
 # retrieve 8 most common parties (incl AFD and PDS, excluding DP, FU etc)
-list_of_parteien = list(df_mdb[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False).head(8).index)
+list_of_parteien = list(df_mdb_wp[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False).head(8).index)
 list_of_parteien.append('sonstige')
 logging.info(f'Parteien: {list_of_parteien}')
 list_of_excluded_parteien = list(df_mdb[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False)[8:].index)
@@ -36,6 +37,7 @@ list_of_excluded_parteien = list(df_mdb[['ID', 'PARTEI_KURZ']].groupby('PARTEI_K
 # replace andere parteien with 'sonstige'
 for excluded_partei in list_of_excluded_parteien:
     df_mdb['PARTEI_KURZ'].replace(excluded_partei, 'sonstige', inplace=True)
+    df_mdb_wp['PARTEI_KURZ'].replace(excluded_partei, 'sonstige', inplace=True)
 
 # display List 
 PAGE_SIZE = 8
@@ -237,15 +239,35 @@ def set_check_list_values(n_clicks, options, values):
      ])
 def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):    
     # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
     
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
     
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['GESCHLECHT']))
+    grouped = selected_df[['ID', 'WP', 'GESCHLECHT']].groupby(['GESCHLECHT', 'WP']).count()
+    grouped.reset_index(inplace=True)
+
+    
+    wps = list(range(start_date, end_date +1))
+    geschlechter = list(set(grouped.GESCHLECHT))
+    traces_values = []
+
+    for geschlecht in geschlechter:
+        trace = grouped[grouped['GESCHLECHT'] == geschlecht].sort_values(by='WP').ID.values
+        traces_values.append(trace)
+    
+    traces = [go.Bar(x=wps, y=trace, xaxis='x2', yaxis='y2',
+                marker=dict(color='#0099ff'),
+                name=f'{gender}') for trace, gender in zip(traces_values, geschlechter)]
+    
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'My plot',
+        xaxis = {'title' : 'WP', 'type': 'log'},
+        yaxis = {'title' : 'gender per WP'})}
+    
     return fig
+
+
 
 # party
 @app.callback(
@@ -263,6 +285,7 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
     
+    # this is nice and clean but did not find a possibility to order
     fig = go.Figure()
     fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['PARTEI_KURZ']))
     return fig
