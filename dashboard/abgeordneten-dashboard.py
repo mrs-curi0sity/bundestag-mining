@@ -17,16 +17,18 @@ logging.getLogger().setLevel(logging.INFO)
 #app = dash.Dash()
 
 
-
-
-
 num_reloads = 0
+
+# define list of colors for traces here 
+LIST_OF_COLORS = ['#0ea46b', '#0e7da4', '#8bb5da', '#708292', '#1e61a0', '#101cb8', '#4e14c2', '#6d0ea4']
 
 DATA_PATH = Path('../data')
 DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
 DF_MDB_WP_PATH = DATA_PATH / 'df_mdb_wp.csv'
 df_mdb = pd.read_csv(DF_MDB_PATH)
 df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
+
+MAX_WP = df_mdb_wp.WP.max()
 
 # retrieve 8 most common parties (incl AFD and PDS, excluding DP, FU etc)
 list_of_parteien = list(df_mdb_wp[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False).head(8).index)
@@ -84,11 +86,11 @@ controls = dbc.FormGroup(
             'textAlign': 'center'
         }),
         dcc.Dropdown(id='wp_start',
-                     options=[{'label':x, 'value': x} for x in range(1, 18)],
+                     options=[{'label':x, 'value': x} for x in range(1, MAX_WP+1)],
                     value=2),
         
         dcc.Dropdown(id='wp_end',
-                     options=[{'label':x, 'value': x} for x in range(1, 18)],
+                     options=[{'label':x, 'value': x} for x in range(1, MAX_WP+1)],
                     value=7),
         
         html.Br(),
@@ -227,7 +229,40 @@ def set_check_list_values(n_clicks, options, values):
         return [i['value'] for i in options]
     else:
         return []
-            
+
+
+def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT'):
+    # select wahlperiode
+    logging.info(f'+++++ starting evaluation of {dimension}')
+    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
+    logging.info(f'fitting wp: {selected_df.shape}')
+    
+    # selct partei
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    logging.info(f'fitting parteien: {selected_df.shape}')
+    
+    grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
+    grouped.reset_index(inplace=True)
+    return grouped
+
+
+def compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT'):
+    wps = list(range(start_date, end_date +1))
+    dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
+    traces_values = []
+
+    # TODO: mit 0en 'auffüllen', sonst kommen z.B. bei AFD seltsame Dinge raus, weil die meisten WPs nicht präsent
+    for dim_value in dim_values:
+        trace = grouped[grouped[dimension] == dim_value].sort_values(by='WP').ID.values
+        traces_values.append(trace)
+    
+    traces = [go.Bar(x=wps, y=trace, xaxis='x2', yaxis='y2',
+                marker=dict(color=color), #'#0099ff'),
+                name=f'{dim_value}') for trace, dim_value, color in zip(traces_values, dim_values, LIST_OF_COLORS[:len(dim_values)])]
+    
+    return traces
+
+    
     
 # gender
 @app.callback(
@@ -238,32 +273,11 @@ def set_check_list_values(n_clicks, options, values):
      State('check_list', 'value')
      ])
 def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):    
-    # select wahlperiode
-    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
-    
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    
-    grouped = selected_df[['ID', 'WP', 'GESCHLECHT']].groupby(['GESCHLECHT', 'WP']).count()
-    grouped.reset_index(inplace=True)
-
-    
-    wps = list(range(start_date, end_date +1))
-    geschlechter = list(set(grouped.GESCHLECHT))
-    traces_values = []
-
-    for geschlecht in geschlechter:
-        trace = grouped[grouped['GESCHLECHT'] == geschlecht].sort_values(by='WP').ID.values
-        traces_values.append(trace)
-    
-    traces = [go.Bar(x=wps, y=trace, xaxis='x2', yaxis='y2',
-                marker=dict(color='#0099ff'),
-                name=f'{gender}') for trace, gender in zip(traces_values, geschlechter)]
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT')
     
     fig = {'data': traces,
-        'layout': go.Layout(title = 'My plot',
-        xaxis = {'title' : 'WP', 'type': 'log'},
-        yaxis = {'title' : 'gender per WP'})}
+        'layout': go.Layout(title = 'Gender')}
     
     return fig
 
@@ -278,16 +292,16 @@ def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
      State('check_list', 'value')
      ])
 def update_graph_party(n_clicks, start_date, end_date, selected_parteien):    
-    # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='PARTEI_KURZ')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='PARTEI_KURZ')
     
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'Partei')}
     
     # this is nice and clean but did not find a possibility to order
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['PARTEI_KURZ']))
+    #fig = go.Figure()
+    #fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['PARTEI_KURZ']))
     return fig
 
 
@@ -301,14 +315,10 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
     # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
-    
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['RELIGION']))
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='RELIGION')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='RELIGION')
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'Religion')}
     return fig
 
 
