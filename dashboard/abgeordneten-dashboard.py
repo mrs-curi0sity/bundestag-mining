@@ -314,7 +314,7 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
      State('check_list', 'value')
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    # select wahlperiode
+    
     grouped = select_data(start_date, end_date, selected_parteien, dimension='RELIGION')
     traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='RELIGION')
     fig = {'data': traces,
@@ -331,15 +331,10 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('check_list', 'value')
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
-    
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['FAMILIENSTAND']))
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='FAMILIENSTAND')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='FAMILIENSTAND')
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'Familienstand')}
     return fig
 
 
@@ -352,15 +347,10 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('check_list', 'value')
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
-    
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(histfunc="count",  x=selected_df['BERUF']))
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='RELIGION')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='RELIGION')
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'Religion')}
     return fig
 
 
