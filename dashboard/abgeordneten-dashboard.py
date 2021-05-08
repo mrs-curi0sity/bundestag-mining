@@ -247,7 +247,8 @@ def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
 
 
 def compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT'):
-    wps = list(range(start_date, end_date +1))
+    # only selecte non-empty WPs which is important e.g. for PDS or AFD
+    wps = sorted(list(set(grouped.WP)))
     dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
     traces_values = []
 
@@ -387,4 +388,4 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
