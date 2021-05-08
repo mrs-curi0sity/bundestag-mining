@@ -29,6 +29,7 @@ df_mdb = pd.read_csv(DF_MDB_PATH)
 df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
 
 MAX_WP = df_mdb_wp.WP.max()
+WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021]
 
 # retrieve 8 most common parties (incl AFD and PDS, excluding DP, FU etc)
 list_of_parteien = list(df_mdb_wp[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False).head(8).index)
@@ -86,11 +87,11 @@ controls = dbc.FormGroup(
             'textAlign': 'center'
         }),
         dcc.Dropdown(id='wp_start',
-                     options=[{'label':x, 'value': x} for x in range(1, MAX_WP+1)],
+                     options=[{'label':str(WP_START[x-1]) + ' - ' + str(WP_START[x]), 'value': x} for x in range(1, MAX_WP+1)],
                     value=2),
         
         dcc.Dropdown(id='wp_end',
-                     options=[{'label':x, 'value': x} for x in range(1, MAX_WP+1)],
+                     options=[{'label':str(WP_START[x-1]) + ' - ' + str(WP_START[x]), 'value': x} for x in range(1, MAX_WP+1)],
                     value=7),
         
         html.Br(),
@@ -142,16 +143,12 @@ sidebar = html.Div(
 # -------------------- content
 
 content_first_row = dbc.Row(
-    [# num per topic
+    [
         dbc.Col(
-            dcc.Graph(id='party'), md=4
+            dcc.Graph(id='party'), md=6
         ),
         dbc.Col(
-            dcc.Graph(id='gender'), md=4
-        ),
-        
-        dbc.Col(
-            dcc.Graph(id='religion'), md=4
+            dcc.Graph(id='gender'), md=6
         )
 
     ]
@@ -159,23 +156,29 @@ content_first_row = dbc.Row(
 
 
 content_second_row = dbc.Row(
-    [# num per topic
-
-
+    [
         dbc.Col(
             dcc.Graph(id='familienstand'), md=6
         ),
         
         dbc.Col(
-            dcc.Graph(id='beruf'), md=6
+            dcc.Graph(id='religion'), md=6
         )
 
     ]
 )
 
 
-
 content_third_row = dbc.Row(
+    [
+        dbc.Col(
+            dcc.Graph(id='beruf'), md=12
+        )
+
+    ]
+)
+
+content_fourth_row = dbc.Row(
     [
         # dbc.Col(
         dash_table.DataTable(
@@ -202,7 +205,8 @@ content = html.Div(
         html.Hr(),
         content_first_row,
         content_second_row,
-        content_third_row
+        content_third_row,
+        content_fourth_row
     ],
     style=CONTENT_STYLE
 )
@@ -248,7 +252,7 @@ def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
 
 def compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT'):
     # only selecte non-empty WPs which is important e.g. for PDS or AFD
-    wps = sorted(list(set(grouped.WP)))
+    wps = sorted(list(set([WP_START[wp-1] for wp in grouped.WP])))
     dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
     traces_values = []
 
@@ -306,7 +310,7 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
     return fig
 
 
-
+# religion
 @app.callback(
     Output('religion', 'figure'),
     [Input('submit_button', 'n_clicks')],
@@ -323,7 +327,7 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
     return fig
 
 
-
+# familienstand
 @app.callback(
     Output('familienstand', 'figure'),
     [Input('submit_button', 'n_clicks')],
@@ -340,6 +344,7 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
 
 
 
+#beruf
 @app.callback(
     Output('beruf', 'figure'),
     [Input('submit_button', 'n_clicks')],
@@ -348,10 +353,10 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('check_list', 'value')
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='RELIGION')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='RELIGION')
+    grouped = select_data(start_date, end_date, selected_parteien, dimension='BERUF')
+    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='BERUF')
     fig = {'data': traces,
-        'layout': go.Layout(title = 'Religion')}
+        'layout': go.Layout(title = 'Beruf')}
     return fig
 
 
