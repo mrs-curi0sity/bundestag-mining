@@ -61,7 +61,7 @@ for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand
 
 # display List 
 PAGE_SIZE = 8
-COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'GESCHLECHT', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'VITA_KURZ']
+COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'GESCHLECHT', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ']
     
     
 
@@ -281,7 +281,7 @@ def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GES
     grouped = grouped.reindex(new_index, fill_value=0)
     grouped.reset_index(inplace=True)
     wps = sorted(list(set(grouped.WP)))
-    years = [WP_START[wp] for wp in wps]
+    years = [str(WP_START[wp]) for wp in wps]
     logging.info(grouped.head())
 
     for value in values_to_keep:
@@ -399,19 +399,18 @@ def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):
      State('wp_end', 'value'), 
      State('check_list', 'value')
      ])
-def update_feedback_records(n_clicks, page_current, page_size, start_date, end_date, list_of_parteien):
+def update_feedback_records(n_clicks, page_current, page_size, start_date, end_date, selected_parteien):
     
     # select wahlperiode
-    wps = range(start_date, end_date)
-    selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
+    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
     
     # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(list_of_parteien)]
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates().sort_values(by='NACHNAME')#VEROEFFENTLICHUNGSPFLICHTIGES
     logging.info(f'selected {selected_df.shape} many entries')
     
     return selected_df.iloc[
         page_current*page_size:(page_current+ 1)*page_size
-    ][COLUMNS_FOR_DISPLAY].to_dict('records')
+    ].to_dict('records')
 
 
 
