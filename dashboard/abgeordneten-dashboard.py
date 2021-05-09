@@ -21,6 +21,7 @@ num_reloads = 0
 
 # define list of colors for traces here 
 LIST_OF_COLORS = ['#0ea46b', '#0e7da4', '#8bb5da', '#708292', '#1e61a0', '#101cb8', '#4e14c2', '#6d0ea4']
+LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
 
 DATA_PATH = Path('../data')
 DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
@@ -32,15 +33,31 @@ MAX_WP = df_mdb_wp.WP.max()
 WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021]
 
 # retrieve 8 most common parties (incl AFD and PDS, excluding DP, FU etc)
-list_of_parteien = list(df_mdb_wp[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False).head(8).index)
-list_of_parteien.append('sonstige')
-logging.info(f'Parteien: {list_of_parteien}')
-list_of_excluded_parteien = list(df_mdb[['ID', 'PARTEI_KURZ']].groupby('PARTEI_KURZ').count().sort_values(by='ID', ascending=False)[8:].index)
 
 # replace andere parteien with 'sonstige'
-for excluded_partei in list_of_excluded_parteien:
-    df_mdb['PARTEI_KURZ'].replace(excluded_partei, 'sonstige', inplace=True)
-    df_mdb_wp['PARTEI_KURZ'].replace(excluded_partei, 'sonstige', inplace=True)
+def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
+    """
+    keep num_keep most occurences, replace other values by "sonstige"
+    """
+    
+    # e.g. 'CDU', 'SPD'
+    values_to_keep = list(df_mdb_wp[['ID', dimension]].groupby(dimension).count().sort_values(by='ID', ascending=False)[:num_keep].index)
+    values_to_discard = list(df_mdb[['ID', dimension]].groupby(dimension).count().sort_values(by='ID', ascending=False)[num_keep:].index)
+    
+    logging.info(f'[{dimension}] replacing {values_to_discard} with <sonstige>')
+    df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
+    df_mdb_wp[dimension].replace(values_to_discard, 'sonstige', inplace=True)
+        
+    return values_to_keep, values_to_discard, df_mdb, df_mdb_wp
+
+list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 8)
+list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION', num_keep = 6) 
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND', num_keep = 6)
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF', num_keep = 16)
+
+# append 'sonstige' to list of valid values
+for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
+    list_of_values += ['sonstige']
 
 # display List 
 PAGE_SIZE = 8
@@ -240,30 +257,40 @@ def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
     logging.info(f'+++++ starting evaluation of {dimension}')
     selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
     logging.info(f'fitting wp: {selected_df.shape}')
+    #logging.info(selected_df.head())
     
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
     logging.info(f'fitting parteien: {selected_df.shape}')
+    #logging.info(selected_parteien)
     
     grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
-    grouped.reset_index(inplace=True)
+    #grouped.reset_index(inplace=True)
     return grouped
 
 
-def compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT'):
+def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GESCHLECHT'):
     # only selecte non-empty WPs which is important e.g. for PDS or AFD
-    wps = sorted(list(set([WP_START[wp-1] for wp in grouped.WP])))
-    dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
+    #wps = sorted(list(set([WP_START[wp-1] for wp in grouped.WP])))
+    #dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
     traces_values = []
+    
+    levels = [values_to_keep, range(start_date, end_date+1)]
+    new_index = pd.MultiIndex.from_product(levels, names=[dimension, 'WP'])
+    # create entries also for 0 values
+    grouped = grouped.reindex(new_index, fill_value=0)
+    grouped.reset_index(inplace=True)
+    wps = sorted(list(set(grouped.WP)))
+    years = [WP_START[wp] for wp in wps]
+    logging.info(grouped.head())
 
-    # TODO: mit 0en 'auffüllen', sonst kommen z.B. bei AFD seltsame Dinge raus, weil die meisten WPs nicht präsent
-    for dim_value in dim_values:
-        trace = grouped[grouped[dimension] == dim_value].sort_values(by='WP').ID.values
+    for value in values_to_keep:
+        trace = grouped[grouped[dimension] == value].sort_values(by='WP').ID.values
         traces_values.append(trace)
     
-    traces = [go.Bar(x=wps, y=trace, xaxis='x2', yaxis='y2',
+    traces = [go.Bar(x=years, y=trace, xaxis='x2', yaxis='y2',
                 marker=dict(color=color), #'#0099ff'),
-                name=f'{dim_value}') for trace, dim_value, color in zip(traces_values, dim_values, LIST_OF_COLORS[:len(dim_values)])]
+                name=f'{value}') for trace, value, color in zip(traces_values, values_to_keep, LIST_OF_COLORS[:len(values_to_keep)])]
     
     return traces
 
@@ -279,7 +306,7 @@ def compute_traces(grouped, start_date, end_date, selected_parteien, dimension='
      ])
 def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):    
     grouped = select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='GESCHLECHT')
+    traces = compute_traces(grouped, start_date, end_date, ['männlich', 'weiblich'], dimension='GESCHLECHT')
     
     fig = {'data': traces,
         'layout': go.Layout(title = 'Gender')}
@@ -296,10 +323,10 @@ def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
      State('wp_end', 'value'),
      State('check_list', 'value')
      ])
-def update_graph_party(n_clicks, start_date, end_date, selected_parteien):    
+def update_graph_party(n_clicks, start_date, end_date, list_of_parteien):    
 
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='PARTEI_KURZ')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='PARTEI_KURZ')
+    grouped = select_data(start_date, end_date, list_of_parteien, dimension='PARTEI_KURZ')
+    traces = compute_traces(grouped, start_date, end_date, list_of_parteien, dimension='PARTEI_KURZ')
     
     fig = {'data': traces,
         'layout': go.Layout(title = 'Partei')}
@@ -318,10 +345,10 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
      State('wp_end', 'value'),
      State('check_list', 'value')
      ])
-def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
+def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):    
     
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='RELIGION')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='RELIGION')
+    grouped = select_data(start_date, end_date, list_of_parteien, dimension='RELIGION')
+    traces = compute_traces(grouped, start_date, end_date, list_of_religion, dimension='RELIGION')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Religion')}
     return fig
@@ -335,9 +362,9 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('wp_end', 'value'),
      State('check_list', 'value')
      ])
-def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='FAMILIENSTAND')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='FAMILIENSTAND')
+def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):    
+    grouped = select_data(start_date, end_date, list_of_parteien, dimension='FAMILIENSTAND')
+    traces = compute_traces(grouped, start_date, end_date, list_of_familienstand, dimension='FAMILIENSTAND')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Familienstand')}
     return fig
@@ -352,9 +379,9 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('wp_end', 'value'),
      State('check_list', 'value')
      ])
-def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):    
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='BERUF')
-    traces = compute_traces(grouped, start_date, end_date, selected_parteien, dimension='BERUF')
+def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):    
+    grouped = select_data(start_date, end_date, list_of_parteien, dimension='BERUF')
+    traces = compute_traces(grouped, start_date, end_date, list_of_beruf, dimension='BERUF')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Beruf')}
     return fig
@@ -372,14 +399,14 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('wp_end', 'value'), 
      State('check_list', 'value')
      ])
-def update_feedback_records(n_clicks, page_current, page_size, start_date, end_date, selected_parteien):
+def update_feedback_records(n_clicks, page_current, page_size, start_date, end_date, list_of_parteien):
     
     # select wahlperiode
     wps = range(start_date, end_date)
     selected_df = pd.concat([df_mdb[df_mdb[str(i)] == 1] for i in range(start_date,end_date+1)]).drop_duplicates()
     
     # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(list_of_parteien)]
     logging.info(f'selected {selected_df.shape} many entries')
     
     return selected_df.iloc[
