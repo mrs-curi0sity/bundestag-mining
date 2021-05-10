@@ -23,7 +23,7 @@ num_reloads = 0
 LIST_OF_COLORS = ['#0ea46b', '#0e7da4', '#8bb5da', '#708292', '#1e61a0', '#101cb8', '#4e14c2', '#6d0ea4']
 LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
 
-DATA_PATH = Path('../data')
+DATA_PATH = Path('./data')
 DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
 DF_MDB_WP_PATH = DATA_PATH / 'df_mdb_wp.csv'
 df_mdb = pd.read_csv(DF_MDB_PATH)
