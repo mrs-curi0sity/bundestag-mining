@@ -5,10 +5,11 @@ ENV VIRTUAL_ENV=/venv
 RUN virtualenv venv -p python3
 ENV PATH="VIRTUAL_ENV/bin:$PATH"
 
-ADD requirements.txt /myworkdir/requirements.txt 
-ADD ./dashboard /myworkdir/dashboard
-ADD ./data/df_mdb_wp.csv /myworkdir/data/df_mdb_wp.csv
-ADD ./data/df_mdb.csv /myworkdir/data/df_mdb.csv
+# add necessary data files to docker container
+COPY requirements.txt /myworkdir/requirements.txt 
+COPY ./dashboard /myworkdir/dashboard
+COPY ./data/df_mdb_wp.csv /myworkdir/data/df_mdb_wp.csv
+COPY ./data/df_mdb.csv /myworkdir/data/df_mdb.csv
 
 WORKDIR /myworkdir
 
