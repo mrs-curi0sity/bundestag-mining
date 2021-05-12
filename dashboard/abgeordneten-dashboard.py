@@ -105,11 +105,11 @@ controls = dbc.FormGroup(
         }),
         dcc.Dropdown(id='wp_start',
                      options=[{'label':str(WP_START[x-1]) + ' - ' + str(WP_START[x]), 'value': x} for x in range(1, MAX_WP+1)],
-                    value=2),
+                    value=7),
         
         dcc.Dropdown(id='wp_end',
                      options=[{'label':str(WP_START[x-1]) + ' - ' + str(WP_START[x]), 'value': x} for x in range(1, MAX_WP+1)],
-                    value=7),
+                    value=MAX_WP-1),
         
         html.Br(),
         
@@ -411,10 +411,6 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
     return selected_df.iloc[
         page_current*page_size:(page_current+ 1)*page_size
     ].to_dict('records')
-
-
-
-
 
 
 
