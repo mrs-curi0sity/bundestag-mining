@@ -23,7 +23,7 @@ num_reloads = 0
 LIST_OF_COLORS = ['#0ea46b', '#0e7da4', '#8bb5da', '#708292', '#1e61a0', '#101cb8', '#4e14c2', '#6d0ea4']
 LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
 
-DATA_PATH = Path('./data')
+DATA_PATH = Path('../data')
 DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
 DF_MDB_WP_PATH = DATA_PATH / 'df_mdb_wp.csv'
 df_mdb = pd.read_csv(DF_MDB_PATH)
@@ -53,7 +53,7 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 8)
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION', num_keep = 6) 
 list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND', num_keep = 6)
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF', num_keep = 16)
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 15)
 
 # append 'sonstige' to list of valid values
 for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
@@ -61,7 +61,7 @@ for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand
 
 # display List 
 PAGE_SIZE = 8
-COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'GESCHLECHT', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ']
+COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'GESCHLECHT', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ']
     
     
 
@@ -380,7 +380,7 @@ def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):
      State('check_list', 'value')
      ])
 def update_graph_religion(n_clicks, start_date, end_date, list_of_parteien):    
-    grouped = select_data(start_date, end_date, list_of_parteien, dimension='BERUF')
+    grouped = select_data(start_date, end_date, list_of_parteien, dimension='BERUF_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_beruf, dimension='BERUF')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Beruf')}
