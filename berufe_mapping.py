@@ -22,46 +22,35 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
     df[column] = df[column].apply(lambda beruf: beruf.split(' / ')[0])
 
     # Dipl.-Kaufmann => Kaufmann, Dipl.-Ingenieur => Ingenieur usw
-    df[column] = df[column].str.replace('dipl.-', '')
-    df[column] = df[column].str.replace('diplom-', '')
-    df[column] = df[column].str.replace('diplom ', '')
-    df[column] = df[column].str.replace(' (fh)', '')
-    df[column] = df[column].str.replace(' (ba)', '')
-    df[column] = df[column].str.replace(' (b. a.)', '')
-    df[column] = df[column].str.replace(' (b.a.)', '')
-    df[column] = df[column].str.replace(' (mba)', '')
-    df[column] = df[column].str.replace(' (m. sc.)', '')
-    df[column] = df[column].str.replace(' (msc)', '')
+    df[column] = df[column].apply(lambda x: re.sub("dipl(om|\.*)", '', x))
+    
+    # Ingenieur (FH) => ingenieur
+    df[column] = df[column].apply(lambda x: re.sub('\(*f\.*h\.*\)*', '', x))
+    
+    # Polotologe BA => Politologe
+    df[column] = df[column].apply(lambda x: re.sub('\s\(*b\.*\s*a\.*\)*', '', x))
+    
+    # Philosoph M BA => 
+    df[column] = df[column].apply(lambda x: re.sub('\s\(*m\.*\s*b\.*a\.*\)*', '', x))
+    
+    # Msc M.Sc.
+    df[column] = df[column].apply(lambda x: re.sub('\s\(*m\.*\s*s\.*c\.*\)*', '', x))
 
-    df[column] = df[column].str.replace(' a. d.', '')
-    df[column] = df[column].str.replace(' i. r.', '')
+    # a.D. a.d. ad
+    df[column] = df[column].apply(lambda x: re.sub('\(*a\.*\s*d\.*\)*', '', x))
+    
+    # i.r.
+    # df[column] = df[column].apply(lambda x: re.sub('\(*i\.*\s*r\.*\)*', '', x))
     
     # ärztin => artz, anwältin => anwalt. sonst klappt fast immer: in => ''
-    df[column] = df[column].str.replace('ärztin', 'arzt')
-    df[column] = df[column].str.replace('anwältin', 'anwalt')
+    df[column] = df[column].str.replace('ärztin', 'arzt', regex=False)
+    df[column] = df[column].str.replace('anwältin', 'anwalt', regex=False)
+    df[column] = df[column].str.replace('frau', 'mann', regex=False) # e.g. kauffrau => kaufmann
+     
+    # letztes 'in' weglassen (ends with in)
+    df[column] = df[column].apply(lambda x: re.sub("in$", '', x))
     
-    # letztes 'in' weglassen wenn mindestens 3 andere Buchstaben vorher
-    df[column] = df[column].str.replace(r"\+{3,}in", '')
-    
+    df[column] = df[column].apply(lambda x: x.strip())
     return df 
 
 
-
-class Beruf:
-    def __init__(self, male='lehrer', female='lehrerin'):
-        self.male=male
-        self.female=female
-
-
-class Berufsklasse:
-    
-    def __init__(self, primary=Beruf('lehrer', 'lehrerin'), substitutes={Beruf('studienrat', 'studienrätin'), Beruf('oberstudienrat', 'oberstudienrätin')}):
-        self.primary=primary
-        self.substitutes=substitutes
-        
-    
-    def belongs_to(self, beruf=Beruf('grundschullehrer', 'grundschullehrerin')):
-        for substitute in self.substitutes:
-            if (another_beruf.male in substitute.male) or (substitute.male in another_beruf.male):
-                return True
-        return False
