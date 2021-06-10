@@ -16,8 +16,8 @@ import dash_table
 logging.getLogger().setLevel(logging.INFO)
 
 num_reloads = 0
-
-LIST_OF_COLORS = ['#ff0000', '#000000', '#ffcc00', '#0066ff',  '#008000', '#ffa500', '#0000ff', '#4b0082', '#ee82ee', '#999999']
+                   #rot SPD  # schwarz CDu #gelb FDP #blau CDU #grün grün #orange links #pink afd #lila sonstige
+LIST_OF_COLORS = ['#ff0000', '#000000', '#ffcc00', '#0066ff',  '#008000', '#ffa500', '#cc00cc', '#4b0082', '#ee82ee', '#999999']
 LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
 
 DATA_PATH = Path('./data')
@@ -49,8 +49,9 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 6) 
 list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 7)
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 10)
-
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 20)
+list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
+                            
 # append 'sonstige' to list of valid values
 for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
     list_of_values += ['sonstige']
@@ -133,33 +134,10 @@ controls = dbc.FormGroup(
         ),
         html.Br(),
         
+        #AAAAA
+
         
-        # checkbox list berufe
-       html.P('Berufe', style={
-            'textAlign': 'center'
-        }),
-        dbc.Card([dbc.Checklist(
-            id='check_list_berufe',
-            options=[{
-            'label': beruf,
-            'value': beruf
-                } for beruf in list_of_beruf],
-            value=[beruf for beruf in list_of_beruf],
-            # inline=True
-        )]),
-        
-        dbc.Button(
-            id='select_all_berufe',
-            n_clicks=0,
-            children='Select All',
-            color='primary',
-            block=True
-        ),
-        
-        
-        html.Br(),
-        
-        
+        #AAAA
         dbc.Button(
             id='submit_button',
             n_clicks=0,
@@ -167,6 +145,7 @@ controls = dbc.FormGroup(
             color='primary',
             block=True
         ),
+        
     ]
 )
 
@@ -207,8 +186,24 @@ content_second_row = dbc.Row(
     ]
 )
 
-"""
+
 content_third_row = dbc.Row(
+    [
+        dbc.Col(
+            dcc.Graph(id='alter'), md=6
+        ),
+        
+        #TODO replace by something else
+        dbc.Col(
+            dcc.Graph(id='platzhalter'), md=6
+        )
+
+    ]
+)
+
+
+
+content_fourth_row = dbc.Row(
     [
         dbc.Col(
             dcc.Graph(id='beruf'), md=12
@@ -216,9 +211,9 @@ content_third_row = dbc.Row(
 
     ]
 )
-"""
 
-content_fourth_row = dbc.Row(
+
+content_fifth_row = dbc.Row(
     [
         # dbc.Col(
         dash_table.DataTable(
@@ -245,8 +240,9 @@ content = html.Div(
         html.Hr(),
         content_first_row,
         content_second_row,
-        #content_third_row,
-        content_fourth_row
+        content_third_row,
+        content_fourth_row,
+        content_fifth_row
     ],
     style=CONTENT_STYLE
 )
@@ -272,21 +268,9 @@ def set_check_list_values(n_clicks, options, values):
         return []
     
 
-# click all berufe
-@app.callback(
-    Output('check_list_berufe', 'value'),
-    [Input('select_all_berufe', 'n_clicks')],
-    [State('check_list_berufe', 'options'),
-     State('check_list_berufe', 'value')])
-def set_check_list_values(n_clicks, options, values):
-    logging.info(f'N-CLICKS: {n_clicks}')
-    if n_clicks%2 == 0:
-        return [i['value'] for i in options]
-    else:
-        return []    
 
-
-def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT'): #selected_berufe
+# TODO Funktion selbst übergeben
+def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'): #selected_berufe
     # select wahlperiode
     selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
 
@@ -296,7 +280,13 @@ def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
     # select berufe
     #selected_df = selected_df[selected_df['BERUF_MAPPED'].isin(selected_berufe)]
    
-    grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
+    if modus=='count':
+        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
+    elif modus=='mean':
+        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).mean()
+    else:
+        logging.err(f'this modus is not known: {modus}')
+        return
     #grouped.reset_index(inplace=True)
     return grouped
 
@@ -334,9 +324,8 @@ def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GES
     [State('wp_start', 'value'),
      State('wp_end', 'value'),
      State('check_list_parteien', 'value')
-    #State('check_list_berufe', 'value')
      ])
-def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):#, selected_berufe):    
+def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
     grouped = select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
     traces = compute_traces(grouped, start_date, end_date, ['männlich', 'weiblich'], dimension='GESCHLECHT')
     
@@ -354,9 +343,8 @@ def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):#, se
     [State('wp_start', 'value'),
      State('wp_end', 'value'),
      State('check_list_parteien', 'value')
-    #State('check_list_berufe', 'value')
      ])
-def update_graph_party(n_clicks, start_date, end_date, selected_parteien):#, selected_berufe):    
+def update_graph_party(n_clicks, start_date, end_date, selected_parteien): 
 
     grouped = select_data(start_date, end_date,  selected_parteien, dimension='PARTEI_KURZ')
     traces = compute_traces(grouped, start_date, end_date, list_of_parteien, dimension='PARTEI_KURZ')
@@ -377,9 +365,8 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):#, sel
     [State('wp_start', 'value'),
      State('wp_end', 'value'),
      State('check_list_parteien', 'value')
-    #State('check_list_berufe', 'value')
      ])
-def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):#, selected_berufe):    
+def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
     
     grouped = select_data(start_date, end_date,  selected_parteien, dimension='RELIGION_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_religion, dimension='RELIGION_MAPPED')
@@ -395,9 +382,8 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):#, 
     [State('wp_start', 'value'),
      State('wp_end', 'value'),
      State('check_list_parteien', 'value')
-   # State('check_list_berufe', 'value')
      ])
-def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):#, selected_berufe):    
+def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
     grouped = select_data(start_date, end_date,  selected_parteien, dimension='FAMILIENSTAND_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_familienstand, dimension='FAMILIENSTAND_MAPPED')
     fig = {'data': traces,
@@ -406,8 +392,26 @@ def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteie
 
 
 
+# alter
+@app.callback(
+    Output('alter', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list_parteien', 'value')
+     ])
+def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
+    grouped = select_data(start_date, end_date,  selected_parteien, dimension='START_AGE_IN_YEARS_MAPPED')
+    traces = compute_traces(grouped, start_date, end_date, values_to_keep=list_of_altersklassen, dimension='START_AGE_IN_YEARS_MAPPED')
+    fig = {'data': traces,
+        'layout': go.Layout(title = 'Alter')}
+    return fig
+
+
+
+
 #beruf
-"""
+
 @app.callback(
     Output('beruf', 'figure'),
     [Input('submit_button', 'n_clicks')],
@@ -423,7 +427,7 @@ def update_graph_beruf(n_clicks, start_date, end_date, selected_parteien):#, sel
     fig = {'data': traces,
         'layout': go.Layout(title = 'Beruf')}
     return fig
-"""
+
 
 
 
