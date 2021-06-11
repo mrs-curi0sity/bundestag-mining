@@ -1,5 +1,4 @@
 import pandas as pd
-from pathlib import Path
 from datetime import datetime
 import logging
 import random
@@ -11,56 +10,19 @@ import dash_html_components as html
 from plotly import graph_objs as go
 from dash.dependencies import Input, Output, State
 import dash_table
+import plotly.express as px
+
+from src.berufe_mapping import basic_cleaning_berufe
+from src.visualization import select_vis_data, compute_traces
+from src.config import LIST_OF_COLORS, df_mdb, df_mdb_wp, MAX_WP, WP_START, PAGE_SIZE, COLUMNS_FOR_DISPLAY, list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf, list_of_altersklassen
 
 # set loglevel to INFO. could also be DEBUG or WARNING or ERROR
 logging.getLogger().setLevel(logging.INFO)
 
 num_reloads = 0
-                   #rot SPD  # schwarz CDu #gelb FDP #blau CDU #grün grün #orange links #pink afd #lila sonstige
-LIST_OF_COLORS = ['#ff0000', '#000000', '#ffcc00', '#0066ff',  '#008000', '#ffa500', '#cc00cc', '#4b0082', '#ee82ee', '#999999']
-LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
 
-DATA_PATH = Path('./data')
-DF_MDB_PATH = DATA_PATH / 'df_mdb.csv'
-DF_MDB_WP_PATH = DATA_PATH / 'df_mdb_wp.csv'
-df_mdb = pd.read_csv(DF_MDB_PATH)
-df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
+logging.info('columns : ' + df_mdb_wp.columns)
 
-
-MAX_WP = df_mdb_wp.WP.max()
-WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021]
-
-
-def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
-    """
-    keep num_keep most occurences, replace other values by "sonstige"
-    """
-    
-    # e.g. 'CDU', 'SPD'
-    values_to_keep = list(df_mdb_wp[['ID', dimension]].groupby(dimension).count().sort_values(by='ID', ascending=False)[:num_keep].index)
-    values_to_discard = list(df_mdb[['ID', dimension]].groupby(dimension).count().sort_values(by='ID', ascending=False)[num_keep:].index)
-    
-    logging.info(f'[{dimension}]. keeping {values_to_keep}. replacing {values_to_discard[:3]} ... with <sonstige>')
-    df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
-    df_mdb_wp[dimension].replace(values_to_discard, 'sonstige', inplace=True)
-    
-    return values_to_keep, values_to_discard, df_mdb, df_mdb_wp
-
-list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
-list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 6) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 7)
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 20)
-list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
-                            
-# append 'sonstige' to list of valid values
-for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
-    list_of_values += ['sonstige']
-
-# display List 
-PAGE_SIZE = 8
-COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ'] #'GESCHLECHT'
-    
-    
 
 # ----------------- style. TODO => move to assets
 # the style arguments for the sidebar.
@@ -134,10 +96,6 @@ controls = dbc.FormGroup(
         ),
         html.Br(),
         
-        #AAAAA
-
-        
-        #AAAA
         dbc.Button(
             id='submit_button',
             n_clicks=0,
@@ -192,10 +150,9 @@ content_third_row = dbc.Row(
         dbc.Col(
             dcc.Graph(id='alter'), md=6
         ),
-        
-        #TODO replace by something else
+
         dbc.Col(
-            dcc.Graph(id='platzhalter'), md=6
+            dcc.Graph(id='num_years_in_bt'), md=6
         )
 
     ]
@@ -247,6 +204,7 @@ content = html.Div(
     style=CONTENT_STYLE
 )
 
+    
 
 # --------------------- app
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -268,53 +226,6 @@ def set_check_list_values(n_clicks, options, values):
         return []
     
 
-
-# TODO Funktion selbst übergeben
-def select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'): #selected_berufe
-    # select wahlperiode
-    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
-
-    # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-   
-    # select berufe
-    #selected_df = selected_df[selected_df['BERUF_MAPPED'].isin(selected_berufe)]
-   
-    if modus=='count':
-        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
-    elif modus=='mean':
-        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).mean()
-    else:
-        logging.err(f'this modus is not known: {modus}')
-        return
-    #grouped.reset_index(inplace=True)
-    return grouped
-
-
-def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GESCHLECHT'):
-    # only selecte non-empty WPs which is important e.g. for PDS or AFD
-    #wps = sorted(list(set([WP_START[wp-1] for wp in grouped.WP])))
-    #dim_values = list(set(grouped[dimension])) # e.g. ['männlich', 'weiblich']
-    traces_values = []
-    
-    levels = [values_to_keep, range(start_date, end_date+1)]
-    new_index = pd.MultiIndex.from_product(levels, names=[dimension, 'WP'])
-    # create entries also for 0 values
-    grouped = grouped.reindex(new_index, fill_value=0)
-    grouped.reset_index(inplace=True)
-    wps = sorted(list(set(grouped.WP)))
-    years = [str(WP_START[wp]) for wp in wps]
-
-    for value in values_to_keep:
-        trace = grouped[grouped[dimension] == value].sort_values(by='WP').ID.values
-        traces_values.append(trace)
-    
-    traces = [go.Bar(x=years, y=trace, xaxis='x2', yaxis='y2',
-                marker=dict(color=color), #'#0099ff'),
-                name=f'{value}') for trace, value, color in zip(traces_values, values_to_keep, LIST_OF_COLORS[:len(values_to_keep)])]
-    
-    return traces
-
     
     
 # gender
@@ -326,7 +237,7 @@ def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GES
      State('check_list_parteien', 'value')
      ])
 def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='GESCHLECHT')
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT')
     traces = compute_traces(grouped, start_date, end_date, ['männlich', 'weiblich'], dimension='GESCHLECHT')
     
     fig = {'data': traces,
@@ -346,7 +257,7 @@ def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
      ])
 def update_graph_party(n_clicks, start_date, end_date, selected_parteien): 
 
-    grouped = select_data(start_date, end_date,  selected_parteien, dimension='PARTEI_KURZ')
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date,  selected_parteien, dimension='PARTEI_KURZ')
     traces = compute_traces(grouped, start_date, end_date, list_of_parteien, dimension='PARTEI_KURZ')
     
     fig = {'data': traces,
@@ -368,7 +279,7 @@ def update_graph_party(n_clicks, start_date, end_date, selected_parteien):
      ])
 def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
     
-    grouped = select_data(start_date, end_date,  selected_parteien, dimension='RELIGION_MAPPED')
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date,  selected_parteien, dimension='RELIGION_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_religion, dimension='RELIGION_MAPPED')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Religion')}
@@ -384,7 +295,7 @@ def update_graph_religion(n_clicks, start_date, end_date, selected_parteien):
      State('check_list_parteien', 'value')
      ])
 def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
-    grouped = select_data(start_date, end_date,  selected_parteien, dimension='FAMILIENSTAND_MAPPED')
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date,  selected_parteien, dimension='FAMILIENSTAND_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_familienstand, dimension='FAMILIENSTAND_MAPPED')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Familienstand')}
@@ -401,13 +312,29 @@ def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteie
      State('check_list_parteien', 'value')
      ])
 def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
-    grouped = select_data(start_date, end_date,  selected_parteien, dimension='START_AGE_IN_YEARS_MAPPED')
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date,  selected_parteien, dimension='START_AGE_IN_YEARS_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, values_to_keep=list_of_altersklassen, dimension='START_AGE_IN_YEARS_MAPPED')
     fig = {'data': traces,
         'layout': go.Layout(title = 'Alter')}
     return fig
 
 
+#num_years_in_bp
+@app.callback(
+    Output('num_years_in_bt', 'figure'),
+    [Input('submit_button', 'n_clicks')],
+    [State('wp_start', 'value'),
+     State('wp_end', 'value'),
+     State('check_list_parteien', 'value')
+     ])
+def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
+    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= 1) & (df_mdb_wp['WP']<= 19)]
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    grouped = selected_df[['ID', 'WP', 'NUM_YEARS_IN_BT']].groupby(['WP']).mean()
+    fig = px.scatter(x=grouped['NUM_YEARS_IN_BT'].index, y= grouped['NUM_YEARS_IN_BT'])#x=[1, 2, 3], y=[4, 1, 2])])
+    #fig = {'data': traces,
+    #    'layout': go.Layout(title = 'Anzahl Jahre im BT')}
+    return fig
 
 
 #beruf
@@ -418,12 +345,11 @@ def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteie
     [State('wp_start', 'value'),
      State('wp_end', 'value'),
      State('check_list_parteien', 'value')
-    # State('check_list_berufe', 'value')
      ])
-def update_graph_beruf(n_clicks, start_date, end_date, selected_parteien):#, selected_berufe):    
-    grouped = select_data(start_date, end_date, selected_parteien, dimension='BERUF_MAPPED')
+def update_graph_beruf(n_clicks, start_date, end_date, selected_parteien):  
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='BERUF_MAPPED')
     traces = compute_traces(grouped, start_date, end_date, list_of_beruf, dimension='BERUF')
-    #fig = go.Figure(data=[go.Scatter(traces)])#x=[1, 2, 3], y=[4, 1, 2])])
+
     fig = {'data': traces,
         'layout': go.Layout(title = 'Beruf')}
     return fig
@@ -440,7 +366,6 @@ def update_graph_beruf(n_clicks, start_date, end_date, selected_parteien):#, sel
     [State('wp_start', 'value'),
      State('wp_end', 'value'), 
      State('check_list_parteien', 'value'),
-    #State('check_list_berufe', 'value')
      ])
 def update_feedback_records(n_clicks, page_current, page_size, start_date, end_date, selected_parteien):#, selected_berufe):
     
@@ -449,9 +374,7 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
     
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates().sort_values(by='NACHNAME')#VEROEFFENTLICHUNGSPFLICHTIGES
-    
-    # select berufe
-    #selected_df = selected_df[selected_df['BERUF_MAPPED'].isin(selected_berufe)]
+
     
     logging.info(f'selected {selected_df.shape} many entries')
     
