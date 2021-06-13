@@ -241,7 +241,7 @@ def update_graph_gender(n_clicks, start_date, end_date, selected_parteien):
     traces = compute_traces(grouped, start_date, end_date, ['männlich', 'weiblich'], dimension='GESCHLECHT')
     
     fig = {'data': traces,
-        'layout': go.Layout(title = 'Gender')}
+        'layout': go.Layout(title = 'Geschlecht')}
     
     return fig
 
