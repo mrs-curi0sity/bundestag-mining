@@ -7,6 +7,8 @@ ENV PATH="VIRTUAL_ENV/bin:$PATH"
 
 # add necessary data files to docker container
 COPY requirements.txt /myworkdir/requirements.txt 
+COPY setup.py /myworkdir/setup.py
+COPY ./src /myworkdir/src
 COPY ./dashboard /myworkdir/dashboard
 COPY ./data/df_mdb_wp.csv /myworkdir/data/df_mdb_wp.csv
 COPY ./data/df_mdb.csv /myworkdir/data/df_mdb.csv
@@ -15,6 +17,7 @@ WORKDIR /myworkdir
 
 # Install dependencies
 RUN pip install -r requirements.txt
+RUN python3 setup.py install
 
 # Expose port 
 EXPOSE 8050
