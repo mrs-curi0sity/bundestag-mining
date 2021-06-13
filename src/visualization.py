@@ -10,10 +10,7 @@ def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimensio
 
     # selct partei
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-   
-    # select berufe
-    #selected_df = selected_df[selected_df['BERUF_MAPPED'].isin(selected_berufe)]
-   
+
     if modus=='count':
         grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
     elif modus=='mean':
