@@ -330,10 +330,24 @@ def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteie
 def update_graph_familienstand(n_clicks, start_date, end_date,  selected_parteien):
     selected_df = df_mdb_wp[(df_mdb_wp['WP']>= 1) & (df_mdb_wp['WP']<= 19)]
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-    grouped = selected_df[['ID', 'WP', 'NUM_YEARS_IN_BT']].groupby(['WP']).mean()
-    fig = px.scatter(x=grouped['NUM_YEARS_IN_BT'].index, y= grouped['NUM_YEARS_IN_BT'])#x=[1, 2, 3], y=[4, 1, 2])])
-    #fig = {'data': traces,
-    #    'layout': go.Layout(title = 'Anzahl Jahre im BT')}
+    grouped = selected_df[['ID', 'START_DATE', 'NUM_YEARS_IN_BT', 'PARTEI_KURZ']].groupby(['START_DATE', 'PARTEI_KURZ']).mean()
+    #grouped.reset_index(inplace=True)
+    
+    # make double index: START_DATE, PARTEI_KURZ and fill with zeros
+    new_index = pd.MultiIndex.from_product([grouped.index.levels[0], grouped.index.levels[1]], names=['START_DATE', 'PARTEI_KURZ'])
+    grouped_reindexed = grouped.reindex(new_index, fill_value=0)
+    grouped_reindexed.reset_index(inplace=True)
+    
+    # make it orderable in order guarantee order of legend / order of colors 
+    grouped_reindexed['PARTEI_KURZ'] = pd.Categorical(grouped_reindexed['PARTEI_KURZ'], selected_parteien)
+    grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_KURZ'], inplace=True)
+  
+    
+    #fig = px.scatter(x=grouped['NUM_YEARS_IN_BT'].index, y= grouped['NUM_YEARS_IN_BT'])
+    fig = go.Figure(data=px.line(grouped_reindexed, x='START_DATE', y= 'NUM_YEARS_IN_BT', color='PARTEI_KURZ', color_discrete_sequence=LIST_OF_COLORS))
+    fig.update_layout(title='Bleibedauer der Abgeordneten im Bundestag',
+                   xaxis_title='',
+                   yaxis_title='Jahre im BT bei Beginn der WP')
     return fig
 
 
