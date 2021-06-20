@@ -1,0 +1,127 @@
+<!-- wp:paragraph -->
+<p>Wie passt folgendes zusammen: einerseits betonen nahezu alle Parteien im Bundestag regelmäßig ihr Streben nach Diversität und der Einbeziehung von Minderheiten. Andererseits geht es vermutlich nicht nur mir so, dass die Bundestagsabgeordneten, die mir spontan namentlich einfallen, nahezu ausnahmslos männlich, weiß, um die 50 und christlich sind. Nicht, dass mich das besonders stören würde. Siehe meinen letzten Eintrag über "Frauen in der IT". Ich bin weder für eine Frauenquote noch glaube ich, dass sich andere Eigenschaften wie Religion, Alter oder kulturelle Herkunft statistisch fair bei einem Arbeitgeber widerspiegeln müssen. Dennoch ist der Bundestag in meiner Wahrnehmung ein Ort, bei dem die Diskrepanz zwischen "wir wollen die Gesellschaft mit all ihrer Vielseitigkeit abbilden (und vertreten)" und "eigentlich sind das alles die gleichen anzugtragenden Typen" maximal ist. Dazu kommt das Gefühl, dass vor allem die Ausbildung der Bundestagsabgeordneten ziemlich uniform zu sein scheint. Ab einem gewissen Punkt habe ich es mir so gar zum Hobby gemacht, beim Auftauchen der Namen von Abgeordneten spontan zu googlen, mit welchem Hintergrund diese Personen eigentlich in den Job als Abgeordneter gehen. Jens Spahn? Bankkaufmann. Horst Seehofer? Verwaltungswirt. Olaf Scholz? Rechtsanwalt. Heiko Maas? auch Jurist ...</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Kann es denn wirklich so "schlimm" sein, dass wir vorwiegend von BWLern und Juristen vertreten werden? Das würde ja das allgemeine Gefühl der Entfremdung von Parlament und Bevölkerung erklären; wenn im Bundestag überwiegend Menschen sitzen, die auch im "Leben davor" im Wesentlichen im Bürokontexten tätig waren, dann ist es schwer, für einen Krankenschwester oder einen Busfahrer, jemanden zu finden, mit dem man sich allein schon aufgrund des gemeinsamen Milieus bzw. der Alltagserfahrungen identifizieren kann.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Als Data Scientist bzw Machine Learning Engineer liegt es mir natürlich fern, alleine aufgrund einer Handvoll Stichproben ein Urteil über eine Gesamtmenge von mehreren Tausend Leuten zu fällen (bezieht man die Historie der vergangenen Legislaturperioden mit ein). Kurz: eine systematische Auswertung musste her. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Dankenswerterweise gibt es eine kostenfrei und öffentlich zugängliche Datenquelle, für alle Bundestagsabgeordneten mit ihren Eckdaten (Geburtsdatum und -Ort, Beruf, Religion, Geschlecht). Also: flott herunter geladen und ausgewertet!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Ok, die Datenquelle ist kein .csv, .json oder ein ähnliches einem Data Scientisten geläufiges Format sondern XML. Hmpf. Na gut. Also 10 Minuten StackOverflow bemühen und  eine Stunde mit xml.etree.ElementTree herumschlagen, bis man ein vernünftiges DataFrame hat. Das sieht dann so aus:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":35,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.10.27-1024x180.png" alt="" class="wp-image-35"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Super. Damit kann man arbeiten. Wie viele Einträge sind da drin? Über 4.000? Das hat mich persönlich erstmal gewundert; ist aber durchaus plausibel. Bei  19 Wahlperioden (musst ich natürlich googlen) und gefühlten 800 Sitzen könnten sogar weit mehr Abgeorndete zusammen kommen. Jetzt schon drängen sich zwei weitere Überlegungen auf:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol><li>Man hört doch immer wieder, dass der Bundestag wegen Überhangmandaten und Ausgleichmandaten immer größer wird. Wie groß ist dieser Effekt eigentlich?</li></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":36,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.24.37-1024x758.png" alt="" class="wp-image-36"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Antwort: er ist ziemlich Massiv. Kamen wir die ersten 10 Wahlperioden noch mit gut 500 Abgeordneten aus, sind es aktuell schon über 700.  Kann das sein? Ja, Google bestätigt mir: Deutschland hat nach China das zweitgrößte Parlament der Welt. Mannmannmann.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Hier sei mir die Bemerkung erlaubt: alle hier dargestellten Grafiken kommen, sofern nicht anders gekennzeichnet von mir. D.h. ich habe die Daten von der Seite des Bundestages nach bestem Wissen und Gewissen in Grafiken gefasst. Vom Indexfehler bis hin zu "Sonderfällen in den Daten" (Beispiel: ein Abgeorndeter stirbt während seiner Amtszeit und wird durch einen anderen ersetzt - in dem Fall würde er in meiner Grafik zwei mal auftauchen, weil es sich um zwei verschiedene Menschen im Parlament handelt) können hier verschiedene Gründe auftauchen, warum die Daten nicht 100% mit denen anderen Quellen übereinstimmen. Das ist nur ein Hobbyblog und keine Doktorarbeit ;)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>2. Gut, kommen wir zum zweiten offensichtlichen Effekt: Natürlich sind die meisten Abgeordneten nicht nur für eine Legislaturperiode im Amt, sondern die meisten bleiben zwei oder drei Wahlperioden. So stell ich mir das zumindest vor. Ich habe hier mal die Anzahl der Jahre geplottet, die ein Abgeordnerter durchschnittlich schon Abgeordneter war, *bevor* er in einer Wahlperiode seinen Sitz erhalten hat. Verblüffend:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":38,"width":676,"height":460,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large is-resized"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.33.59-1024x697.png" alt="" class="wp-image-38" width="676" height="460"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Sind die abgeordneten der großen Parteien tatsächlich im Schnitt schon 8 bis 10 Jahre im Amt *bevor* die Legislaturperiode beginnt? Das hieße ja, dass eine Verbleibedauer im Bundestag von 15 Jahren üblich und von 20 Jahren zumindest noch denkbar ist. Für jemanden, der in einem Bereich arbeitet, in dem generell die ungeschriebene Regel gilt, dass man alle ca 5 Jahre die Firma wechseln sollte, um sich fachlich und technologisch weiterzuentwickeln ist das zumindest unerwartet. Das bestätigt aber (leider) auch das Bild des Berufspolitikers, der nach Ausbilung / Studium nur wenig Berufserfahrung sammelt, um dann den Hauptteil seiner beruflichen Tätigkeit im Bundestag zu verbringen. Da fehlt rein logisch schon die Erfahrung und die Perspektiven eines "Arbeiters", der schon Lebens- und Berufserfahrung außerhalb des Parlamentes gesammelt hat - sei es am Fließband oder in einem IT Unternehmen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Aber sehen wir uns mal ganz statistisch die Verteilung des Alters bei Amtseintritt an:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":39,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.46.28.png" alt="" class="wp-image-39"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Ok. Wie erwartet: halbwegs normalverteilt mit einem Peak um die 50. Aber wie ist die Entwicklung über die Zeit? Werden die Abgeordneten tendenziell älter oder jünger? Diversifiziert sich die Verteilung oder wird sie homogener? Zur Beantwortung dieser Frage habe ich die Daten nach den beiden naheliegenden Merkmalen (Wahlperiode und Alter - in Buckets von zehnerschritten) gruppiert. Hier das Ergebnis:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.49.22-1024x683.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Ein Effekt sticht sofort ins Auge: während in den 50ern noch verhltnismäßig viele "junge" (unter 40) und "alte" (über 70) Abgeordnete im BT saßen, haben um die 2000er klar die 40 bis 60 jährigen dominiert. Dabei gab es in den 1980ern zunächst eine Welle von 40 bis 50 Jährigen, die sich dann in Richtung der 50 bis 60 Jährigen verschoben hat. Vermutlich teilweise auch durch Abgeordnete, die geblieben, aber älter geworden sind.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Lässt man mal den Mittelbau der 40 bis 60 Jährigen weg und betrachtet die Ränder, so sieht man, dass es  in der frühen Zeit der Bundesrepublik relativ viele über 70 Jährige gab, während in den 1980er Jahren zunehmend junge Leute in den Bundestag gekommen sind. Leider hat der Effekt nicht angehalten; inzwischen sind wieder fast so viele über 70er im Bundestag, wie Menschen unter 40. Auch dieser Effekt trägt vermutlich nicht unbedingt dazu bei, dass sich das junge Wähler im Bundestag vertreten fühlt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":44,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.53.32-1024x632.png" alt="" class="wp-image-44"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Ok, aber Ausgangspuntk war ja eigentlich die Diversität des Parlaments in Dingen wie Religion und Geschlecht. Es lässt sich ganz deutlich ein Trend hin zur höheren Geschlechterbalance im Bundestag feststellen:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":46,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.57.50-1024x650.png" alt="" class="wp-image-46"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Lag das Verhältnis in den ersten Wahlperioden noch bei grob 1:10, machen inzwischen die weiblichen Abgeordneten schon ca 1/3 der Abgeordneten aus. Wobei es hier erhebliche Unteschiede zwischen den Parteien gibt: Während die SPD tatsächlich der von ihr angestrebten 50% Quote sehr nahe kommt, (links), scheint sich die CDU eher im Bereich von 20% einzupendeln (rechts).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:gallery {"ids":[47,48],"linkTo":"none"} -->
+<figure class="wp-block-gallery columns-2 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.00.56-1024x666.png" alt="" data-id="47" data-full-url="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.00.56.png" data-link="http://yourcupofdata.com/?attachment_id=47" class="wp-image-47"/></figure></li><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.01.27-1024x644.png" alt="" data-id="48" data-full-url="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.01.27.png" data-link="http://yourcupofdata.com/?attachment_id=48" class="wp-image-48"/></figure></li></ul></figure>
+<!-- /wp:gallery -->
+
+<!-- wp:paragraph -->
+<p>Ich schreibe das nicht wertend (ich bin wie erwähnt kein Fan der Frauenquote), sondern rein beschreibend.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Spätestens diesem Punkt muss ich vor mir selbst zugeben, dass ich nicht nur "zwei, drei deskriptive Plots" erstellen will, sondern längt an einem Punkt bin, einen kompletten <strong>Bundestags-Report-Generator</strong> zu schreiben.</p>
+<!-- /wp:paragraph -->
