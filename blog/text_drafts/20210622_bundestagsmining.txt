@@ -1,0 +1,439 @@
+<!-- wp:paragraph -->
+<p>Wie passt folgendes zusammen: einerseits betonen nahezu alle Parteien im Bundestag regelmäßig ihr Streben nach Diversität und der Einbeziehung von Minderheiten. Andererseits geht es vermutlich nicht nur mir so, dass die Bundestagsabgeordneten, die mir spontan namentlich einfallen, nahezu ausnahmslos männlich, weiß, verheiratet um die 50 und christlich sind. Noch dazu assoziiere ich die meisten Abgeordneten mit einem beruflichen Kontext, der tendenziell akadameisch ist und sich im Bürokontext abspielt. Ich stelle mir vor, dass die meisten im Bundestag sitzenden "von Haus aus" Juristen oder BWLer sind und sich wenige Handwerker oder Supermarktkassiererinnen hier wieder finden. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Nicht, dass mich das per se stören würde. Siehe meinen letzten Eintrag über "<a href="http://yourcupofdata.com/uncategorized/wie-ist-das-so-fuer-dich-als-frau-in-der-it/" data-type="URL" data-id="http://yourcupofdata.com/uncategorized/wie-ist-das-so-fuer-dich-als-frau-in-der-it/">Frauen in der IT</a>". Ich bin weder für eine Frauenquote, noch glaube ich, dass sich andere Eigenschaften wie Religion, Alter oder kulturelle Herkunft statistisch fair bei einem Arbeitgeber widerspiegeln müssen. Dennoch ist der Bundestag in meiner Wahrnehmung ein Ort, bei dem die Diskrepanz zwischen "wir wollen die Gesellschaft mit all ihrer Vielseitigkeit abbilden (und vertreten!)" und "eigentlich sind das alles die gleichen, männlichen, gebildeten anzugtragenden Typen aus der Mittel- und Oberschicht" maximal ist. Dazu kommt das Gefühl, dass vor allem die Ausbildung der Bundestagsabgeordneten ziemlich uniform zu sein scheint. Mir fällt beim besten Willen kein Abgeordneter ein, der z.B. als ehemaliger Agrarwirt oder als frühere Kindergärtnerin nicht aus dem akademischen Kontext stammt. Ab einem gewissen Punkt habe ich es mir so gar zum Hobby gemacht, beim Auftauchen der Namen von Abgeordneten in Nachrichten spontan zu googlen, welchen beruflichen Hintergrund die Menschen mitbringen, die die gesamte deutsche Bevölkerung im Bundestag vertreten sollen. Jens Spahn? Bankkaufmann. Horst Seehofer? Verwaltungswirt. Olaf Scholz? Jurist. Heiko Maas? auch Jurist. Peter Altmaier ... ja, tatsächlich: auch ein Jurist.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Kann es denn wirklich so "schlimm" sein, dass wir vorwiegend von BWLern und Juristen vertreten werden? Immerhin sind das zwar Berufstypen, die zwar hohe intellektuelle Anforderungen an einen Menschen stellen, aber nicht gerade den Ruf haben "mitten im Leben zu stehen". Das würde ja das allgemeine Gefühl der Entfremdung von Parlament und Bevölkerung erklären; wenn im Bundestag überwiegend Menschen sitzen, die auch im "Leben davor" im Wesentlichen im akademischen- und Bürokontexten tätig waren, dann ist es schwer, für einen Bauarbeiter, eine Krankenschwester oder einen Busfahrer, jemanden zu finden, mit dem man sich allein schon aufgrund des gemeinsamen Milieus bzw. der Alltagserfahrungen identifizieren kann.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Als Data Scientist bzw. Machine Learning Engineer liegt es mir natürlich fern, alleine aufgrund einer Handvoll Stichproben ein (Vor-)Urteil über so eine große Gruppe von Menschen zu manifestieren. Bezieht man die Historie der vergangenen Legislaturperioden mit ein handelt es sich immerhin um mehrere tausend Abgeordnete, die man nicht anhand einer Handvoll Beispiele über einen Kamm scheren sollte. Kurz: für mein persönliches Verständnis er Lage musste eine systematische Auswertung her.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Die Leitfrage: Inwiefern spiegeln die Abgeordneten im Bundestag die Vielfalt der Bevölkgerung wieder, die sie vertreten sollen?</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Dankenswerterweise gibt es eine kostenfrei und öffentlich zugängliche <a href="https://www.bundestag.de/services/opendata" data-type="URL" data-id="https://www.bundestag.de/services/opendata">Datenquelle</a>, die alle Bundestagsabgerodneten samt Eckdaten beeinhaltet (Geburtsdatum und -Ort, Beruf, Religion, Geschlecht usw.). Wie erfreulich. Ich hatte befürchtet, ich müsste Wikipedia cralwn und parsen ;)  Also: flott die Datei herunter geladen und ausgewertet!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Ok, die Datenquelle ist kein .csv, .json oder ein ähnliches einem Data Scientisten geläufiges Format sondern XML. Hmpf. Na gut. Also 10 Minuten StackOverflow bemühen und  eine Stunde mit <a href="https://docs.python.org/3/library/xml.etree.elementtree.html" data-type="URL" data-id="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a> herumschlagen, bis man ein vernünftiges DataFrame hat. Das sieht dann so aus:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":35,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.10.27-1024x180.png" alt="" class="wp-image-35"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Super. Damit kann man arbeiten. Wie viele Einträge sind da drin? Über 4.000? Das hat mich persönlich erstmal gewundert; ist aber durchaus plausibel. Bei  19 Wahlperioden und gefühlten 800 Sitzen könnten sogar weit mehr Abgeorndete zusammen kommen. Jetzt schon drängen sich zwei weitere Überlegungen auf:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol><li>Man hört doch immer wieder, dass der Bundestag wegen Überhangmandaten und Ausgleichmandaten immer größer wird. Wie groß ist dieser Effekt eigentlich?</li></ol>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":36,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.24.37-1024x758.png" alt="" class="wp-image-36"/><figcaption>Anzahl der Abgeordneten pro Wahlperiode. Eigene Darstellung nach Daten von https://www.bundestag.de/services/opendata</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Antwort: er ist ziemlich massiv. Kamen wir die ersten 10 Wahlperioden noch mit gut 500 Abgeordneten aus, sind es aktuell schon über 700.  Kann das sein? Ja, Google bestätigt mir: Deutschland hat nach China das zweitgrößte Parlament der Welt. Dafür sind wir denn auch weltweit berühmt für die Kosten, die Zähigkeit, mit denen Beschlüsse durchgebracht werden und die damit verbundene Bürokratie. Mannmannmann.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Erkenntnis: Die Anzahl der Abgeordneten im deutschen Bundestag ist in den letzten Jahrzehnten massiv gewachsen.</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Hier sei mir die Bemerkung erlaubt: alle hier dargestellten Grafiken kommen, sofern nicht anders gekennzeichnet von mir. D.h. ich habe die Daten<a href="https://www.bundestag.de/services/opendata" data-type="URL" data-id="https://www.bundestag.de/services/opendata"> von der Seite des Bundestages</a> nach bestem Wissen und Gewissen in Grafiken gefasst. Vom Indexfehler bis hin zu "Sonderfällen in den Daten" (Beispiel: ein Abgeorndeter stirbt während seiner Amtszeit und wird durch einen anderen ersetzt - in dem Fall würde er in meiner Grafik zwei Mal auftauchen, weil es sich um zwei verschiedene Menschen im Parlament handelt) können hier verschiedene Gründe auftauchen, warum die Daten nicht 100% mit denen anderen Quellen übereinstimmen. Das hier ist immerhin nur ein Hobbyblog und keine Doktorarbeit ;)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>2. Gut, kommen wir zum zweiten offensichtlichen Effekt: Natürlich sind die meisten Abgeordneten nicht nur für eine Legislaturperiode im Amt, sondern die bleiben zwei oder drei Wahlperioden. So stell ich mir das zumindest vor. Ich habe hier mal die Anzahl der Jahre geplottet, die ein Abgeordnerter durchschnittlich schon Abgeordneter war, <strong>bevor</strong> er in einer Wahlperiode seinen Sitz erhalten hat. Mit verblüffenden Ergebnissen:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":38,"width":676,"height":460,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large is-resized"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.33.59-1024x697.png" alt="" class="wp-image-38" width="676" height="460"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Sind die abgeordneten der großen Parteien tatsächlich im Schnitt schon 8 bis 10 Jahre im Amt <strong>bevor</strong> die jeweilige Legislaturperiode beginnt? Das hieße ja, dass eine Verbleibedauer im Bundestag von 15 Jahren üblich und von 20 Jahren zumindest noch denkbar ist. Für jemanden, der in einem Bereich arbeitet, in dem generell die ungeschriebene Regel gilt, dass man alle ca 5 Jahre die Firma wechseln sollte, um sich fachlich, technologisch und auch menschlich weiterzuentwickeln, ist das zumindest unerwartet. Jeder weiß, dass man nach einer langen Zeit in der selben Firma gegenüber Problemen und immer wieder auftauchenden Schwachstellen im Workflow abstumpft und betriebsblind wird. Deshalb ist es sowohl für eine Firma wichtig, regelmäßig junge (oder zumindest: neue) Leute zu rekrutieren, aber auch einem Mitarbeiter tut es gut, durch einen Wechsel der Firma mal einen Perspektivwechsel zu erfahren. Hier scheint aber genau das nicht der Fall zu sein. Wenn ein Abgeordneter 20 Jahre oder mehr im Parlament sitzt, kann man davon ausgehen, dass er nicht mehr die geistige Flexibilität hat, Prozesse, Kommunikationswege oder ungeschriebene Gesetzmäßigkeiten zu hinterfragen, oder mit einem frischen Blick aus einer anderen beruflichen Perspektive die Arbeit im Bundestag "neu zu denken". </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Am stärksten ist der Effekt wie erwartet bei der konservativen CSU. Hier kann man durchaus damit rechnen, 3 oder 4 Wahlperioden in Folge im Amt zu sein. Doch auch die SPD, die CDU und die FDP stehen dem nicht in viel nach. Überraschend war für mich vor allem, dass die Kurven der Grünen und der Linken ähnlich steil ansteigen, wie die der "alten" Parteien in der Mitte des 20. Jahrhunderts. Heißt für mich: auch die "hippen" / jungen / unkonventionellen machen es sich nach dem langen Gang duch die Institutionen gerne genau so lange im sicheren und gut bezahlten Hafen des Bundestages bequem, wie die Altparteien.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Erkenntnis: nach einer Startphase von ca 30 Jahren landen alle Parteien (auch die Gründen und die Linken) gleichermaßen in einem Zustand, bei dem die Abgeordneten schon bei Beginn einer Wahlperiode im Schnitt bereits 2 bis 3 Wahlperioden im Amt waren</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p> Das bestätigt aber (leider) auch das Bild des Berufspolitikers, der nach Ausbilung / Studium nur wenig Berufserfahrung sammelt, um dann den Hauptteil seiner beruflichen Tätigkeit im Bundestag zu verbringen. Da fehlt rein biographisch schon die Erfahrung und die Perspektiven eines "Arbeiters", der schon vielfältige Lebens- und Berufserfahrung außerhalb des Parlamentes gesammelt und sich (zumindest sprichwörtlich) "die Hände schmutzig gemacht" hat - sei es am Fließband oder als Softwareentwickler.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Aber sehen wir uns mal ganz statistisch die Verteilung des Alters bei Amtseintritt an:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":39,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.46.28.png" alt="" class="wp-image-39"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Ok. Wie erwartet: halbwegs normalverteilt mit einem Peak um die 50. Also doch alt genug, um schon  ein paar Jahre relevante Berufserfahrung bei Amtseintritt gesammelt zu haben. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Aber wie ist die Entwicklung über die Zeit? Werden die Abgeordneten tendenziell älter oder jünger? Diversifiziert sich die Verteilung oder wird sie homogener? Zur Beantwortung dieser Frage habe ich die Daten nach den beiden naheliegenden Merkmalen (Wahlperiode und Alter - in Buckets von Zehnerschritten) gruppiert. Hier das Ergebnis:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":41,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.49.22-1024x683.png" alt="" class="wp-image-41"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Ein Effekt sticht sofort ins Auge: während in den 50ern bis 70ern noch verhltnismäßig viele "junge" (unter 40) und "alte" (über 70) Abgeordnete im Bundestag saßen, haben um die 2000er klar die 40 bis 60 jährigen dominiert. Dabei gab es in den 1980ern zunächst eine Welle von 40 bis 50 Jährigen, die sich bis in die 2000er in Richtung der 50 bis 60 Jährigen verschoben hat. Vermutlich kommt dieser Effekt teilweise auch durch eine "Träge Masse" von Abgeordneten, die lange im Bundestag geblieben, aber älter geworden sind.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Lässt man mal den Mittelbau der 40 bis 60 Jährigen weg und betrachtet die Ränder der Altersverteilung, so sieht man, dass es  in der frühen Zeit der Bundesrepublik relativ viele über 70 Jährige Volksvertreter gab, während in den 1980er Jahren zwischenzeitlich eine Welle von Jungen (&lt;40) Abgeordneten den Bundestag verjüngt haben. Leider war dieser Effekt nicht von Dauer; inzwischen sind wieder fast so viele über 70er im Bundestag, wie Menschen unter 40. Auch das trägt vermutlich nicht unbedingt dazu bei, dass sich der junge Wähler im Bundestag vertreten fühlt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":44,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.53.32-1024x632.png" alt="" class="wp-image-44"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2>Erkenntnis: Der Bundestag ist älter als seine Wähler. Ein zwischnzeitlich stattgefundener Verjüngungseffekt in den 1980ern bis 2000ern ist durch eine neuerliche Alterung des Bundestages aufgehoben worden, so dass zahlenmäßig wieder die Altersgruppe zwischen 40 und 60 dominiert. </h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Ok, aber mein Ausgangspuntk war ja eigentlich die Frage nach Diversität des Parlaments in Dingen wie Religion und Geschlecht. Es lässt sich ganz deutlich ein Trend hin zur höheren Geschlechterbalance im Bundestag feststellen:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":46,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-22.57.50-1024x650.png" alt="" class="wp-image-46"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Lag das Verhältnis in den ersten Wahlperioden noch bei grob 1:10, machen inzwischen die weiblichen Abgeordneten schon ca 1/3 der Abgeordneten aus. Wobei es hier erhebliche Unteschiede zwischen den Parteien gibt: Während die SPD tatsächlich der von ihr angestrebten 50% Quote sehr nahe kommt, (links), scheint sich die CDU eher im Bereich von 20% einzupendeln (rechts).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:gallery {"ids":[83,48],"linkTo":"none"} -->
+<figure class="wp-block-gallery columns-2 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-19.53.47-1024x686.png" alt="" data-id="83" data-full-url="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-19.53.47.png" data-link="http://yourcupofdata.com/?attachment_id=83" class="wp-image-83"/></figure></li><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.01.27-1024x644.png" alt="" data-id="48" data-full-url="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.01.27.png" data-link="http://yourcupofdata.com/?attachment_id=48" class="wp-image-48"/></figure></li></ul></figure>
+<!-- /wp:gallery -->
+
+<!-- wp:paragraph -->
+<p>Am höchsten ist der Frauenquote bei den Linken (rechts), während die FDP noch eine weitgehend männliche Partei zu sein scheint (links).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:gallery {"ids":[84,85],"linkTo":"none"} -->
+<figure class="wp-block-gallery columns-2 is-cropped"><ul class="blocks-gallery-grid"><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-19.52.51-1024x739.png" alt="" data-id="84" data-link="http://yourcupofdata.com/?attachment_id=84" class="wp-image-84"/></figure></li><li class="blocks-gallery-item"><figure><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-19.52.14-1024x743.png" alt="" data-id="85" data-full-url="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-19.52.14.png" data-link="http://yourcupofdata.com/?attachment_id=85" class="wp-image-85"/></figure></li></ul></figure>
+<!-- /wp:gallery -->
+
+<!-- wp:paragraph -->
+<p>Ich schreibe das nicht wertend (ich bin wie erwähnt kein Fan der Frauenquote), sondern rein beschreibend.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Hier nochmal der ganz allgemeine Disclaimer: diese ganze Auswertung ist ein Hobbyprojekt und ich habe nicht die Zeit, jedes Detail der Datenbereinigung umzusetzen, das mir vorschwebt. Bezüglich der letzten Grafik zum Beispiel könnte man zu Recht anmerken, dass in den 1990ern ja offiziell die Partei "die Linke" noch gar nicht begründet war - woher kommen dann die einzelnen Datenpunkte für diese Partei im Säulendiagramm? Das liegt daran, dass auch für Mitglieder, die über mehrere Legislaturperioden hinweg im Parlament sassen, nur ein Eintrag für das Attribut "PARTEI_KURZ" in der genutzten Datenquelle angegeben ist. Beispielsweise ist Dietmar Bartsch unter der Partei "die Linke" aufgeführt, auch wenn der natürlich zunächst Mitglied bei der SED bzw der PDS war. Ebenso verhält es sich mit all den Fällen, bei denen Bundestagsmitglieder im Laufe der Zeit ihre Partei verlassen oder gewechselt haben. Ich zähle die Mitglieder immer so, wie sie in der XML-Datei auf <a href="http://Quelle der Daten: https://www.bundestag.de/services/opendata" data-type="URL" data-id="Quelle der Daten: https://www.bundestag.de/services/opendata">bundestag.de</a> unter "PARTEI_KURZ" geführt werden - was vermutlich die jeweils aktuelle / letzte Parteizugehörigkeit beschreibt - und habe leider keine Zeit für Einzelkorrekturen diesbezüglich.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Erkenntnis: Es gibt eine deutliche Tendenz hin zu einer ausgeglichenen Geschlechterverteilung, die sich allerdings zwischen den Parteien stark unterscheidet</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Spätestens diesem Punkt der Analyse musste ich vor mir selbst zugeben, dass ich nicht nur "zwei, drei deskriptive Plots" erstellen will, sondern längst an einem Punkt bin, einen kompletten <strong>Bundestags-Report-Generator</strong> zu schreiben. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Was meine ich damit? Ich will beispielsweise nicht sagen: "ok, ich schau mir jetzt mal die Anzahl der Frauen für die CDU über die Zeit an - wo muss ich jetzt nach den entsprechenden Daten suchen?", sondern ich will ein nettes Dashboard, mit Filtern und Auswahlknöpfen, bei dem ich über ein paar Klicks genau die Grafik erzeugen kann, die mich gerade interessiert ohne nochmal zusätzlichen Code schreiebn zu müssen. Zum Glück gibt es hierfür <a href="https://dash.plotly.com/" data-type="URL" data-id="https://dash.plotly.com/">dash</a>, eine wunderbares, auf <a href="https://flask.palletsprojects.com/en/2.0.x/" data-type="URL" data-id="https://flask.palletsprojects.com/en/2.0.x/">flask</a> und <a href="https://plotly.com/python/" data-type="URL" data-id="https://plotly.com/python/">plotly</a> basierendes Framework, das ich nur allen Data Scientisten ans Herz legen kann, die interaktive Grafiken erstellen und einem breiteren Publikum zur Verfügung stellen wollen. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Nun denn... fix ein Dashboard gebaut. Grafiken und Filter eingefügt. Über die unübersichtliche Klammernlogik von dash geflucht. Nochmal gecheckt, wie das mit den Callbacks bei dash eigentlich so funktioniert ... und viola, hier ist er, der <a href="http://3.67.97.254:8051/">Bundestags-Report-Generator</a>:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Der Bundestag-Report-Generator</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"id":50,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.16.33-1024x567.png" alt="" class="wp-image-50"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Im linken Bereich kann man zunächst nach Wahlperiode und Partei filtern. Diese Filter werden dann für jedes einzelne Diagramm übernommen. Zusätzlich ist es möglich, durch einen Doppelklick auf ein Element in der Agenda (z.B. "männlich") nur dieses Attribut für die Darstellung auszuwählen, bzw. durch einen einzelnen Klick genau diese Werte auszublenden. Probiert es aus und schreibt mir gerne, wenn etwas nicht klappt  eine <a href="http://yourcupofdata.com/impressum/" data-type="page" data-id="5">email</a>. Ihr dürft den Generator und die einzelnen Plots natürlich gerne für eure eigenen Auswertungen nutzen. Aber bitte bedenkt, dass ich aus den genannten Zeitgründen nicht alle Sonderfälle in den Daten richtig bereinigen / mappen / korrigieren konnte und deshalb auch explizit keine Garantie für die Richtigkeit der erzeugten Zahlen und Grafiken übernehme. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Für die technisch versierten unter euch: damit das Dashboard nicht nur lokal läuft, sondern auch öffentlich erreichbar ist, musste ich das Ding natürlich sinnvoll deployen. Ich habe mich für eine AWS Lösung entschieden, mit einem über <a href="https://aws.amazon.com/de/ecr/" data-type="URL" data-id="https://aws.amazon.com/de/ecr/">ECR</a> registrierten <a href="https://www.docker.com/" data-type="URL" data-id="https://www.docker.com/">Docker</a>-Container, den ich über <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html" data-type="URL" data-id="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html">ECS</a> managen lasse. In all diesen Bereichen bin ich relativer Anfänger. Dennoch hat mich das ganze Setup nur wenige Stunden und keine großen Nervenzusammenbrüche gekostet. Nach den ersten Test-Tagen kann ich sagen: das ganze scheint stabil zu laufen und kostet 30ct am Tag (Kosten entstehen scheinbar nur durch ECR, nicht nur ECS). Damit kann ich leben.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Religion</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Kommen wir als nächsten inhaltlichen Punkt zur Religion der Abgeordneten. Die ist tatsächlich noch <strong>undiverser</strong> als erwartet. Ich dachte schon, es sei auf meine fehlende Bildung zurück zu führen, dass ich faktisch keine nicht-christlichen Abgeordneten benennen kann. Stellt sich heraus: es gibt so gut wie keine. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":88,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-13.06.45-2.png" alt="" class="wp-image-88"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Es gibt sehr kontinuierlich ein ziemliches Gleichgewicht zwischen katholischen und evangelischen Abgeordneten und wie zu erwarten einen kleinen aber steigenden Anteil von konfessionslosen:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":53,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.24.27-1024x762.png" alt="" class="wp-image-53"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Um Muslime und Angehörige "sonstiger"  Religionen (hier habe ich vom Buddhismus bis zur griechisch-Orthodoxen Angabe alles zusammengefasst) zu finden, muss man dagegen schon sehr genau hinschauen:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":54,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.26.00-1024x678.png" alt="" class="wp-image-54"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Zusammenfassend lässt sich sagen: von Diversität kann hier keine Rede sein. Der Bundestag ist und bleibt eine ganz überwiegend christlich geprägte Konstitution. Andere Religionen spielen hier faktisch keine Rolle. Lediglich ein wachsender konfessionsloser Anteil hat das Potential in dieser Hinsicht "neuen Wind" oder einen anderen Blickwinkel ins Parlament zu bringen. Doch hier hinkt der Bundestag der gesamtdeutschen Entwicklung deutlich hinterher; während in Deutschland aktuell die konfessionslosen mit ca 39% die Mehrheit der Bevölkerung stellen und katholische und evangelische mit 27% bzw 25% schon stark dahinter liegen, sind im Bundestag fast 7 mal so viele christliche Abgeordnete zu finden wie konfessionslose.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Im Bundestag sind katholische wie evangelische Abgeordnete gleichermaßen stark überrepräsentiert, während die in der Bevölkerung dominante Gruppe der konfessionslosen noch einen verhältnismäßig kleinen (aber wachsenden) Anteil ausmacht. Andere Religionen spielen hier faktisch keine Rolle.</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Neben der Religion dürfte die Familienzugehörigkeit einer der entscheidensten Faktoren für die Prägung der eigenen Weltsicht darstellen. Eine alleinerziehende Mutter von 3 Kindern wird den Alltag in der Bundesrepublik anders wahrnehmen und daraus andere Handlungsnotwendigkeiten ableiten als eine ledige und kinderlose Frau gleichen Alters. Bezüglich des Familienstandes ergibt sich ein ähnlich konventionelles Bild: der allergrößte Teil der Abgeordnete gibt an, verheiratet mit 1 bis 4 Kindern zu sein. Ledige sind zahlenmäßig deutlich in der Unterzahl und andere Konstellationen (verwitwet, geschieden, alleinstehend mit Kinder, eingetragene Lebenspartnerschaften...) spielen statistisch gesehen faktisch gar keine Rolle:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":75,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-13.12.45-2-1024x714.png" alt="" class="wp-image-75"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Dieses Bild ist ähnlich eintönig und undivers, wie das der Religionszugehörigkeit und spiegelt kaum die Gesamtheit der Deutschen Bevölkerung wider, in der immerhin<a href="https://www.tagesschau.de/inland/single-statistik-101.html#:~:text=Die%20Zahl%20der%20Single%2DHaushalte,34%20Prozent%20auf%2042%20Prozent."> 42% in Single-Haushalten </a>lebt. Ähnlich wie die sehr jungen oder auch die konfessionslosen dürften sich die alleinstehenden also durch diese Gruppe an Repräsentanten kaum repräsentiert sehen. Gab es im Laufe der letzten Jahre hier eine zunehmende Diversifizierung?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Bei der Standardfamilienform "Verheiratet + 1 bis 3 Kinder" zeigt sich ein deutlicher Trend hin zu "Verheiratet + 2 Kinder". Alle anderen Varianten nehmen mit der Zeit ab:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":77,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-13.24.04-1-1024x590.png" alt="" class="wp-image-77"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Gerade der Anteil der kinderreichen Familienmütter und -Väter nimmt erwartungsgemäß kontinuierlich ab:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-13.29.07-1024x649.png" alt="Dieses Bild hat ein leeres Alt-Attribut. Der Dateiname ist Bildschirmfoto-2021-06-21-um-13.29.07-1024x649.png"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>An dieser Stelle scheint sich endgültig das klassische (aber nicht unbedingt für die Bevölkerung repräsentative) Familienbild "verheiratet + 2 Kinder" zu manifestieren.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Betrachtet man aber den Anteil der selteneren Familienformen (geschieden, verwitwert, alleinstehend) ergibt sich dann doch ein anderes Bild:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":80,"width":678,"height":371,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large is-resized"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-13.32.30-1024x561.png" alt="" class="wp-image-80" width="678" height="371"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Gerade der Anteil der ledigen Abgeordneten ist in den letzten Jahrzehnten stark gewachsen.  Dennoch ist der Anteil im Bundestag mit  15% weit unter dem in der Deutschen Gesamtbevölkerung, wo immerhin<a href="https://www.tagesschau.de/inland/single-statistik-101.html#:~:text=Die%20Zahl%20der%20Single%2DHaushalte,34%20Prozent%20auf%2042%20Prozent." data-type="URL" data-id="https://www.tagesschau.de/inland/single-statistik-101.html#:~:text=Die%20Zahl%20der%20Single%2DHaushalte,34%20Prozent%20auf%2042%20Prozent."> 42% in Single-Haushalten </a>lebt. Und auch der Anteil der Geschiedenen steigt. Dennoch ist der im Bundestag vertretene Anteil Geschiedener fast schon lächerlich gering, bedankt man, dass die <a href="https://de.statista.com/themen/134/scheidung/" data-type="URL" data-id="https://de.statista.com/themen/134/scheidung/">Scheidungsquote in Deutschland aktuell ca 36% beträgt</a>. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Unter "sonstige" verbergen sich alle weiteren Kombinationen wie "verwitert" / "geschieden" / "Lebensgemeinschaft" plus jeweils X Kinder. (Anmerkung: Aus Gründen der Übersichtlichkeit wurden bei diesem Plot wie auch bei den anderen nur die ca 10 häufigsten Werte berücksichtigt und der Rest unter dem einen Begriff "sonstiges" subsumiert). Dieser Anteil nimmt zu, aber (ähnlich dem der Konfessionslosen) offensichtlich noch auf einem sehr niedrigen und nicht der Verteilung in der Bevölkerung entsprechenden Niveau.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Der typische Bundestagsabgeordnete ist verheiratet und hat 1 bis 3 Kinder. Andere Familienformen wie "single", "geschieden", "verwitwert", "in einer Lebensgemeinschaft lebend" spielen hier kaum eine Rolle, auch wenn sie für den Großteil der Bundesbürger längst Normalität geworden sind.</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Kommen wir nun zum letzten und für diese Untersuchung ja eigentlich ausschlaggebenden Feld: wie sieht es nun aus mit der <strong>beruflichen Diversität</strong>? Sind wirklich fast alle Abgeordneten Juristen und BWLer oder ist das nur ein Trugschluss, weil eher zufällig viele der bekannten Minister aus diesen Bereichen kommen? Ist der Bundestag vielleicht sogar besser als sein Ruf und keine Bubble aus Akademikern und Büroangestellten sondern ein echtes Abbild der Gesellschaft mit all seinen verschiedenen Berufsgruppen und Milieus?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Berufliche Monokultur</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Sehen wir uns *alle* Berufe an, wie sie in den Originaldaten zu sehen sind und lassen uns die häufigsten Berufe ausgeben, dann ergibt sich folgendes Bild:<span data-mce-type="bookmark" id="mce_1_start" data-mce-style="overflow:hidden;line-height:0px" style="overflow:hidden;line-height:0px"></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":56,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-20-um-23.49.12.png" alt="" class="wp-image-56"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Einerseits bestätigt das halbwegs das Vorurteil (Rechtsanwälte scheinen überrepräsentiert zu sein) andererseits ist diese Tabelle so noch gar nicht besonders aussagekräftig; bei über 4000 Abgeordneten ergeben sich nämlich <strong>2201 verschiedene Berufsbezeichnungen</strong>. Das liegt einerseits daran, dass natürlich allgemeine Berufsgruppen unter verschiedenen konkreten Bezeichnungen auftauchen ("Rechtsanwalt" vs. "Jurist") und andererseits an dem Phänomen, dass viele sehr komplexen und daher einmaligen Berufsbezeichnung aufgelistet sind (so ist bei Annette Schavan ganz sparsam als Beruf folgendes angegeben: "MdL a. D., Ministerin für Kultus, Jugend und Sport a. D., Bundesministerin für Bildung und Forschung a. D." und der SPD Abgeordnete Burkhard Lischka ist "Notar, Sprecher für Recht und Verbraucherschutz, Obmann im Parlamentarischen Kontrollgremium, Staatssekretär a. D." Mit diesem Beruf ist er denn auch der einzige.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Kurz: um die Verteilung der Berufe sinnvoll auszuwerten, muss ein gutes Mapping her, das spezielle Bezeichungen (z.B. "Grundschullehrer", "Hauptschullehrer'", "Gynmasiallehrer") zu einer allgemeinen Berufsgruppe (z.B. "Lehrer") zuordnet. Als guter Data Scientist habe ich versucht, auch diese Aufgabe zu automatisieren, indem ich die Berufe in <a href="https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa" data-type="URL" data-id="https://towardsdatascience.com/introduction-to-word-embedding-and-word2vec-652d0c2060fa">Wordembeddings</a> gesucht und ein Mapping über ein Clustering im niedrigdimensionalen Einbettungsraum versucht habe.  Die Cluster der Berufe, die im Embedding  (hier: ein <a href="https://deepset.ai/german-word-embeddings" data-type="URL" data-id="https://deepset.ai/german-word-embeddings">vortrainiertes Deutsches GloVe Modell</a>) gefunden wurden, waren per se erfreulich sinnvoll:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":58,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-00.05.07-1024x456.png" alt="" class="wp-image-58"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Dennoch blieb das riesige Problem von unmappbaren, weil überindividualisierten Berufsbezeichnungen (siehe das Beispiel von Annette Schavan).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Auch einen guten Datensatz für ein Clustering von deutschsprachigen Berufsbezeichnugen habe ich nicht gefunden. So blieb mir nichts anderes übrig, als relativ aufwändig ein<strong> manuelles Mapping</strong> zu erstellen.  Folgende Schritte waren dazu nötig:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><li>Bei einer kommagetrennten Aufzählung von Berufen wurde der erste gewählt, also z.B. "Rechtsanwalt, Parl. Staatssekretär a. D." => "Rechtsanwalt".  Hier musste ich mich auf eine sinnvolle Sortierung der Einträge verlassen. Mir ist die Anfechtbarkeit dieses Ansatzes bewusst. Aber wie sollte ich mir das Recht herausnehmen, aus den teilweise 3 oder 4 aufgezählten Ausbildungen und Berufe "den richtigen" herauspicken zu können?</li><li>Kürzel, die die Art der Ausbildung ("Dipl.", "BA") anzeigen oder reine beschreibende Zusätze zur eigentlichen Berufsbezeichung darstellen ("a.D.") wurden weggelassen. Also z.B. "Postbeamter a.D."=> "Postbeamter"</li><li> Weibliche wurden durch männliche Formen ersetzt. Also z.B. "Ärztin" => "Arzt" (auch hier war leider manuelle Arbeit nötig - falls jemand ein gutes Python Paket kennt, das diese Aufgabe zuverlässig für deutschsprachige Begriffe automatisiert, freue ich mich über entsprechende Hinweise)</li><li>Dann folgten eine Reihe manuell erstellter Regeln, bei welchen Substrings auf welchen Beruf gemappt werden sollte. Hier in kleiner Auszug:</li></ul>
+<!-- /wp:list -->
+
+<!-- wp:image {"id":62,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-08.46.27-1024x109.png" alt="" class="wp-image-62"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Sobald ein String aus dem rechten Teil der Zuweisung (z.B. "anwalt") in der nach den vorherigen Schritte noch verbleibenden Berufsbezeichnung auftauchte, wurde der links auftauchende String (z.B. "Jurist*in") als Berufsbezeicnung gemappt. Diese Aufgabe war auch ein wunderbarer Anlass, mein Wissen über <a href="https://docs.python.org/3/howto/regex.html" data-type="URL" data-id="https://docs.python.org/3/howto/regex.html">regular expressions</a> in Python nochmal aufzufrischen.  Diese helfen einem beispielsweise, alle möglichen Schreibweisen von "Dr. Jur.", "dr.Jur.", "dr jur" usw durch eine einzige Expression abzufrühstücken.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Im Zuge dieses Schrittes gab es also auch eine - durchaus nicht objektive - Zusammenfassung von Berufsfamilien, wie sie mir persönlich sinnvoll schien.  So habe ich beispielsweise "Maurer", "KFZ-Mechaniker" und "Bäcker" zum Oberbegriff "Handwerker" zugeorndet. Wer sich in seinem Berufsfeld hier missverstanden füht, möge mir mein fehlendes Feingefühl diesbzüglich verzeihen. Immerhin konnte ich so in relativ mühsamer Kleinarbeit die Anzahl der verschiedenen Berufsbezeichnungen von über 2000 auf 588 reduzieren. Immer noch unüberlsichtlich viele, aber dennoch ein Anfang. Immerhin gibt es hier den typischen "long-Tail"-Effekt: die häufigsten Berufsbezeichnungen (etwa "Jurist*in") machen den größten Teil der Menge aus, während die seltesten 441 Berufe (z.B. "Harfenist" und "Hauptwirtschaftsleiter") nur jeweils einmal auftauchen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>hausaltswissenschaftleDie Häufigkeitsverteilung sieht dann so aus:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":60,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-00.13.56-1024x644.png" alt="" class="wp-image-60"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Was ist hier der erste Eindruck? Immerhin tauchen jetzt unter den häufigsten Berufen auch einige nicht reine Schreibtischtätigkeiten auf wie "Lehrer", "Landwirt" oder "Handwerker" auf. Dennoch sind die Juristen weiterhin einsame Spitze, was die reine Anhzahl angeht, gefolgt von den Berufspolitikern. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Zu einem "Berufspolitker" wird man bei diesem Mapping, wenn man als einziges (oder erste Angabe in einer Liste von Berufsbezeichnungen) ein Regierungsamt wie "Bundesminister" oder "Bürgermeister" angegeben hat.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Schauen wir uns mal die Entwicklung der Berufszugehörigenkeiten über die Zeit an. Leitfrage soll ja sein: diversifiziert sich der Bundestags über die Milleus hinweg (bildet also die Vielvalt der Berufsgruppen der Wähler zunehmend breit gefächert ab?) Oder sind wir auf dem Weg in eine Situation, in der der Berufspolitiker im Wesentlichen nur einen kleinen Teil der Bevölkerung (studierte Bürokräfte) repräsentiert?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":64,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Jurist_Kaufmann_Geisteswissenschaftler-1024x327.png" alt="" class="wp-image-64"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Leider scheint eindeutig zweiteres der Fall zu sein; waren früher ähnlich viele Kaufmänner wie Landwirte oder Juristen im Bundestag vertreten, ist das Verhältnis inzwischen zu einem  deutlichen 1:10 Missverhältnis Landwirt - Jurist gekippt. Überhaupt haben die Juristen eine absolut dominierende Rolle in der Verteilung. Man kann davon ausgehen, dass diese Art der<strong> beruflichen Monokultur</strong> sich - wenn auch unbeabsichtigt - in einer entsprechenden Klientelpolitik für gut ausgebildete und gut situierte Wähler niederschlägt. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Dazu kommt, dass auch andere wachsende Berufsgruppen - wie etwa der Geisteswissenschaftler im Parlament - auch nicht gerade der Vertretung aus dem wenig gebildeten und / oder Arbeitermilieu dienlich sind.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Auch bei Betrachtung von Berufsgruppen, die insgesamt seltener vertreten sind, ist der Trend zur Monokultur deutlich sichtbar:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p> </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":66,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-09.05.33-1024x389.png" alt="" class="wp-image-66"/><figcaption>Verteilung von Lehren (gelb), Journalisten (pink) und Hausfrauen (lila)</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Waren in der 1960er Jahren noch annähernd gleich viele Lehrer, Journalisten und Hausfrauen im Bundestag vertreten, zeichnet sich seit den 1980er Jahren ein deutlicher Trend zugunsten der Lehrerschaft ab. Die Bezeichnung der Hausfrau findet sich heute faktisch nicht mehr bei den Volksvertretern, dabei bilden sie offensichtlich "<a href="https://www.welt.de/politik/article1451564/Der-deutsche-Hausfrauen-Report.html" data-type="URL" data-id="https://www.welt.de/politik/article1451564/Der-deutsche-Hausfrauen-Report.html">die mit Abstand größte Berufsgruppe in Deutschland"</a> - so viel zum Thema der repräsentativen Demokratie.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Neben dem generellen Trend zur Monokultur (zahlenmäßig weniger Berufsgruppen überhaupt signifikant vertreten) zeichnet sich auch eine Tendenz weg vom Arbeiter hin zum Akademiker / Büroangestellten ab:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":67,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-09.10.18-1024x322.png" alt="" class="wp-image-67"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>So wurde der anfänglich noch häufig auftauchende Beruf des Landwirts nach und nach durch den des Betriebswirts verdrängt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Auch bei den akademischen Berufe lassen sich beide Trends deutlich beobachten: erstens steigt der reine Anteil z.B. an Geistes- und Naturwissenschaftler. Zweitens kippt auch hier innerhalb dieser Berufe die zwischenzeitlich ziemlich ausgeglichene Verteilung zugunsten eines einzigen Typus (hier: Geisteswissenschaften dominieren inzwischen Natur- oder Wirtschaftswissenschaften, während die Verteilung zwischenzeitlich zumindest deutlich ausgeglichener war.)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":68,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://yourcupofdata.com/wp-content/uploads/2021/06/Bildschirmfoto-2021-06-21-um-09.16.20-1024x316.png" alt="" class="wp-image-68"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="blob:http://yourcupofdata.com/94062911-b1af-4ff7-be05-36f944d1e6aa" alt=""/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2>Zusammenfassung</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Der Bundestag ist eine Monokultur. Hier finden sich, genau dem Klischee entsprechend, ganz überwiegend christliche, verheiratete Akademiker mit 1 bis 3 Kindern. Muslime findet man hier genau so wenig wie  sehr junge Menschen, Geschiedene oder Menschen aus dem Arbeitermilieu. Lediglich im Bereich der Geschlechterverteilung lässt sich ein deutlicher Trend zur repräsentativen Verteilung feststellen. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Die Frage ist, inwiefern das den nicht-repräsentierten Teilen der Bevölkerung etwas bringt. Ich kann mir vorstellen, dass die alleinerziehende Mutter, die als Reinigugnskraft in prekären Verhältnissen lebt, sich eher durch einen ehemaligen Kioskbesitzer vertreten fühlen würde (und von diesem sinnvoller vertreten würde), als durch eine studierte Juristin aus gutbürgerlichen Verhältnissen. Ich fühle mich ja nicht durch jede andere Frau automatisch verstanden und vertreten, nur weil sie auch eine Frau ist. Eine Person meines Alters, der meinen Beruf, meinen Lebensalltag, meine Bildungslaufbahn teilt, hat sich dagegen vermutlich schon mit ähnlichen privaten und beruflichen Themen auseinander gesetzt, wie ich - egal ob Mann oder Frau. Aus meiner eigenen Erfahrung würde ich behaupten, dass meine persönliche Identifikation, meine berufliche Karriere und auch mein Privatleben weitaus dominanter von meinem (chistlichen und akademischen) familiären Backround und meinem Milieu geprägt wurden, also von der Frage, ob ich eine Frau bin. Insofern ist eine Frauenquote im Bundestag reine Augenwischerwei, solange man der Religions-, Einkommens-, Bildungs- und Altersmonokultur des Bundestages nichts entgegenzusetzen weiß.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Ich bin klar gegen jede Quote (egal ob in Bezug auf Geschlecht, Alter oder was auch immer), weil ich der Meinung bin, dass so etwas lebendiges, vernetztes, wachsendes wie ein Arbeitskontext (egal, ob im Bundestag oder in sonst einer Firma) nicht mit so etwas starrem und unlogischem wie einer festen Quote sinnvoll gelenkt werden kann. Noch dazu muss jede Quote ungerecht sein, weil sie eben immer eine Gruppe diskriminiert. Man stelle sich vor, ein Richter bekäme die Auflage, genau 50% der lebenslangen Gefängnisstrafen müssten auf Frauen entfallen! Jedem muss sofort ersichtlich sein, dass so ein absurdes System nichts mit Leistungs- (oder eben Straf-) Gerechtigkeit zu tun haben kann.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Die Unbalanciertheit des Bundestages in Bezug auf Alter, Bildung, Familienstand und Religion der Abgeordnete ist ja auch nicht selbst das Problem sondern vielmehr ein Symptom. So ist davon auszugehen, dass die Bubble der potentiellen Bundestagsabgeordneten inzwischen sehr klein und zu abgeschlossen ist; die Karriere vieler Abgeordneter fing schon zu Gymnasialtagen (! es gibt nicht so viele  ehemalige Hauptschüler im Bundestag...) an, wenn die Kinder aus entsprechenden politischen interessierten und akademischen Milieus früh genug für Politik interessiert und beim lokalen Engagement unterstützt wurden.   Menschen, denen aufgrund ihrer privaten Situatoin beim Start in das Berufsleben aber einfach die Zeit fehlte, sich so zu engagieren (das gilt für den 70 Stunden die Woche arbeitenden Koch genau so wie für die Medizinstudentin, die sich voll auf ihre Studium konzentriert), dürfte in der Regel alleine schon aufgrund der fehlenden zeitlichen Investition in Netzwerke in dem Bereich schon die Vorstufe zu einem Listenplatz vermutlich verwehrt sein. Gerde dadurch fehlt aber eine Vertretung ganzer Berufsgruppen im Bundestag: weder sind hier die in letzter Zeit so gelobten "systemrelevanten Berufe" nennenswert vertreten (und zwar im ganzen Spektrum: von der Kassiererin bis zur Ärztin), noch werden die niederqualifizierten sinnvoll repräsentiert (von der Reinigungskraft bis zum Busfahrer sucht man vergeblich nach solchen Berufsbezeichnungen). Aber auch hoch qualifizierte und wachsende Bereiche wie Beispielsweise der ganze Bereich Naturwissenschaften, der Medizin, der IT- und Softwareentwicklung sind hier stark unterräpresentiert - was sich mutmaßlich auch in einem Fehlen der entsprechenden Expertise und in folge dessen auch zu massiven, teuren, Fehlentscheidungen in diesen Bereichen führt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Ausblick</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Das hier ist nur ein Hobbyprojekt, weil mich als politisch interessierte Softwareentwicklerin einfach die statistische Auswertung einer hervorragenden Datenquelle gereizt hat. Die Erstellung des <a href="http://3.67.97.254:8051/" data-type="URL" data-id="http://3.67.97.254:8051/">Dashboardes</a> hat mir technisch und inhaltlich extrem viel Spaß gemacht. Dennoch hat mir die Zeit für folgende Punkte gefehlt, die ich evtl noch in Zukunft weiter verfolgen werde:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><li>Eine weitergehende Bereinigung der Daten: vom verstorbenen Abgeordneten bis zum zum Sonderfall des Parteiwechsels eines Abgeordneten habe ich viele Sonderfälle bei der Auswertung noch ignoriert. Auch viele als "UNBEKANNT" markierte Datenfelder könnte man noch manuell füllen. Ebenso könnte man das Berufsmapping noch erweitern und verfeinern, um ein noch klareres Bild der Verteilungen zu bekommen. Dennoch bin ich der Meinung, dass die vorläufige Auswertung schon die Wesentlichen Verhältnisse und Entwicklungen gut darstellen können.</li><li>Viele Teilaspekte konnte ich noch nicht im Detail untersuchen - z.B. wie ist das mit der Berufsverteilung in jeder einzelnen Partei? Oder: gibt es Parteien, für die die Tendenz Alterverteilung grundlegend abweicht? Überhaupt kann man ja jedes Paar von Attributen gegeneinander auswerten. Z.B. "wie viele Kinder haben männliche Abgeordnete im Schnitt und lässt sich vielleicht feststellen, dass es verhältnismäßig weniger Frauen mit vielen Kindern in den Bundestag schaffen?" Oder "(um wie viel) sind Eltern im Schnitt älter, wenn sie in den Bundestag kommen?" Hierfür bietet das Dashboard aber einen guten Anfangspunkt, um in Zukunft solche Detailfragen differenzierter zu betrachten.</li><li>Die nächste spannende Datenquelle, die man hinzuziehen könnte wären  natürlich die Angaben über Nebeneinkünfte bei <a href="https://www.abgeordnetenwatch.de/" data-type="URL" data-id="https://www.abgeordnetenwatch.de/">abgeordnetenwatch</a>. Hier wäre wieder jede Kombination aus Attributen spannend; dass CDUler im Schnit mehr Nebeneikünfte erhalten als Abgeordnete der Linken ist ja schon bekannt, aber wie hängen z.B. Alter und Nebeneinkünfte und vor allem auch: Bleibedauer im Bundestag mit den Nebeneinkünften zusammen? Wie sind Beruf und die Höhe der Einkünfte miteinander korreliert?</li><li>Auch in der bereits genutzten Datenquelle der Abgeordneten Stammdaten liegen noch von mir ungenutze Attribute wie beispielsweise GEBURTSORT, GEBURTSLAND, VITA_KURZ und VEROEFFENTLICHUNGSPFLICHTIGES. Jedes einzelne dieser Attribute würde mich für weitere Auswertungen reizen.</li><li>Mir ist bewusst, dass der Text nicht perfekt und die Abbildungen teilweise in Größe und Ausschnitt nicht optimal sind - das ist ein Hobbyprojekt ;)</li><li>Nicht zuletzt freue ich mich natürlich auf die Bundestagswahl 2021 und hoffe, dass die Daten auf der Seite des Bundestages dann zeitnah aktualisiert werden. Es ist für mich eine faszinierende und für meine Meinung von der Regierung auch relevante Frage, ob sich all diese Trends der Homogenisierung bzw. Monokultivierung des Bundestags fortsetzen, oder ob vielleicht aus irgendeiner Richtung (das kan das Alter der Abgeordneten genau so sein wie deren beruflicher Kontext) "frischer Wind" in die Bude kommt.</li></ul>
+<!-- /wp:list -->
