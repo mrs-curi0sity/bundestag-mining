@@ -4,6 +4,7 @@ import re
 import os
 import sys
 from datetime import datetime
+import colorsys
 
 # Pfad zum übergeordneten Verzeichnis des aktuellen Skripts
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,7 +52,7 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
 # TODO start move to objects or at least dict
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 9)
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 10)
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
                             
@@ -268,7 +269,7 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
 # neu mit hilfe von claude
 beruf_klassifizierung = {
     'Jurist*in': [
-        'anwalt', 'anwält', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
+        'anwalt', 'anwäl', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
         'staatsanwalt', 'volljurist'
     ],
     'Land-/Forstwirt*in': [
@@ -295,7 +296,7 @@ beruf_klassifizierung = {
         'dozent', 'professor', 'prof.', 'hochschull', 'hochschulpr', 'universitätsprofessor'
     ],
     'Kaufmann/-frau': [
-        'kaufm', 'einzelhandel', 'großhandel', 'handelsfachwirt'
+        'kaufm', 'kauff', 'einzelhandel', 'großhandel', 'handelsfachwirt'
     ],
     'Volkswirt*in': [
         'volkswirt', re.compile('dipl.*-volkswirt')
@@ -370,8 +371,6 @@ def klassifiziere_beruf(beruf):
     return 'Sonstige'
 
 
-
-
 def get_color_for_party(party):
     color_map = {
         'SPD': '#E3000F',           # Rot
@@ -387,17 +386,39 @@ def get_color_for_party(party):
 
 
 
+def get_color_palette(num_colors):
+    golden_ratio_conjugate = 0.618033988749895
+    hue_start = 0.27  # Startpunkt angepasst für bessere Verteilung
+    saturation_range = (0.65, 0.85)
+    value_range = (0.65, 0.85)
+
+    colors = []
+    for i in range(num_colors):
+        hue = (hue_start + i * golden_ratio_conjugate) % 1
+        saturation = saturation_range[0] + (saturation_range[1] - saturation_range[0]) * (i / num_colors)
+        value = value_range[1] - (value_range[1] - value_range[0]) * (i / num_colors)
+        
+        r, g, b = colorsys.hsv_to_rgb(hue, saturation, value)
+        colors.append(f'rgb({int(r*255)}, {int(g*255)}, {int(b*255)})')
+
+    return colors
+
+
+
 def get_color_for_age_group(age_group):
+    # Definieren Sie hier eine feste Farbpalette für Altersgruppen
     color_map = {
-        '< 30': '#66c2a5',  # Hellgrün
-        '30 - 40': '#fc8d62',  # Orange
-        '40 - 50': '#8da0cb',  # Hellblau
-        '50 - 60': '#e78ac3',  # Rosa
-        '60 - 70': '#a6d854',  # Gelbgrün
-        '70 - 80': '#ffd92f',  # Gelb
-        '>= 80': '#e5c494'   # Beige
+        '< 30': 'rgb(255, 0, 0)',    # Rot
+        '30 - 40': 'rgb(255, 127, 0)',  # Orange
+        '40 - 50': 'rgb(255, 255, 0)',  # Gelb
+        '50 - 60': 'rgb(0, 255, 0)',    # Grün
+        '60 - 70': 'rgb(0, 0, 255)',    # Blau
+        '70 - 80': 'rgb(152, 0, 152)',   # Violett
+        '>= 80': 'rgb(152, 152, 152)'     # Grau
     }
-    return color_map.get(age_group, '#CCCCCC')  # Standardfarbe, falls keine Zuordnung gefunden wird
+    return color_map.get(age_group, 'rgb(128, 128, 128)')  # Grau als Standardfarbe
+
+
 
 
 
