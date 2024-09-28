@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "bundestag-mining"
+version = "0.1.0"
+description = "Analysis of German Bundestag members' professions and biographies"
+authors = ["Lena Aretz <aretzlena@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^2.1.1"
+pandas = "^2.2.3"
+dash = "^2.18.1"
+dash-html-components = "^2.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
