@@ -6,12 +6,20 @@ authors = ["Lena Aretz <aretzlena@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+packages = [
+    { include = "src" },
+]
+
+
 [tool.poetry.dependencies]
 python = "^3.11"
 numpy = "^2.1.1"
 pandas = "^2.2.3"
 dash = "^2.18.1"
 dash-html-components = "^2.0.0"
+matplotlib = "^3.9.2"
+seaborn = "^0.13.2"
+dash-bootstrap-components = "^1.6.0"
 
 
 [build-system]

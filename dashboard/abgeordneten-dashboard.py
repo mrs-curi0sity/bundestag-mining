@@ -5,11 +5,13 @@ import random
 
 import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+
+from dash import dcc
+from dash import html
+from dash import dash_table
+
 from plotly import graph_objs as go
 from dash.dependencies import Input, Output, State
-import dash_table
 import plotly.express as px
 
 from src.berufe_mapping import basic_cleaning_berufe
@@ -56,7 +58,8 @@ CARD_TEXT_STYLE = {
 
 
 # ---------------- sidebar
-controls = dbc.FormGroup(
+#controls = dbc.FormGroup(
+controls = dbc.Form(
     [
         
         html.P('Wahlperioden', style={
@@ -92,7 +95,7 @@ controls = dbc.FormGroup(
             n_clicks=0,
             children='Select All',
             color='primary',
-            block=True
+            className='w-100',
         ),
         html.Br(),
         
@@ -101,7 +104,7 @@ controls = dbc.FormGroup(
             n_clicks=0,
             children='Submit',
             color='primary',
-            block=True
+            className='w-100',
         ),
         
     ]
