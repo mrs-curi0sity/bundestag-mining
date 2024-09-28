@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import re
 
+
+
+
 def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
     # leere einträge durch <unbekannt> ersetzen
     df[column].fillna('unbekannt', inplace=True)
@@ -17,7 +20,7 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
     
     #Ingenieur für Maschinenbau => Ingenieur, Arzt für Allgemeinmedizin => Arzt
     df[column] = df[column].apply(lambda beruf: beruf.split(' für ')[0])
-
+    
     # Kaufmann / Informatiker => Kaufmann
     df[column] = df[column].apply(lambda beruf: beruf.split(' / ')[0])
 
