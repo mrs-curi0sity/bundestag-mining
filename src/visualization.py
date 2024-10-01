@@ -1,7 +1,8 @@
 import pandas as pd
 
 from plotly import graph_objs as go
-from src.config import LIST_OF_COLORS, df_mdb, df_mdb_wp, MAX_WP, WP_START
+from src.config import LIST_OF_COLORS
+from src.mapping_values import df_mdb, df_mdb_wp, MAX_WP, WP_START
 
 # TODO Funktion modus selbst übergeben
 def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'): #selected_berufe

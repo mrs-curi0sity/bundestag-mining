@@ -1,19 +1,23 @@
 import pandas as pd
 import numpy as np
 import re
+import os
+import sys
 from datetime import datetime
-from config import DF_MDB_PATH, DF_MDB_WP_PATH, DF_MDB_WP_STARTDATEN_PATH
+
+# Pfad zum übergeordneten Verzeichnis des aktuellen Skripts
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+from src.config import DF_MDB_PATH, DF_MDB_WP_PATH, DF_MDB_WP_STARTDATEN_PATH
 
 df_mdb = pd.read_csv(DF_MDB_PATH)
 df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
 
 
 MAX_WP = df_mdb_wp.WP.max()
-WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021]
+WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021, 2025]
 
-# display List 
-PAGE_SIZE = 8
-COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ'] #'GESCHLECHT'
+
 
 def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
     """

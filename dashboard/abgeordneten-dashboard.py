@@ -14,9 +14,18 @@ from plotly import graph_objs as go
 from dash.dependencies import Input, Output, State
 import plotly.express as px
 
-from src.berufe_mapping import basic_cleaning_berufe
+
+
+import sys
+import os
+
+# Pfad zum übergeordneten Verzeichnis des aktuellen Skripts
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+
+from src.mapping_values import basic_cleaning_berufe, df_mdb, df_mdb_wp, MAX_WP, WP_START, list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf, list_of_altersklassen
 from src.visualization import select_vis_data, compute_traces
-from src.config import LIST_OF_COLORS, df_mdb, df_mdb_wp, MAX_WP, WP_START, PAGE_SIZE, COLUMNS_FOR_DISPLAY, list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf, list_of_altersklassen
+from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
 
 # set loglevel to INFO. could also be DEBUG or WARNING or ERROR
 logging.getLogger().setLevel(logging.INFO)

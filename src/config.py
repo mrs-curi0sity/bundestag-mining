@@ -5,8 +5,24 @@ import re
 from datetime import datetime
 
 #rot SPD  # schwarz CDu #gelb FDP #blau CDU #grün grün #orange links #pink afd #lila sonstige
-LIST_OF_COLORS = ['#ff0000', '#000000', '#ffcc00', '#0066ff',  '#008000', '#ffa500', '#cc00cc', '#4b0082', '#ee82ee', '#999999']
-LIST_OF_COLORS = LIST_OF_COLORS + LIST_OF_COLORS
+LIST_OF_COLORS = [
+    '#ff0000',  # Rot (SPD)
+    '#000000',  # Schwarz (CDU)
+    '#ffcc00',  # Gelb (FDP)
+    '#0066ff',  # Blau (CDU - alternative)
+    '#008000',  # Grün (Grüne)
+    '#ffa500',  # Orange (Linke)
+    '#cc00cc',  # Pink (AfD)
+    '#4b0082',  # Indigo (Sonstige)
+    '#ee82ee',  # Violett (Sonstige)
+    '#ff6600',  # Knalliges Orange (ersetzt Grau)
+    '#8b4513',  # Braun
+    '#00ffff',  # Cyan
+    '#32cd32',  # Limettengrün
+    '#ff69b4',  # Hot Pink
+    '#1e90ff',  # Dodger Blue
+    '#daa520'   # Goldenrod
+]
 
 # Pfad zum Hauptverzeichnis des Projekts
 PROJECT_ROOT = Path(os.getcwd()).parent
@@ -26,3 +42,7 @@ DF_MDB_WP_PATH = DATA_PATH / CURRENT_YEAR / 'output' / 'df_mdb_wp.csv'
 
 # startdaten der Wahlperioden
 DF_MDB_WP_STARTDATEN_PATH = DATA_PATH / CURRENT_YEAR / 'output' / 'wp_startdaten.csv'
+
+# display List 
+PAGE_SIZE = 8
+COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ'] #'GESCHLECHT'
