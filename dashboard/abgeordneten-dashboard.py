@@ -412,3 +412,5 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
 
 if __name__ == '__main__':
     app.run_server(host="0.0.0.0",  port=8051, debug=True)
+
+server = app.server

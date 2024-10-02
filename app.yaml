@@ -1,0 +1,6 @@
+runtime: python39
+entrypoint: gunicorn -b :$PORT dashboard.abgeordneten-dashboard:server
+
+handlers:
+- url: /.*
+  script: auto
