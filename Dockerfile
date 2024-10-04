@@ -1,26 +1,50 @@
-FROM python:3.7
+FROM python:3.11-slim-bullseye as builder
 
-RUN pip install virtualenv
-ENV VIRTUAL_ENV=/venv
-RUN virtualenv venv -p python3
-ENV PATH="VIRTUAL_ENV/bin:$PATH"
+# System-Abhängigkeiten installieren
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# add necessary data files to docker container
-COPY requirements.txt /myworkdir/requirements.txt 
-COPY setup.py /myworkdir/setup.py
-COPY ./src /myworkdir/src
-COPY ./dashboard /myworkdir/dashboard
-COPY ./data/df_mdb_wp.csv /myworkdir/data/df_mdb_wp.csv
-COPY ./data/df_mdb.csv /myworkdir/data/df_mdb.csv
+# Poetry installieren
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-WORKDIR /myworkdir
+# Poetry zum PATH hinzufügen
+ENV PATH="/root/.local/bin:$PATH"
 
-# Install dependencies
-RUN pip install -r requirements.txt
-RUN python3 setup.py install
+WORKDIR /app
 
-# Expose port 
+# Nur pyproject.toml und poetry.lock kopieren (falls vorhanden)
+COPY pyproject.toml poetry.lock* ./
+
+# Abhängigkeiten installieren
+RUN poetry config virtualenvs.create false \
+  && poetry install --no-interaction --no-ansi
+
+# Restliche Projektdateien kopieren
+COPY . .
+
+# Produktions-Image
+FROM python:3.11-slim-bullseye
+
+WORKDIR /app
+
+# Kopieren Sie die installierten Abhängigkeiten und Projektdateien
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /app /app
+
+# Erstellen Sie einen nicht-root Benutzer
+RUN useradd -m myuser
+
+# Stellen Sie sicher, dass alle notwendigen Verzeichnisse existieren und die richtigen Berechtigungen haben
+RUN mkdir -p /app/data/2024/output /app/plots \
+    && chown -R myuser:myuser /app
+
+# Wechseln Sie zum nicht-root Benutzer
+USER myuser
+
+# Exponieren Sie den Port
 EXPOSE 8050
 
-# Run the application:
+# Führen Sie die Anwendung aus
 CMD ["python3", "./dashboard/abgeordneten-dashboard.py"]
