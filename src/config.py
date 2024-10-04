@@ -25,8 +25,10 @@ LIST_OF_COLORS = [
 ]
 
 # Pfad zum Hauptverzeichnis des Projekts
-#PROJECT_ROOT = Path(os.getcwd()).parent
-PROJECT_ROOT = Path("/app") #<= due to docker + dash
+#PROJECT_ROOT = Path(os.getcwd()).parent 
+#PROJECT_ROOT = Path("/app") #<= due to docker + dash
+PROJECT_ROOT = Path(os.getenv('PROJECT_ROOT', os.getcwd()))
+
 
 DATA_PATH = PROJECT_ROOT / 'data'
 PLOT_PATH = PROJECT_ROOT / 'plots'
