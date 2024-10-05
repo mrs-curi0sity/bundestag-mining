@@ -1,5 +1,14 @@
-Hier ist der Inhalt für docs/docker_guide.md:
-Copy# Docker Guide for Bundestag Mining Project
+# Docker Guide for Bundestag Mining Project
+## auf gcc deployen
+1. clonen des projekts
+2. builden
+>  docker build -t gcr.io/bundestag-miner/bundestag-dashboard .
+
+3. pushen
+> docker push gcr.io/bundestag-miner/bundestag-dashboard
+
+4. auf cloud run deployen
+> gcloud run deploy bundestag-dashboard --image gcr.io/bundestag-miner/bundestag-dashboard --platform managed
 
 ## Basic Commands
 
@@ -35,9 +44,11 @@ docker image rm <Image ID>
 2. Remove existing image
 3. Rebuild image:
 docker build -t bundestag-mining . --no-cache
-Copy4. Run new container
+4. Run new container
 
 ## Troubleshooting
 
-- If "port already in use", stop the running container first.
+- If "port already in use", stop the running container first.:
+docker rm bundestag
+
 - Ensure host IP is set in the app: `app.run_server(host="0.0.0.0", port=8050, debug=True)`
