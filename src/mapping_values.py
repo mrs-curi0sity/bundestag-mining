@@ -40,8 +40,8 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
 # TODO start move to objects or at least dict
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 6) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 12)
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 20)
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 10)
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
                             
 # append 'sonstige' to list of valid values
@@ -84,6 +84,23 @@ partei_mapping = {
     'DIE GRÜNEN/BÜNDNIS 90': 'die Grünen',
     'GRÜNE': 'die Grünen',
 }
+
+
+def map_age_to_group(age):
+    if age < 30:
+        return '< 30'
+    elif 30 <= age < 40:
+        return '30 - 40'
+    elif 40 <= age < 50:
+        return '40 - 50'
+    elif 50 <= age < 60:
+        return '50 - 60'
+    elif 60 <= age < 70:
+        return '60 - 70'  # Diese Gruppe fehlte in Ihrer ursprünglichen Liste
+    elif 70 <= age < 80:
+        return '70 - 80'
+    else:
+        return '>= 80'
 
 religion_mapping = {
     'ohne Angaben': 'unbekannt',
