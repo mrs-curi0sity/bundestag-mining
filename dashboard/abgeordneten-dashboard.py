@@ -399,7 +399,7 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
     selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
     
     # selct partei
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates().sort_values(by='NACHNAME')#VEROEFFENTLICHUNGSPFLICHTIGES
+    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates().sort_values(by='WP', ascending=False)#VEROEFFENTLICHUNGSPFLICHTIGES ist immer leer
 
     
     logging.info(f'selected {selected_df.shape} many entries')
@@ -411,6 +411,6 @@ def update_feedback_records(n_clicks, page_current, page_size, start_date, end_d
 
 
 if __name__ == '__main__':
-    app.run_server(host="0.0.0.0",  port=8051, debug=True)
+    app.run_server(host="0.0.0.0",  port=8050, debug=True)
 
 server = app.server

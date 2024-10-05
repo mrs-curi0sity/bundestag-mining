@@ -27,7 +27,10 @@ LIST_OF_COLORS = [
 # Pfad zum Hauptverzeichnis des Projekts
 #PROJECT_ROOT = Path(os.getcwd()).parent 
 #PROJECT_ROOT = Path("/app") #<= due to docker + dash
-PROJECT_ROOT = Path(os.getenv('PROJECT_ROOT', os.getcwd()))
+#PROJECT_ROOT = Path(os.getenv('PROJECT_ROOT', os.getcwd()))
+
+# Der Projektroot ist zwei Ebenen über config.py
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 DATA_PATH = PROJECT_ROOT / 'data'
@@ -48,4 +51,4 @@ DF_MDB_WP_STARTDATEN_PATH = DATA_PATH / CURRENT_YEAR / 'output' / 'wp_startdaten
 
 # display List 
 PAGE_SIZE = 8
-COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GEBURTSDATUM', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VEROEFFENTLICHUNGSPFLICHTIGES', 'VITA_KURZ'] #'GESCHLECHT'
+COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME','GESCHLECHT', 'GEBURTSDATUM', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VITA_KURZ'] #
