@@ -171,13 +171,57 @@ def set_check_list_values(n_clicks, options, values):
     if n_clicks is None:
         return values  # Return current values if button hasn't been clicked
     return [i['value'] for i in options] if n_clicks % 2 == 0 else []
-
-
-
+"""
 def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
     grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
     traces = compute_traces(grouped, start_date, end_date, values_to_keep, dimension)
-    return {'data': traces, 'layout': go.Layout(title=title)}
+    return {'data': traces, 'layout': go.Layout(title=title)}"""
+def get_color_for_age_group(age_group):
+    color_map = {
+        '< 30': '#66c2a5',  # Hellgrün
+        '30 - 40': '#fc8d62',  # Orange
+        '40 - 50': '#8da0cb',  # Hellblau
+        '50 - 60': '#e78ac3',  # Rosa
+        '60 - 70': '#a6d854',  # Gelbgrün
+        '70 - 80': '#ffd92f',  # Gelb
+        '>= 80': '#e5c494'   # Beige
+    }
+    return color_map.get(age_group, '#CCCCCC')  # Standardfarbe, falls keine Zuordnung gefunden wird
+
+def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
+    grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
+    
+    if dimension == 'START_AGE_IN_YEARS_MAPPED':
+        age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '70 - 80', '>= 80']
+        traces = []
+        for age_group in age_groups:  # Nicht mehr umgekehrt, um die gewünschte Reihenfolge zu erhalten
+            trace = go.Scatter(
+                x=grouped.index,
+                y=grouped[age_group],
+                mode='lines',
+                stackgroup='one',
+                name=age_group,
+                line=dict(width=0),
+                fillcolor=get_color_for_age_group(age_group)
+            )
+            traces.append(trace)
+        
+        layout = go.Layout(
+            title=title,
+            xaxis=dict(title='Wahlperiode'),
+            yaxis=dict(title='Anteil der Altersgruppen', tickformat=',.0%'),
+            legend=dict(title='Altersgruppen', traceorder='reversed'),  # Umgekehrte Reihenfolge in der Legende
+            hovermode='x unified'
+        )
+        
+        return {'data': traces, 'layout': layout}
+    else:
+        # Logik für andere Dimensionen bleibt unverändert
+        traces = [go.Bar(x=grouped.index, y=grouped[value], name=value) 
+                  for value in reversed(values_to_keep) if value in grouped.columns]
+        layout = go.Layout(title=title, barmode='stack', yaxis=dict(tickformat=',.0%'))
+        return {'data': traces, 'layout': layout}
+
 
 for graph_id, dimension, values_to_keep, title in [
     ('gender', 'GESCHLECHT', ['männlich', 'weiblich'], 'Geschlecht'),

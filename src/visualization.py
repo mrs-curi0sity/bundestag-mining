@@ -4,22 +4,41 @@ from plotly import graph_objs as go
 from src.config import LIST_OF_COLORS
 from src.mapping_values import df_mdb, df_mdb_wp, MAX_WP, WP_START
 
-# TODO Funktion modus selbst übergeben
-def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'): #selected_berufe
-    # select wahlperiode
-    selected_df = df_mdb_wp[(df_mdb_wp['WP']>= start_date) & (df_mdb_wp['WP']<= end_date)]
 
-    # selct partei
+def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'):
+    # Wahlperiode und Partei auswählen
+    selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
-
-    if modus=='count':
-        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).count()
-    elif modus=='mean':
-        grouped = selected_df[['ID', 'WP', dimension]].groupby([dimension, 'WP']).mean()
+    
+    if dimension == 'START_AGE_IN_YEARS_MAPPED':
+        # Alle Altersgruppen definieren
+        age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '70 - 80', '>= 80']
+        
+        def count_age_groups(group):
+            counts = group['START_AGE_IN_YEARS_MAPPED'].value_counts()
+            return pd.Series({ag: counts.get(ag, 0) for ag in age_groups})
+        
+        grouped = selected_df.groupby('WP').apply(count_age_groups)
+        # Fülle fehlende Werte mit 0
+        grouped = grouped.reindex(columns=age_groups, fill_value=0)
+        # Normalisierung pro Jahr (WP)
+        grouped = grouped.div(grouped.sum(axis=1), axis=0)
+        # Ersetze NaN durch 0 (falls eine Spalte komplett 0 war)
+        grouped = grouped.fillna(0)
+        
     else:
-        logging.err(f'this modus is not known: {modus}')
-        return
-    #grouped.reset_index(inplace=True)
+        # Ursprüngliche Logik für andere Dimensionen
+        if modus == 'count':
+            grouped = selected_df.groupby(['WP', dimension]).size().unstack(fill_value=0)
+        elif modus == 'mean':
+            grouped = selected_df.groupby(['WP', dimension]).mean().unstack(fill_value=0)
+        else:
+            logging.error(f'Dieser Modus ist nicht bekannt: {modus}')
+            return None
+        
+        # Normalisieren
+        grouped = grouped.div(grouped.sum(axis=1), axis=0)
+    
     return grouped
 
 

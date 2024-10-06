@@ -96,7 +96,7 @@ partei_mapping = {
     'GRÜNE': 'die Grünen',
 }
 
-
+"""
 def map_age_to_group(age):
     if age < 30:
         return '< 30'
@@ -111,7 +111,7 @@ def map_age_to_group(age):
     elif 70 <= age < 80:
         return '70 - 80'
     else:
-        return '>= 80'
+        return '>= 80'"""
 
 religion_mapping = {
     'ohne Angaben': 'unbekannt',
