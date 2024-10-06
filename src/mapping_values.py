@@ -18,29 +18,40 @@ MAX_WP = df_mdb_wp.WP.max()
 WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021, 2025]
 
 
-
-def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7):
+def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
     """
-    keep num_keep most occurences, replace other values by "sonstige"
+    Behält maximal num_keep der am häufigsten vorkommenden Werte,
+    ersetzt andere Werte durch "sonstige".
+    Wenn weniger als num_keep verschiedene Werte vorhanden sind,
+    werden alle vorhandenen Werte behalten.
     """
     
-    # e.g. 'CDU', 'SPD'
-    # Die häufigsten `num_keep` Werte ermitteln
-    values_to_keep = df_mdb_wp[dimension].value_counts().nlargest(num_keep).index.tolist()
-
+    # Anzahl der einzigartigen Werte ermitteln
+    unique_values = df_mdb_wp[dimension].nunique()
+    
+    # num_keep auf die tatsächliche Anzahl einzigartiger Werte begrenzen
+    actual_num_keep = min(num_keep, unique_values)
+    
+    # Die häufigsten `actual_num_keep` Werte ermitteln
+    values_to_keep = df_mdb_wp[dimension].value_counts().nlargest(actual_num_keep).index.tolist()
+    
     # Alle anderen Werte ermitteln
     values_to_discard = df_mdb[dimension].value_counts().index.difference(values_to_keep).tolist()
     
     # logging.info(f'[{dimension}]. keeping {values_to_keep}. replacing {values_to_discard[:3]} ... with <sonstige>')
-    df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
-    df_mdb_wp[dimension].replace(values_to_discard, 'sonstige', inplace=True)
+    
+    # Nur ersetzen, wenn es tatsächlich Werte zu ersetzen gibt
+    if values_to_discard:
+        df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
+        df_mdb_wp[dimension].replace(values_to_discard, 'sonstige', inplace=True)
     
     return values_to_keep, values_to_discard, df_mdb, df_mdb_wp
+    
 
 # TODO start move to objects or at least dict
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
-list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 6) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 10)
+list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 9)
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
                             
@@ -272,7 +283,7 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
 # neu mit hilfe von claude
 beruf_klassifizierung = {
     'Jurist*in': [
-        'anwalt', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
+        'anwalt', 'anwält', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
         'staatsanwalt', 'volljurist'
     ],
     'Land-/Forstwirt*in': [
@@ -313,7 +324,7 @@ beruf_klassifizierung = {
         'abgeordneter', 'parlamentarischer staatssekretär', 'staatsminister'
     ],
     'Arzt/Ärztin': [
-        'arzt', 'psycholog', 'psychother', 'apotheker', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt'
+        'arzt', 'ärzt', 'psycholog', 'psychother', 'apotheker', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt'
     ],
     'Theolog*in': [
         'pfarrer', 'theolog', 'diakon', 'pastor', 'priester'
