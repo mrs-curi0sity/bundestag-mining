@@ -87,7 +87,7 @@ sidebar = html.Div([
 ], style=SIDEBAR_STYLE)
 
 content = html.Div([
-    html.H2('Bundestag Dashboard', style=TEXT_STYLE),
+    html.H2('Bundestagsmining', style=TEXT_STYLE),
     html.Hr(),
     dbc.Row([
         dbc.Col(dcc.Graph(id='party'), md=6),
@@ -217,6 +217,7 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_KURZ'], inplace=True)
     
     fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_KURZ', color_discrete_sequence=LIST_OF_COLORS)
+    fig.update_traces(line=dict(width=3))
     fig.update_layout(
         title='Bleibedauer der Abgeordneten im Bundestag',
         xaxis_title='',
