@@ -96,22 +96,7 @@ partei_mapping = {
     'GRÜNE': 'die Grünen',
 }
 
-"""
-def map_age_to_group(age):
-    if age < 30:
-        return '< 30'
-    elif 30 <= age < 40:
-        return '30 - 40'
-    elif 40 <= age < 50:
-        return '40 - 50'
-    elif 50 <= age < 60:
-        return '50 - 60'
-    elif 60 <= age < 70:
-        return '60 - 70'  # Diese Gruppe fehlte in Ihrer ursprünglichen Liste
-    elif 70 <= age < 80:
-        return '70 - 80'
-    else:
-        return '>= 80'"""
+
 
 religion_mapping = {
     'ohne Angaben': 'unbekannt',
@@ -384,6 +369,35 @@ def klassifiziere_beruf(beruf):
                 return kategorie
     return 'Sonstige'
 
+
+
+
+def get_color_for_party(party):
+    color_map = {
+        'SPD': '#E3000F',           # Rot
+        'CDU': '#000000',           # Schwarz
+        'FDP': '#FFED00',           # Gelb
+        'CSU': '#0080C8',           # Hellblau
+        'BÜNDNIS 90/DIE GRÜNEN': '#64A12D',  # Grün
+        'DIE LINKE.': '#BE3075',    # Dunkelrot/Magenta
+        'AfD': '#009EE0',           # Hellblau
+        'sonstige': '#808080'       # Grau für sonstige Parteien
+    }
+    return color_map.get(party, '#808080')  # Standardfarbe Grau, falls keine Zuordnung gefunden wird
+
+
+
+def get_color_for_age_group(age_group):
+    color_map = {
+        '< 30': '#66c2a5',  # Hellgrün
+        '30 - 40': '#fc8d62',  # Orange
+        '40 - 50': '#8da0cb',  # Hellblau
+        '50 - 60': '#e78ac3',  # Rosa
+        '60 - 70': '#a6d854',  # Gelbgrün
+        '70 - 80': '#ffd92f',  # Gelb
+        '>= 80': '#e5c494'   # Beige
+    }
+    return color_map.get(age_group, '#CCCCCC')  # Standardfarbe, falls keine Zuordnung gefunden wird
 
 
 

@@ -15,7 +15,7 @@ sys.path.insert(0, parent_dir)
 
 from src.mapping_values import (
     df_mdb_wp, MAX_WP, WP_START, list_of_parteien, list_of_religion,
-    list_of_familienstand, list_of_beruf, list_of_altersklassen
+    list_of_familienstand, list_of_beruf, list_of_altersklassen, get_color_for_party, get_color_for_age_group
 )
 from src.visualization import select_vis_data, compute_traces
 from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
@@ -171,22 +171,6 @@ def set_check_list_values(n_clicks, options, values):
     if n_clicks is None:
         return values  # Return current values if button hasn't been clicked
     return [i['value'] for i in options] if n_clicks % 2 == 0 else []
-"""
-def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
-    grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
-    traces = compute_traces(grouped, start_date, end_date, values_to_keep, dimension)
-    return {'data': traces, 'layout': go.Layout(title=title)}"""
-def get_color_for_age_group(age_group):
-    color_map = {
-        '< 30': '#66c2a5',  # Hellgrün
-        '30 - 40': '#fc8d62',  # Orange
-        '40 - 50': '#8da0cb',  # Hellblau
-        '50 - 60': '#e78ac3',  # Rosa
-        '60 - 70': '#a6d854',  # Gelbgrün
-        '70 - 80': '#ffd92f',  # Gelb
-        '>= 80': '#e5c494'   # Beige
-    }
-    return color_map.get(age_group, '#CCCCCC')  # Standardfarbe, falls keine Zuordnung gefunden wird
 
 def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
     grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
@@ -215,6 +199,30 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         )
         
         return {'data': traces, 'layout': layout}
+
+    elif dimension == 'PARTEI_KURZ':
+        traces = []
+        for party in values_to_keep:
+            if party in grouped.columns:
+                trace = go.Bar(
+                    x=grouped.index,
+                    y=grouped[party],
+                    name=party,
+                    marker_color=get_color_for_party(party)
+                )
+                traces.append(trace)
+        
+        layout = go.Layout(
+            title=title,
+            xaxis=dict(title='Wahlperiode'),
+            yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
+            barmode='stack',
+            legend=dict(title='Parteien'),
+            hovermode='x unified'
+        )
+        
+        return {'data': traces, 'layout': layout}
+   
     else:
         # Logik für andere Dimensionen bleibt unverändert
         traces = [go.Bar(x=grouped.index, y=grouped[value], name=value) 
@@ -240,6 +248,8 @@ for graph_id, dimension, values_to_keep, title in [
     )(lambda n_clicks, start_date, end_date, selected_parteien, 
        dim=dimension, values=values_to_keep, t=title: 
        update_graph(n_clicks, start_date, end_date, selected_parteien, dim, values, t))
+
+
 
 @app.callback(
     Output('num_years_in_bt', 'figure'),
@@ -268,7 +278,8 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
         yaxis_title='Jahre im BT bei Beginn der WP'
     )
     return fig
-    
+
+
 
 # Aktualisierte Callback-Funktion für Sortierung und Paginierung
 @app.callback(
@@ -291,6 +302,9 @@ def update_table(n_clicks, page_current, page_size, sort_by, start_date, end_dat
             ascending=sort_by[0]['direction'] == 'asc',
             inplace=False
         )
+
+    else:
+         selected_df = selected_df.sort_values('WP', ascending=False, inplace=False)
     
     return selected_df.iloc[page_current*page_size:(page_current + 1)*page_size].to_dict('records')
 
