@@ -71,6 +71,8 @@ def create_button(id, label):
         className='w-100',
     )
 
+
+
 # Layout components
 sidebar = html.Div([
     html.H2('Filter', style=TEXT_STYLE),
@@ -104,55 +106,71 @@ content = html.Div([
     dbc.Row([
         dbc.Col(dcc.Graph(id='beruf'), md=12)
     ]),
-    dbc.Row([
+    html.Div([
+
         dash_table.DataTable(
             id='selected_records',
             columns=[
                 {
                     'name': 'ALTER' if colname == 'START_AGE_IN_YEARS_MAPPED' else colname,
                     'id': colname,
-                    **(({'presentation': 'markdown'} if colname == 'VITA_KURZ' else {}))#,
-                    #'sortable': True
+                    'presentation': 'markdown' if colname == 'VITA_KURZ' else 'input',
+                    'type': 'text',
                 } for colname in COLUMNS_FOR_DISPLAY
             ],
-            
-            page_current=0,
-            page_size=PAGE_SIZE,
-            page_action='custom',
+            page_size=20,
             sort_action='custom',
             sort_mode='single',
-            sort_by=[],
+            filter_action='native',  # Ändern Sie dies zu 'native' für die eingebaute Suchfunktion
             style_table={'overflowX': 'auto'},
             style_cell={
+                'fontFamily': 'Arial, sans-serif',
+                'fontSize': '14px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis',
+                'maxWidth': 0,
+                'minWidth': '120px',
                 'whiteSpace': 'normal',
                 'height': 'auto',
-                'textAlign': 'left',
-                'padding': '10px',
-                'font-family': 'Arial, sans-serif',
-                'minWidth': '100px',
-                'width': '150px',
-                'maxWidth': '300px',
+                'textAlign': 'left'
             },
             style_cell_conditional=[
                 {
                     'if': {'column_id': 'VITA_KURZ'},
-                    'width': '40%',
-                    'minWidth': '500px',
-                    'maxWidth': '800px',
-                }
+                    'maxWidth': '700px',
+                    'minWidth': '300px',
+                },
+            ] + [
+                {
+                    'if': {'column_id': colname},
+                    'maxWidth': '150px',
+                } for colname in COLUMNS_FOR_DISPLAY if colname != 'VITA_KURZ'
             ],
+            style_data={
+                'whiteSpace': 'normal',
+                'height': 'auto',
+                'padding': '5px'  # Diese Zeile fügt den Innenabstand hinz
+            },
             style_header={
                 'backgroundColor': 'rgb(230, 230, 230)',
-                'fontWeight': 'bold',
-                'border': '1px solid black'
+                'fontWeight': 'bold'
             },
-            style_data={
-                'border': '1px solid lightgrey'
-            },
-            markdown_options={'html': True}
+            css=[{
+                'selector': '.dash-spreadsheet td div',
+                'rule': '''
+                    line-height: 15px;
+                    max-height: 250px;
+                    min-height: 30px;
+                    height: auto;
+                    white-space: normal;
+                    overflow-y: auto;
+                '''
+            }],
         )
 
-    ])
+
+        
+    ]),
 ], style=CONTENT_STYLE)
 
 # Initialize app
@@ -280,33 +298,67 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     return fig
 
 
-
-# Aktualisierte Callback-Funktion für Sortierung und Paginierung
 @app.callback(
     Output('selected_records', 'data'),
     [Input('submit_button', 'n_clicks'),
      Input('selected_records', 'page_current'),
      Input('selected_records', 'page_size'),
-     Input('selected_records', 'sort_by')],
+     Input('selected_records', 'sort_by'),
+     Input('selected_records', 'filter_query')],  # Ändern Sie 'search-bar' zu 'filter_query'
     [State('wp_start', 'value'),
      State('wp_end', 'value'), 
      State('check_list_parteien', 'value')]
 )
-def update_table(n_clicks, page_current, page_size, sort_by, start_date, end_date, selected_parteien):
-    selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
-    
-    if sort_by:
-        selected_df = selected_df.sort_values(
-            sort_by[0]['column_id'],
-            ascending=sort_by[0]['direction'] == 'asc',
-            inplace=False
-        )
+def update_table(n_clicks, page_current, page_size, sort_by, filter_query, start_date, end_date, selected_parteien):
+    logging.info("update_table Callback ausgelöst")
+    logging.info(f"page_current: {page_current}, page_size: {page_size}")
 
-    else:
-         selected_df = selected_df.sort_values('WP', ascending=False, inplace=False)
-    
-    return selected_df.iloc[page_current*page_size:(page_current + 1)*page_size].to_dict('records')
+    try:
+        selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
+        selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+        
+        # Anwenden der Sortierung
+        if sort_by:
+            selected_df = selected_df.sort_values(
+                sort_by[0]['column_id'],
+                ascending=sort_by[0]['direction'] == 'asc',
+                inplace=False
+            )
+        else:
+            selected_df = selected_df.sort_values('WP', ascending=False, inplace=False)
+        
+        # Die Filterung wird jetzt clientseitig durchgeführt
+        
+        # Paginierung
+        page_current = 0 if page_current is None else page_current
+        page_size = 20 if page_size is None else page_size
+        start = page_current * page_size
+        end = (page_current + 1) * page_size
+        
+        return selected_df.iloc[start:end].to_dict('records')
+    except Exception as e:
+        logging.error(f"Fehler in update_table: {str(e)}")
+        return []
+
+@app.callback(
+    Output('selected_records', 'style_data_conditional'),
+    Input('selected_records', 'active_cell')
+)
+def update_selected_cell(active_cell):
+    if active_cell:
+        return [{
+            'if': {
+                'row_index': active_cell['row'],
+                'column_id': active_cell['column_id']
+            },
+            'maxHeight': 'none',
+            'height': 'auto',
+            'whiteSpace': 'normal',
+            'textOverflow': 'clip',
+            'overflow': 'auto'
+        }]
+    return []
+
 
 
 if __name__ == '__main__':
