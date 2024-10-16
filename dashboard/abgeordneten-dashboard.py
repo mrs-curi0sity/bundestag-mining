@@ -46,6 +46,9 @@ TEXT_STYLE = {
     'color': '#191970'
 }
 
+# Globale Variable für gefilterte Daten
+filtered_df = pd.DataFrame()
+
 # Helper functions
 def create_dropdown(id, options, value):
     return dcc.Dropdown(
@@ -70,8 +73,6 @@ def create_button(id, label):
         color='primary',
         className='w-100',
     )
-
-
 
 # Layout components
 sidebar = html.Div([
@@ -107,7 +108,6 @@ content = html.Div([
         dbc.Col(dcc.Graph(id='beruf'), md=12)
     ]),
     html.Div([
-
         dash_table.DataTable(
             id='selected_records',
             columns=[
@@ -119,9 +119,13 @@ content = html.Div([
                 } for colname in COLUMNS_FOR_DISPLAY
             ],
             page_size=20,
+            page_current=0,
+            page_action='custom',
+            filter_action='custom',
+            filter_query='',
             sort_action='custom',
-            sort_mode='single',
-            filter_action='native',  # Ändern Sie dies zu 'native' für die eingebaute Suchfunktion
+            sort_mode='multi',
+            sort_by=[],
             style_table={'overflowX': 'auto'},
             style_cell={
                 'fontFamily': 'Arial, sans-serif',
@@ -138,7 +142,7 @@ content = html.Div([
                 {
                     'if': {'column_id': 'VITA_KURZ'},
                     'maxWidth': '700px',
-                    'minWidth': '300px',
+                    'minWidth': '600px',
                 },
             ] + [
                 {
@@ -149,7 +153,7 @@ content = html.Div([
             style_data={
                 'whiteSpace': 'normal',
                 'height': 'auto',
-                'padding': '5px'  # Diese Zeile fügt den Innenabstand hinz
+                'padding': '5px'
             },
             style_header={
                 'backgroundColor': 'rgb(230, 230, 230)',
@@ -167,10 +171,8 @@ content = html.Div([
                 '''
             }],
         )
-
-
-        
     ]),
+    html.Div(id='pagination-info')
 ], style=CONTENT_STYLE)
 
 # Initialize app
@@ -196,7 +198,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
         age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '70 - 80', '>= 80']
         traces = []
-        for age_group in age_groups:  # Nicht mehr umgekehrt, um die gewünschte Reihenfolge zu erhalten
+        for age_group in age_groups:
             trace = go.Scatter(
                 x=grouped.index,
                 y=grouped[age_group],
@@ -212,7 +214,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             title=title,
             xaxis=dict(title='Wahlperiode'),
             yaxis=dict(title='Anteil der Altersgruppen', tickformat=',.0%'),
-            legend=dict(title='Altersgruppen', traceorder='reversed'),  # Umgekehrte Reihenfolge in der Legende
+            legend=dict(title='Altersgruppen', traceorder='reversed'),
             hovermode='x unified'
         )
         
@@ -242,12 +244,10 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         return {'data': traces, 'layout': layout}
    
     else:
-        # Logik für andere Dimensionen bleibt unverändert
         traces = [go.Bar(x=grouped.index, y=grouped[value], name=value) 
                   for value in reversed(values_to_keep) if value in grouped.columns]
         layout = go.Layout(title=title, barmode='stack', yaxis=dict(tickformat=',.0%'))
         return {'data': traces, 'layout': layout}
-
 
 for graph_id, dimension, values_to_keep, title in [
     ('gender', 'GESCHLECHT', ['männlich', 'weiblich'], 'Geschlecht'),
@@ -266,8 +266,6 @@ for graph_id, dimension, values_to_keep, title in [
     )(lambda n_clicks, start_date, end_date, selected_parteien, 
        dim=dimension, values=values_to_keep, t=title: 
        update_graph(n_clicks, start_date, end_date, selected_parteien, dim, values, t))
-
-
 
 @app.callback(
     Output('num_years_in_bt', 'figure'),
@@ -297,48 +295,80 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     )
     return fig
 
-
 @app.callback(
-    Output('selected_records', 'data'),
+    [Output('selected_records', 'data'),
+     Output('selected_records', 'page_count'),
+     Output('pagination-info', 'children')],
     [Input('submit_button', 'n_clicks'),
      Input('selected_records', 'page_current'),
      Input('selected_records', 'page_size'),
      Input('selected_records', 'sort_by'),
-     Input('selected_records', 'filter_query')],  # Ändern Sie 'search-bar' zu 'filter_query'
+     Input('selected_records', 'filter_query')],
     [State('wp_start', 'value'),
      State('wp_end', 'value'), 
      State('check_list_parteien', 'value')]
 )
 def update_table(n_clicks, page_current, page_size, sort_by, filter_query, start_date, end_date, selected_parteien):
-    logging.info("update_table Callback ausgelöst")
-    logging.info(f"page_current: {page_current}, page_size: {page_size}")
+    global filtered_df
+    
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        # Beim ersten Laden der Seite
+        filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= 1) & (df_mdb_wp['WP'] <= MAX_WP)]
+        filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(list_of_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+    elif ctx.triggered[0]['prop_id'] == 'submit_button.n_clicks':
+        # Wenn der Submit-Button geklickt wird
+        filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
+        filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+    
+    # Anwenden der Filter
+    if filter_query:
+        filtered_df = apply_filters(filtered_df, filter_query)
+    
+    # Anwenden der Sortierung
+    if sort_by:
+        filtered_df = filtered_df.sort_values(
+            [col['column_id'] for col in sort_by],
+            ascending=[col['direction'] == 'asc' for col in sort_by],
+            inplace=False
+        )
+    
+    # Paginierung
+    total_records = len(filtered_df)
+    page_count = -(-total_records // page_size)  # Aufrunden
+    page_current = 0 if page_current is None else page_current
+    start = page_current * page_size
+    end = (page_current + 1) * page_size
+    
+    page_data = filtered_df.iloc[start:end].to_dict('records')
+    
+    # Pagination Info
+    pagination_info = f"Showing {start+1} to {min(end, total_records)} of {total_records} entries"
+    
+    return page_data, page_count, pagination_info
 
-    try:
-        selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
-        selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+def apply_filters(df, filter_query):
+    filtering_expressions = filter_query.split(' && ')
+    for filter_part in filtering_expressions:
+        col_name, op, filter_value = split_filter_part(filter_part)
         
-        # Anwenden der Sortierung
-        if sort_by:
-            selected_df = selected_df.sort_values(
-                sort_by[0]['column_id'],
-                ascending=sort_by[0]['direction'] == 'asc',
-                inplace=False
-            )
-        else:
-            selected_df = selected_df.sort_values('WP', ascending=False, inplace=False)
-        
-        # Die Filterung wird jetzt clientseitig durchgeführt
-        
-        # Paginierung
-        page_current = 0 if page_current is None else page_current
-        page_size = 20 if page_size is None else page_size
-        start = page_current * page_size
-        end = (page_current + 1) * page_size
-        
-        return selected_df.iloc[start:end].to_dict('records')
-    except Exception as e:
-        logging.error(f"Fehler in update_table: {str(e)}")
-        return []
+        if op in ('eq', 'ne', 'lt', 'le', 'gt', 'ge'):
+            df = df.loc[getattr(df[col_name], op)(filter_value)]
+        elif op == 'contains':
+            df = df.loc[df[col_name].str.contains(filter_value, case=False)]
+        elif op == 'datestartswith':
+            df = df.loc[df[col_name].str.startswith(filter_value)]
+    
+    return df
+
+def split_filter_part(filter_part):
+    for operator_type in ['eq', 'ne', 'lt', 'le', 'gt', 'ge', 'contains', 'datestartswith']:
+        if operator_type in filter_part:
+            name_part, value_part = filter_part.split(operator_type, 1)
+            name = name_part[name_part.find('{') + 1: name_part.rfind('}')]
+            value = value_part[value_part.find('{') + 1: value_part.rfind('}')]
+            return name, operator_type, value
+    return [None] * 3
 
 @app.callback(
     Output('selected_records', 'style_data_conditional'),
@@ -358,8 +388,6 @@ def update_selected_cell(active_cell):
             'overflow': 'auto'
         }]
     return []
-
-
 
 if __name__ == '__main__':
     app.run_server(host="0.0.0.0", port=8050, debug=True)
