@@ -29,7 +29,6 @@ This guide outlines the steps to deploy updated code to Google Cloud Run using t
    docker build -t gcr.io/bundestag-miner/btm .
    ```
 
-   Replace `[PROJECT-ID]` with your Google Cloud project ID and `[IMAGE-NAME]` with your desired image name.
 
 3. **Push Docker Image to Google Container Registry**
 
@@ -47,7 +46,6 @@ This guide outlines the steps to deploy updated code to Google Cloud Run using t
    gcloud run deploy bundestag-dashboard --image gcr.io/bundestag-miner/btm --platform managed
    ```
 
-   Replace `[SERVICE-NAME]` with your Cloud Run service name.
 
 5. **Configuration**
 
