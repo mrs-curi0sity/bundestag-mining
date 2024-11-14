@@ -56,7 +56,7 @@ list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replac
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
 
 
-list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '> 70']
+list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
 
 list_of_familienstand = ['verheiratet', 'ledig', 'geschieden', 'verwitwet', 
     'Lebenspartnerschaft', 'getrennt lebend', 'alleinerziehend', 
@@ -215,15 +215,6 @@ def map_family_status(status):
 
 
 def map_age_to_group(age):
-    """
-    Maps an age to an age group category.
-    
-    Args:
-        age (int): The age to categorize
-        
-    Returns:
-        str: The age group category
-    """
     if age < 30:
         return '< 30'
     elif age < 40:
@@ -232,12 +223,8 @@ def map_age_to_group(age):
         return '40 - 50'
     elif age < 60:
         return '50 - 60'
-    elif age < 70:
-        return '60 - 70'
     else:
-        return '> 70'
-
-
+        return '> 60'
 
 
 def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
@@ -433,20 +420,16 @@ def get_color_palette(num_colors):
 
 
 
+
 def get_color_for_age_group(age_group):
-    # Definieren Sie hier eine feste Farbpalette für Altersgruppen
     color_map = {
-        '< 30': 'rgb(0, 255, 0)',    # Grün
-        '30 - 40': 'rgb(255, 127, 0)',  # Orange
-        '40 - 50': 'rgb(255, 0, 0)',    # Rot
-        '50 - 60': 'rgb(152, 0, 152)',   # Violett
-        '> 60': 'rgb(152, 152, 152)'     # Grau
-       # '70 - 80': ' 'rgb(255, 255, 0)',  # Gelb
-       # '>= 80':   'rgb(0, 0, 255)',    # Blau
+        '< 30': 'rgb(0, 255, 0)',    
+        '30 - 40': 'rgb(255, 127, 0)',  
+        '40 - 50': 'rgb(255, 0, 0)',    
+        '50 - 60': 'rgb(152, 0, 152)',   
+        '> 60': 'rgb(100, 100, 100)' 
     }
-    return color_map.get(age_group, 'rgb(128, 128, 128)')  # Grau als Standardfarbe
-
-
+    return color_map.get(age_group, 'rgb(128, 128, 128)')
 
 
 

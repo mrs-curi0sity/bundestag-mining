@@ -12,7 +12,7 @@ def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimensio
     
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
         # Alle Altersgruppen definieren
-        age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '70 - 80', '>= 80']
+        age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
         
         def count_age_groups(group):
             counts = group['START_AGE_IN_YEARS_MAPPED'].value_counts()

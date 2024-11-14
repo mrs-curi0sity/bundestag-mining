@@ -1,3 +1,6 @@
+import logging
+import sys
+import os
 import pandas as pd
 import dash
 import dash_bootstrap_components as dbc
@@ -5,17 +8,15 @@ from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import plotly.express as px
-import logging
-import sys
-import os
+
 
 # Add parent directory to sys.path
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
 from src.mapping_values import (
-    df_mdb_wp, MAX_WP, WP_START, list_of_parteien, list_of_religion,
-    list_of_familienstand, list_of_beruf, list_of_altersklassen, get_color_for_party, get_color_for_age_group
+    df_mdb_wp, MAX_WP, WP_START, list_of_parteien, list_of_religion, list_of_children,
+    list_of_familienstand, list_of_beruf, list_of_altersklassen, get_color_for_party, get_color_for_age_group, get_color_palette
 )
 from src.visualization import select_vis_data, compute_traces
 from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
@@ -74,6 +75,8 @@ def create_button(id, label):
         className='w-100',
     )
 
+
+
 # Layout components
 sidebar = html.Div([
     html.H2('Filter', style=TEXT_STYLE),
@@ -98,16 +101,17 @@ content = html.Div([
     ]),
     dbc.Row([
         dbc.Col(dcc.Graph(id='familienstand'), md=6),
-        dbc.Col(dcc.Graph(id='religion'), md=6)
+        dbc.Col(dcc.Graph(id='kinder'), md=6)  # Neue Zeile
     ]),
     dbc.Row([
         dbc.Col(dcc.Graph(id='alter'), md=6),
         dbc.Col(dcc.Graph(id='num_years_in_bt'), md=6)
     ]),
     dbc.Row([
-        dbc.Col(dcc.Graph(id='beruf'), md=12)
+        dbc.Col(dcc.Graph(id='beruf'), md=6),    # Verschoben in gleiche Row
+        dbc.Col(dcc.Graph(id='religion'), md=6)
     ]),
-    html.Div([
+        html.Div([
         dash_table.DataTable(
             id='selected_records',
             columns=[
@@ -125,7 +129,7 @@ content = html.Div([
             filter_query='',
             sort_action='custom',
             sort_mode='multi',
-            sort_by=[],
+            sort_by=[{'column_id': 'WP', 'direction': 'desc'}],  # Default sorting
             style_table={'overflowX': 'auto'},
             style_cell={
                 'fontFamily': 'Arial, sans-serif',
@@ -192,12 +196,22 @@ def set_check_list_values(n_clicks, options, values):
         return values  # Return current values if button hasn't been clicked
     return [i['value'] for i in options] if n_clicks % 2 == 0 else []
 
+
+
 def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
     grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
+    print("Verfügbare Spalten:")
+    print(grouped.columns)
+    print("\nDimension:", dimension)
+
+    
+    # Konvertiere den Index zu Startdaten
+    grouped.index = [WP_START[wp-1] for wp in grouped.index]
     
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
-        age_groups = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '70 - 80', '>= 80']
+        age_groups = list_of_altersklassen
         traces = []
+
         for age_group in age_groups:
             trace = go.Scatter(
                 x=grouped.index,
@@ -212,14 +226,15 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         
         layout = go.Layout(
             title=title,
-            xaxis=dict(title='Wahlperiode'),
+            xaxis=dict(title='Jahr',
+                      tickformat='%Y',
+                      type='date'),
             yaxis=dict(title='Anteil der Altersgruppen', tickformat=',.0%'),
-            legend=dict(title='Altersgruppen', traceorder='reversed'),
+            legend=dict(title='Altersgruppen'),#, traceorder='reversed'),
             hovermode='x unified'
         )
-        
         return {'data': traces, 'layout': layout}
-
+        
     elif dimension == 'PARTEI_KURZ':
         traces = []
         for party in values_to_keep:
@@ -234,7 +249,9 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         
         layout = go.Layout(
             title=title,
-            xaxis=dict(title='Wahlperiode'),
+            xaxis=dict(title='Jahr',
+                      tickformat='%Y',
+                      type='date'),
             yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
             barmode='stack',
             legend=dict(title='Parteien'),
@@ -242,18 +259,39 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         )
         
         return {'data': traces, 'layout': layout}
-   
+    
     else:
-        traces = [go.Bar(x=grouped.index, y=grouped[value], name=value) 
-                  for value in reversed(values_to_keep) if value in grouped.columns]
-        layout = go.Layout(title=title, barmode='stack', yaxis=dict(tickformat=',.0%'))
+        values_in_data = [value for value in reversed(values_to_keep) if value in grouped.columns]
+        color_palette = get_color_palette(len(values_in_data))
+        
+        traces = [go.Bar(
+            x=grouped.index, 
+            y=grouped[value], 
+            name=value,
+            marker_color=color_palette[i]
+        ) for i, value in enumerate(values_in_data)]
+        
+        layout = go.Layout(
+            title=title, 
+            barmode='stack', 
+            yaxis=dict(tickformat=',.0%'),
+            xaxis=dict(title='Jahr',
+                      tickformat='%Y',
+                      type='date'),
+            yaxis_title='Anteil',
+            legend=dict(title=dimension),
+            hovermode='x unified'
+        )
         return {'data': traces, 'layout': layout}
+
+
 
 for graph_id, dimension, values_to_keep, title in [
     ('gender', 'GESCHLECHT', ['männlich', 'weiblich'], 'Geschlecht'),
     ('party', 'PARTEI_KURZ', list_of_parteien, 'Partei'),
     ('religion', 'RELIGION_MAPPED', list_of_religion, 'Religion'),
     ('familienstand', 'FAMILIENSTAND_MAPPED', list_of_familienstand, 'Familienstand'),
+    ('kinder', 'KINDER_MAPPED', list_of_children, 'Anzahl Kinder'), 
     ('alter', 'START_AGE_IN_YEARS_MAPPED', list_of_altersklassen, 'Alter'),
     ('beruf', 'BERUF_MAPPED', list_of_beruf, 'Beruf')
 ]:
@@ -313,67 +351,105 @@ def update_table(n_clicks, page_current, page_size, sort_by, filter_query, start
     
     ctx = dash.callback_context
     if not ctx.triggered:
-        # Beim ersten Laden der Seite
+        logger.info("Initial load")
         filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= 1) & (df_mdb_wp['WP'] <= MAX_WP)]
         filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(list_of_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+        # Sort by WP in descending order initially
+        filtered_df = filtered_df.sort_values('WP', ascending=False)
     elif ctx.triggered[0]['prop_id'] == 'submit_button.n_clicks':
-        # Wenn der Submit-Button geklickt wird
+        logger.info("Submit button clicked")
         filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
         filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+        # Sort by WP in descending order after filtering
+        filtered_df = filtered_df.sort_values('WP', ascending=False)
+    
+    working_df = filtered_df.copy()
     
     # Anwenden der Filter
     if filter_query:
-        filtered_df = apply_filters(filtered_df, filter_query)
+        try:
+            working_df = apply_filters(working_df, filter_query)
+            logger.info(f"Number of rows after filtering: {len(working_df)}")
+        except Exception as e:
+            logger.error(f"Error applying filters: {str(e)}")
+            logger.error(f"Filter query: {filter_query}")
     
     # Anwenden der Sortierung
     if sort_by:
-        filtered_df = filtered_df.sort_values(
-            [col['column_id'] for col in sort_by],
-            ascending=[col['direction'] == 'asc' for col in sort_by],
-            inplace=False
-        )
+        try:
+            working_df = working_df.sort_values(
+                [col['column_id'] for col in sort_by],
+                ascending=[col['direction'] == 'asc' for col in sort_by],
+                inplace=False
+            )
+        except Exception as e:
+            logger.error(f"Error applying sort: {str(e)}")
     
     # Paginierung
-    total_records = len(filtered_df)
+    total_records = len(working_df)
     page_count = -(-total_records // page_size)  # Aufrunden
     page_current = 0 if page_current is None else page_current
     start = page_current * page_size
     end = (page_current + 1) * page_size
     
-    page_data = filtered_df.iloc[start:end].to_dict('records')
+    page_data = working_df.iloc[start:end].to_dict('records')
     
     # Pagination Info
     pagination_info = f"Showing {start+1} to {min(end, total_records)} of {total_records} entries"
+    
+    logger.info(f"Returning {len(page_data)} records")
     
     return page_data, page_count, pagination_info
 
 def apply_filters(df, filter_query):
     filtering_expressions = filter_query.split(' && ')
+    dff = df.copy()
+    
     for filter_part in filtering_expressions:
         col_name, op, filter_value = split_filter_part(filter_part)
         
+        if not col_name:
+            continue
+            
+        logger.info(f"Applying filter: column={col_name}, operator={op}, value={filter_value}")
+        
+        # Convert column to string for text-based operations
+        if op in ('contains', 'scontains'):
+            dff[col_name] = dff[col_name].astype(str)
+        
         if op in ('eq', 'ne', 'lt', 'le', 'gt', 'ge'):
-            df = df.loc[getattr(df[col_name], op)(filter_value)]
+            # Handle numeric comparisons
+            try:
+                filter_value = float(filter_value)
+                dff = dff.loc[getattr(dff[col_name], op)(filter_value)]
+            except ValueError:
+                dff = dff.loc[getattr(dff[col_name], op)(filter_value)]
         elif op == 'contains':
-            df = df.loc[df[col_name].str.contains(filter_value, case=False)]
+            # Case-insensitive contains
+            dff = dff[dff[col_name].str.contains(filter_value, case=False, na=False)]
+        elif op == 'scontains':
+            # Case-sensitive contains
+            dff = dff[dff[col_name].str.contains(filter_value, case=True, na=False)]
         elif op == 'datestartswith':
-            df = df.loc[df[col_name].str.startswith(filter_value)]
+            dff = dff[dff[col_name].str.startswith(filter_value, na=False)]
+        
+        logger.info(f"Rows remaining after filter: {len(dff)}")
     
-    return df
+    return dff
 
 def split_filter_part(filter_part):
-    for operator_type in ['eq', 'ne', 'lt', 'le', 'gt', 'ge', 'contains', 'datestartswith']:
+    for operator_type in ['eq', 'ne', 'lt', 'le', 'gt', 'ge', 'contains', 'scontains', 'datestartswith']:
         if operator_type in filter_part:
             name_part, value_part = filter_part.split(operator_type, 1)
             name = name_part[name_part.find('{') + 1: name_part.rfind('}')]
-            value = value_part[value_part.find('{') + 1: value_part.rfind('}')]
+            value = value_part.strip()
+            if value.startswith('{') and value.endswith('}'):
+                value = value[1:-1]
             return name, operator_type, value
     return [None] * 3
 
-@app.callback(
-    Output('selected_records', 'style_data_conditional'),
-    Input('selected_records', 'active_cell')
-)
+
+
 def update_selected_cell(active_cell):
     if active_cell:
         return [{
