@@ -52,9 +52,26 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
 # TODO start move to objects or at least dict
 list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 10)
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
-list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '70 - 80',  '>= 80']
+
+
+list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '60 - 70', '> 70']
+
+list_of_familienstand = ['verheiratet', 'ledig', 'geschieden', 'verwitwet', 
+    'Lebenspartnerschaft', 'getrennt lebend', 'alleinerziehend', 
+    'sonstige', 'keine Angaben']
+
+# Neue Liste für Kinder
+list_of_children = [
+    'ohne Kinder', 
+    'mit einem Kind', 
+    'mit zwei Kindern', 
+    'mit mehr als zwei Kindern', 
+    'keine Angaben'
+]
+
+
                             
 # append 'sonstige' to list of valid values
 for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
@@ -126,88 +143,99 @@ religion_mapping = {
 }
 
 
-family_status_mapping = {
-    # Verheiratet
-    'verheiratet': 'verheiratet_ohne_kinder',
-    'verheiratet, 1 Kind': 'verheiratet_mit_1_kind',
-    'verheiratet, 2 Kinder': 'verheiratet_mit_2_kindern',
-    'verheiratet, 3 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 4 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 5 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 6 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 7 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 8 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 9 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 10 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 12 Kinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 2 Kinder, 3 Pflegekinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 1 Kinder, 3 Pflegekinder': 'verheiratet_mit_mehr_als_2_kindern',
-    'verheiratet, 1 Adoptivkind': 'verheiratet_mit_1_kind',
+def map_family_status(status):
+    """
+    Maps detailed family status to both relationship status and number of children.
+    
+    Args:
+        status (str): Original family status string
+        
+    Returns:
+        tuple: (relationship status, children category)
+    """
+    status = str(status).lower().strip()
+    
+    # Initialisierung der Rückgabewerte
+    relationship_status = 'keine Angaben'
+    children_status = 'ohne Kinder'
+    
+    # Zähle Kinder
+    num_children = 0
+    if 'kind' in status or 'kinder' in status or 'pflegekind' in status or 'adoptivkind' in status:
+        # Suche nach Zahlen im String
+        import re
+        numbers = re.findall(r'\d+', status)
+        if numbers:
+            num_children = sum(int(num) for num in numbers)
+    
+    # Mappe Kinderanzahl auf Kategorien
+    if num_children == 1:
+        children_status = 'mit einem Kind'
+    elif num_children == 2:
+        children_status = 'mit zwei Kindern'
+    elif num_children > 2:
+        children_status = 'mit mehr als zwei Kindern'
+    
+    # Beziehungsstatus mapping
+    if status in ['nan', 'keine angaben', 'ohne angaben', 'unbekannt', '']:
+        relationship_status = 'keine Angaben'
+        children_status = 'keine Angaben'
+    
+    elif 'verheiratet' in status:
+        relationship_status = 'verheiratet'
+    
+    elif 'ledig' in status:
+        relationship_status = 'ledig'
+    
+    elif 'geschieden' in status:
+        relationship_status = 'geschieden'
+    
+    elif 'verwitwet' in status:
+        relationship_status = 'verwitwet'
+    
+    elif any(x in status for x in ['lebensgemeinschaft', 'verpartnert', 'eingetragene lebenspartnerschaft']):
+        relationship_status = 'Lebenspartnerschaft'
+    
+    elif 'getrennt lebend' in status:
+        relationship_status = 'getrennt lebend'
+    
+    elif 'alleinerziehend' in status:
+        relationship_status = 'alleinerziehend'
+    
+    elif 'verlobt' in status:
+        relationship_status = 'ledig'
+    
+    else:
+        relationship_status = 'sonstige'
+    
+    return relationship_status, children_status
 
-    # Ledig
-    'ledig': 'ledig_ohne_kinder',
-    'ledig, 1 Kind': 'ledig_mit_1_kind',
-    'ledig, 2 Kinder': 'ledig_mit_2_kindern',
-    'ledig, 3 Kinder': 'ledig_mit_mehr_als_2_kindern',
-    'ledig, 4 Kinder': 'ledig_mit_mehr_als_2_kindern',
-    'ledig, in Lebensgemeinschaft lebend, 4 Kinder': 'ledig_mit_mehr_als_2_kindern',
 
-    # Geschieden
-    'geschieden': 'geschieden_ohne_kinder',
-    'geschieden, 1 Kind': 'geschieden_mit_1_kind',
-    'geschieden, 2 Kinder': 'geschieden_mit_2_kindern',
-    'geschieden, 3 Kinder': 'geschieden_mit_mehr_als_2_kindern',
-    'geschieden, 4 Kinder': 'geschieden_mit_mehr_als_2_kindern',
-    'geschieden, 5 Kinder': 'geschieden_mit_mehr_als_2_kindern',
 
-    # Verwitwet
-    'verwitwet': 'verwitwet_ohne_kinder',
-    'verwitwet, 1 Kind': 'verwitwet_mit_1_kind',
-    'verwitwet, 2 Kinder': 'verwitwet_mit_2_kindern',
-    'verwitwet, 3 Kinder': 'verwitwet_mit_mehr_als_2_kindern',
-    'verwitwet, 4 Kinder': 'verwitwet_mit_mehr_als_2_kindern',
-    'verwitwet, 5 Kinder': 'verwitwet_mit_mehr_als_2_kindern',
-    'verwitwet, 6 Kinder': 'verwitwet_mit_mehr_als_2_kindern',
 
-    # Getrennt lebend
-    'getrennt lebend, 2 Kinder': 'getrennt_lebend_mit_2_kindern',
-    'getrennt lebend, 3 Kinder': 'getrennt_lebend_mit_mehr_als_2_kindern',
-    'getrennt lebend, 4 Kinder': 'getrennt_lebend_mit_mehr_als_2_kindern',
 
-    # Unverheiratet
-    'unverheiratet': 'unverheiratet_ohne_kinder',
-    'unverheiratet, 1 Kind': 'unverheiratet_mit_1_kind',
-    'unverheiratet, 2 Kinder': 'unverheiratet_mit_2_kindern',
-    'unverheiratet, 1 Pflegekind': 'unverheiratet_mit_1_kind',
-
-    # Partnerschaften
-    'Lebensgemeinschaft': 'partnerschaft_ohne_kinder',
-    'eheähnl. Lebensgemeinschaft, 1 Kind': 'partnerschaft_mit_1_kind',
-    'eheähnl. Lebensgemeinschaft, 2 Kinder': 'partnerschaft_mit_2_kindern',
-    'eingetragene Lebenspartnerschaft': 'partnerschaft_ohne_kinder',
-    'verpartnert': 'partnerschaft_ohne_kinder',
-    'verpartnert, 2 Kinder': 'partnerschaft_mit_2_kindern',
-    'gleichgeschlechtliche Partnerschaft': 'partnerschaft_ohne_kinder',
-    'lesbische Lebensgemeinschaft, 1 Kind': 'partnerschaft_mit_1_kind',
-
-    # Sonstige
-    'patchwork, 2 Kinder': 'sonstige_mit_2_kindern',
-    'alleinerziehend, 3 Kinder': 'sonstige_mit_mehr_als_2_kindern',
-    'verlobt': 'sonstige_ohne_kinder',
-
-    # Nur Kinderzahl angegeben
-    '1 Kind': 'mit_1_kind',
-    '2 Kinder': 'mit_2_kindern',
-    '3 Kinder': 'mit_mehr_als_2_kindern',
-    '4 Kinder': 'mit_mehr_als_2_kindern',
-    '5 Kinder': 'mit_mehr_als_2_kindern',
-
-    # Keine Angaben
-    'keine Angaben': 'unbekannt',
-    'UNBEKANNT': 'unbekannt',
-    'ohne Angaben': 'unbekannt'
-}
-
+def map_age_to_group(age):
+    """
+    Maps an age to an age group category.
+    
+    Args:
+        age (int): The age to categorize
+        
+    Returns:
+        str: The age group category
+    """
+    if age < 30:
+        return '< 30'
+    elif age < 40:
+        return '30 - 40'
+    elif age < 50:
+        return '40 - 50'
+    elif age < 60:
+        return '50 - 60'
+    elif age < 70:
+        return '60 - 70'
+    else:
+        return '> 70'
 
 
 
@@ -408,13 +436,13 @@ def get_color_palette(num_colors):
 def get_color_for_age_group(age_group):
     # Definieren Sie hier eine feste Farbpalette für Altersgruppen
     color_map = {
-        '< 30': 'rgb(255, 0, 0)',    # Rot
+        '< 30': 'rgb(0, 255, 0)',    # Grün
         '30 - 40': 'rgb(255, 127, 0)',  # Orange
-        '40 - 50': 'rgb(255, 255, 0)',  # Gelb
-        '50 - 60': 'rgb(0, 255, 0)',    # Grün
-        '60 - 70': 'rgb(0, 0, 255)',    # Blau
-        '70 - 80': 'rgb(152, 0, 152)',   # Violett
-        '>= 80': 'rgb(152, 152, 152)'     # Grau
+        '40 - 50': 'rgb(255, 0, 0)',    # Rot
+        '50 - 60': 'rgb(152, 0, 152)',   # Violett
+        '> 60': 'rgb(152, 152, 152)'     # Grau
+       # '70 - 80': ' 'rgb(255, 255, 0)',  # Gelb
+       # '>= 80':   'rgb(0, 0, 255)',    # Blau
     }
     return color_map.get(age_group, 'rgb(128, 128, 128)')  # Grau als Standardfarbe
 
