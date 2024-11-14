@@ -1,5 +1,9 @@
 FROM python:3.11-slim-bullseye as builder
 
+RUN apt-get update && apt-get install -y gnupg
+RUN apt-key adv --refresh-keys --keyserver keyserver.ubuntu.com
+RUN apt-get clean
+
 # System-Abhängigkeiten installieren
 RUN apt-get update && apt-get install -y \
     build-essential \
