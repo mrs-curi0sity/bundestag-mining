@@ -200,10 +200,6 @@ def set_check_list_values(n_clicks, options, values):
 
 def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
     grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
-    print("Verfügbare Spalten:")
-    print(grouped.columns)
-    print("\nDimension:", dimension)
-
     
     # Konvertiere den Index zu Startdaten
     grouped.index = [WP_START[wp-1] for wp in grouped.index]
@@ -252,7 +248,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             xaxis=dict(title='Jahr',
                       tickformat='%Y',
                       type='date'),
-            yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
+            yaxis=dict(title='Anteil der Parteien', tickformat=',.0%', range=[0, 1]),
             barmode='stack',
             legend=dict(title='Parteien'),
             hovermode='x unified'
@@ -274,7 +270,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         layout = go.Layout(
             title=title, 
             barmode='stack', 
-            yaxis=dict(tickformat=',.0%'),
+            yaxis=dict(tickformat=',.0%', range=[0, 1]),
             xaxis=dict(title='Jahr',
                       tickformat='%Y',
                       type='date'),
