@@ -248,7 +248,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             xaxis=dict(title='Jahr',
                       tickformat='%Y',
                       type='date'),
-            yaxis=dict(title='Anteil der Parteien', tickformat=',.0%', range=[0, 1]),
+            yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
             barmode='stack',
             legend=dict(title='Parteien'),
             hovermode='x unified'
@@ -270,7 +270,7 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         layout = go.Layout(
             title=title, 
             barmode='stack', 
-            yaxis=dict(tickformat=',.0%', range=[0, 1]),
+            yaxis=dict(tickformat=',.0%'),
             xaxis=dict(title='Jahr',
                       tickformat='%Y',
                       type='date'),
