@@ -257,15 +257,15 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         return {'data': traces, 'layout': layout}
     
     else:
-        values_in_data = [value for value in reversed(values_to_keep) if value in grouped.columns]
-        color_palette = get_color_palette(len(values_in_data))
+        # Verwende alle definierten Werte, auch wenn sie nicht in den Daten sind
+        color_palette = get_color_palette(len(values_to_keep))
         
         traces = [go.Bar(
             x=grouped.index, 
-            y=grouped[value], 
+            y=grouped[value] if value in grouped.columns else [0] * len(grouped.index), 
             name=value,
             marker_color=color_palette[i]
-        ) for i, value in enumerate(values_in_data)]
+        ) for i, value in enumerate(reversed(values_to_keep))]
         
         layout = go.Layout(
             title=title, 
