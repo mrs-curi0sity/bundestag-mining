@@ -69,29 +69,33 @@ def create_checklist(id, options, value):
         )
     ])
 
-def create_button(id, label):
+def create_button(id, label, color='primary'):
     return dbc.Button(
         id=id,
         children=label,
-        color='primary',
+        color=color,
         className='w-100',
     )
 
 
 
 # Layout components
+# Layout components
 sidebar = html.Div([
-    html.H2('Filter', style=TEXT_STYLE),
-    html.Hr(),
-    html.P('Wahlperioden', style={'textAlign': 'center'}),
-    create_dropdown('wp_start', [], 1),
-    create_dropdown('wp_end', [], MAX_WP),
-    html.Br(),
-    html.P('Parteien', style={'textAlign': 'center'}),
-    create_checklist('check_list_parteien', list_of_parteien, list_of_parteien),
-    create_button('select_all_parteien', 'Select All'),
-    html.Br(),
-    create_button('submit_button', 'Submit'),
+   html.H2('Filter', style=TEXT_STYLE),
+   html.Hr(),
+   html.P('Wahlperioden', style={'textAlign': 'center'}),
+   html.Label("von:", style={'marginBottom': '5px'}),
+   create_dropdown('wp_start', [], 1),
+   html.Label("bis:", style={'marginTop': '10px', 'marginBottom': '5px'}),
+   create_dropdown('wp_end', [], MAX_WP),
+   html.Br(),
+   html.P('Parteien', style={'textAlign': 'center'}),
+   create_checklist('check_list_parteien', list_of_parteien, list_of_parteien),
+   create_button('select_all_parteien', 'Select All'),
+   html.Br(),
+   html.Br(),  # Extra Abstand
+   create_button('submit_button', 'Submit', color='warning')
 ], style=SIDEBAR_STYLE)
 
 content = html.Div([
@@ -204,13 +208,15 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
     
     # Konvertiere den Index zu Startdaten
     grouped.index = [WP_START[wp-1] for wp in grouped.index]
-    print("Columns in grouped:", grouped.columns)
-    print("Values to keep:", values_to_keep)
-    print(f"-------------{df_mdb_wp['PARTEI_MAPPED'].unique()}"  )
     
     # Filter info für Annotation
-    filter_text = f"Gefiltert nach Parteien: {', '.join(sorted(selected_parteien))}"
-    filter_text += f"\nWahlperioden: {WP_START[start_date-1]} - {WP_START[end_date]}"
+    if sorted(selected_parteien) == sorted(list_of_parteien):
+       filter_text = "Gefiltert nach: allen Parteien"
+    elif len(selected_parteien) == 1:
+       filter_text = f"Gefiltert nach Partei: {', '.join(sorted(selected_parteien))}"
+    else:
+       filter_text = f"Gefiltert nach Parteien: {', '.join(sorted(selected_parteien))}"
+    #filter_text += f"\nWahlperioden: {WP_START[start_date-1]} - {WP_START[end_date]}"
     
     # Gemeinsame Layout-Parameter
     layout_params = dict(
