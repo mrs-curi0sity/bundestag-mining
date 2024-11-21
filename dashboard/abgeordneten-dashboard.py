@@ -199,12 +199,42 @@ def set_check_list_values(n_clicks, options, values):
     return [i['value'] for i in options] if n_clicks % 2 == 0 else []
 
 
-
 def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, values_to_keep, title):
     grouped = select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension)
     
     # Konvertiere den Index zu Startdaten
     grouped.index = [WP_START[wp-1] for wp in grouped.index]
+    print("Columns in grouped:", grouped.columns)
+    print("Values to keep:", values_to_keep)
+    print(f"-------------{df_mdb_wp['PARTEI_MAPPED'].unique()}"  )
+    
+    # Filter info für Annotation
+    filter_text = f"Gefiltert nach Parteien: {', '.join(sorted(selected_parteien))}"
+    filter_text += f"\nWahlperioden: {WP_START[start_date-1]} - {WP_START[end_date]}"
+    
+    # Gemeinsame Layout-Parameter
+    layout_params = dict(
+        title=title,
+        height=600,  # Mehr Platz für Plot und Annotation
+        margin=dict(b=150),  # Mehr Platz unten für Filter-Text
+        xaxis=dict(
+            title='Jahr',
+            ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
+            tickvals=list(range(len(grouped.index))),
+            type='category'
+        ),
+        annotations=[dict(
+            text=filter_text,
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=-0.3,  # Position weiter unten
+            showarrow=False,
+            align="left",
+            font=dict(size=10)  # Kleinere Schriftgröße
+        )],
+        hovermode='x unified'
+    )
     
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
         age_groups = list_of_altersklassen
@@ -222,22 +252,12 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             )
             traces.append(trace)
         
-        layout = go.Layout(
-            title=title,
-            xaxis=dict(
-                title='Jahr',
-                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
-                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
-                tickvals=list(range(len(grouped.index))),
-                type='category'
-            ),
+        layout_params.update(dict(
             yaxis=dict(title='Anteil der Altersgruppen', tickformat=',.0%'),
-            legend=dict(title='Altersgruppen'),#, traceorder='reversed'),
-            hovermode='x unified'
-        )
-        return {'data': traces, 'layout': layout}
+            legend=dict(title='Altersgruppen')
+        ))
         
-    elif dimension == 'PARTEI_KURZ':
+    elif dimension == 'PARTEI_MAPPED':
         traces = []
         for party in values_to_keep:
             if party in grouped.columns:
@@ -249,25 +269,13 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
                 )
                 traces.append(trace)
         
-        layout = go.Layout(
-            title=title,
-            xaxis=dict(
-                title='Jahr',
-                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
-                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
-                tickvals=list(range(len(grouped.index))),
-                type='category'
-            ),
+        layout_params.update(dict(
             yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
             barmode='stack',
-            legend=dict(title='Parteien'),
-            hovermode='x unified'
-        )
+            legend=dict(title='Parteien')
+        ))
         
-        return {'data': traces, 'layout': layout}
-    
     else:
-        # Verwende alle definierten Werte, auch wenn sie nicht in den Daten sind
         color_palette = get_color_palette(len(values_to_keep))
         
         traces = [go.Bar(
@@ -277,32 +285,19 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             marker_color=color_palette[i]
         ) for i, value in enumerate(reversed(values_to_keep))]
         
-        layout = go.Layout(
-            title=title, 
-            barmode='stack', 
-            yaxis=dict(tickformat=',.0%'),
-            #xaxis=dict(title='Jahr',
-            #          tickformat='%Y',
-            #          type='date'),
-
-            xaxis=dict(
-                title='Jahr',
-                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
-                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
-                tickvals=list(range(len(grouped.index))),
-                type='category'
-            ),
-            yaxis_title='Anteil',
-            legend=dict(title=dimension),
-            hovermode='x unified'
-        )
-        return {'data': traces, 'layout': layout}
-
+        layout_params.update(dict(
+            yaxis=dict(title='Anteil', tickformat=',.0%'),
+            barmode='stack',
+            legend=dict(title=dimension)
+        ))
+    
+    layout = go.Layout(**layout_params)
+    return {'data': traces, 'layout': layout}
 
 
 for graph_id, dimension, values_to_keep, title in [
     ('gender', 'GESCHLECHT', ['männlich', 'weiblich'], 'Geschlecht'),
-    ('party', 'PARTEI_KURZ', list_of_parteien, 'Partei'),
+    ('party', 'PARTEI_MAPPED', list_of_parteien, 'Partei'),
     ('religion', 'RELIGION_MAPPED', list_of_religion, 'Religion'),
     ('familienstand', 'FAMILIENSTAND_MAPPED', list_of_familienstand, 'Familienstand'),
     ('kinder', 'KINDER_MAPPED', list_of_children, 'Anzahl Kinder'), 
@@ -328,18 +323,18 @@ for graph_id, dimension, values_to_keep, title in [
 )
 def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_parteien):
     selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= 1) & (df_mdb_wp['WP'] <= 19)]
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    selected_df = selected_df[selected_df['PARTEI_MAPPED'].isin(selected_parteien)]
     
-    grouped = selected_df[['ID', 'START_DATE', 'NUM_YEARS_IN_BT', 'PARTEI_KURZ']].groupby(['START_DATE', 'PARTEI_KURZ']).mean()
+    grouped = selected_df[['ID', 'START_DATE', 'NUM_YEARS_IN_BT', 'PARTEI_MAPPED']].groupby(['START_DATE', 'PARTEI_MAPPED']).mean()
     
-    new_index = pd.MultiIndex.from_product([grouped.index.levels[0], grouped.index.levels[1]], names=['START_DATE', 'PARTEI_KURZ'])
+    new_index = pd.MultiIndex.from_product([grouped.index.levels[0], grouped.index.levels[1]], names=['START_DATE', 'PARTEI_MAPPED'])
     grouped_reindexed = grouped.reindex(new_index, fill_value=0)
     grouped_reindexed.reset_index(inplace=True)
     
-    grouped_reindexed['PARTEI_KURZ'] = pd.Categorical(grouped_reindexed['PARTEI_KURZ'], selected_parteien)
-    grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_KURZ'], inplace=True)
+    grouped_reindexed['PARTEI_MAPPED'] = pd.Categorical(grouped_reindexed['PARTEI_MAPPED'], selected_parteien)
+    grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_MAPPED'], inplace=True)
     
-    fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_KURZ', color_discrete_sequence=LIST_OF_COLORS)
+    fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_MAPPED', color_discrete_sequence=LIST_OF_COLORS)
     fig.update_traces(line=dict(width=3))
     fig.update_layout(
         title='Bleibedauer der Abgeordneten im Bundestag',
@@ -368,13 +363,13 @@ def update_table(n_clicks, page_current, page_size, sort_by, filter_query, start
     if not ctx.triggered:
         logger.info("Initial load")
         filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= 1) & (df_mdb_wp['WP'] <= MAX_WP)]
-        filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(list_of_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+        filtered_df = filtered_df[filtered_df['PARTEI_MAPPED'].isin(list_of_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
         # Sort by WP in descending order initially
         filtered_df = filtered_df.sort_values('WP', ascending=False)
     elif ctx.triggered[0]['prop_id'] == 'submit_button.n_clicks':
         logger.info("Submit button clicked")
         filtered_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
-        filtered_df = filtered_df[filtered_df['PARTEI_KURZ'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
+        filtered_df = filtered_df[filtered_df['PARTEI_MAPPED'].isin(selected_parteien)][COLUMNS_FOR_DISPLAY].drop_duplicates()
         # Sort by WP in descending order after filtering
         filtered_df = filtered_df.sort_values('WP', ascending=False)
     

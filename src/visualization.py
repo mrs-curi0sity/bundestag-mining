@@ -8,7 +8,9 @@ from src.mapping_values import df_mdb, df_mdb_wp, MAX_WP, WP_START
 def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'):
     # Wahlperiode und Partei auswählen
     selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
-    selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    selected_df = selected_df[selected_df['PARTEI_MAPPED'].isin(selected_parteien)]
+
+    print(selected_df.groupby('PARTEI_MAPPED').value_counts())
     
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
         # Alle Altersgruppen definieren
