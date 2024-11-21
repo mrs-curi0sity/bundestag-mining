@@ -57,7 +57,7 @@ list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige
 
 
 
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 21)
 
 
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
@@ -376,11 +376,11 @@ beruf_klassifizierung = {
     ],
     'Technische Berufe': [
         'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech')
-    ],
-    'sonstige': [
-        'hausfrau', 'student', 'rentner', 'angestellter', 'arbeiter', 'selbständiger',
-        re.compile('dipl.*'), 'freiberufler'
-    ]
+    ]#,
+    #'sonstige': [
+    #    'hausfrau', 'student', 'rentner', 'angestellter', 'arbeiter', 'selbständiger',
+    #    re.compile('dipl.*'), 'freiberufler'
+    #]
 }
 
 def klassifiziere_beruf(beruf):

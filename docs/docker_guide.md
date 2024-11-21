@@ -16,7 +16,10 @@
 docker build -t bundestag-mining .
 
 ### Run Container
-docker run -it -p 8050:8050 --name bundestag bundestag-mining
+docker run -it -p 8050:8050 --name bundestag bundestag-mining bzw
+
+docker run -it -p 8050:8050 -v $(pwd):/app --name bundestag bundestag-mining
+
 
 ### View All Images
 docker images
