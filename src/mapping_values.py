@@ -50,7 +50,10 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
     
 
 # TODO start move to objects or at least dict
-list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
+#list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
+
+list_of_parteien = ['SPD', 'CDU', 'CSU', 'FDP', 'BÜNDNIS 90/DIE GRÜNEN', 'DIE LINKE.', 'AfD']
+
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
 list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
@@ -390,8 +393,8 @@ def get_color_for_party(party):
     color_map = {
         'SPD': '#E3000F',           # Rot
         'CDU': '#000000',           # Schwarz
-        'FDP': '#FFED00',           # Gelb
         'CSU': '#0080C8',           # Hellblau
+        'FDP': '#FFED00',           # Gelb
         'BÜNDNIS 90/DIE GRÜNEN': '#64A12D',  # Grün
         'DIE LINKE.': '#BE3075',    # Dunkelrot/Magenta
         'AfD': '#009EE0',           # Hellblau

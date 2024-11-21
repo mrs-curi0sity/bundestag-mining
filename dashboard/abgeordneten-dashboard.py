@@ -311,6 +311,7 @@ for graph_id, dimension, values_to_keep, title in [
 def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_parteien):
     selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= 1) & (df_mdb_wp['WP'] <= 19)]
     selected_df = selected_df[selected_df['PARTEI_KURZ'].isin(selected_parteien)]
+    
     grouped = selected_df[['ID', 'START_DATE', 'NUM_YEARS_IN_BT', 'PARTEI_KURZ']].groupby(['START_DATE', 'PARTEI_KURZ']).mean()
     
     new_index = pd.MultiIndex.from_product([grouped.index.levels[0], grouped.index.levels[1]], names=['START_DATE', 'PARTEI_KURZ'])
@@ -319,6 +320,9 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     
     grouped_reindexed['PARTEI_KURZ'] = pd.Categorical(grouped_reindexed['PARTEI_KURZ'], selected_parteien)
     grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_KURZ'], inplace=True)
+
+    print("---Selected Parteien:", selected_parteien)
+    print("---Unique Parteien in DataFrame:", grouped_reindexed['PARTEI_KURZ'].unique())
     
     fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_KURZ', color_discrete_sequence=LIST_OF_COLORS)
     fig.update_traces(line=dict(width=3))
