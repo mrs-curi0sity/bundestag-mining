@@ -19,6 +19,7 @@ MAX_WP = df_mdb_wp.WP.max()
 WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021, 2025]
 
 
+
 def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
     """
     Behält maximal num_keep der am häufigsten vorkommenden Werte,
@@ -70,7 +71,7 @@ list_of_children = [
     'ohne Kinder', 
     'mit einem Kind', 
     'mit zwei Kindern', 
-    'mit mehr als zwei Kindern', 
+    '> zwei Kinder', 
     'keine Angaben'
 ]
 
@@ -177,7 +178,7 @@ def map_family_status(status):
     elif num_children == 2:
         children_status = 'mit zwei Kindern'
     elif num_children > 2:
-        children_status = 'mit mehr als zwei Kindern'
+        children_status = '> zwei Kinder'
     
     # Beziehungsstatus mapping
     if status in ['nan', 'keine angaben', 'ohne angaben', 'unbekannt', '']:

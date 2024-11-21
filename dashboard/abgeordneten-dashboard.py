@@ -222,9 +222,13 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         
         layout = go.Layout(
             title=title,
-            xaxis=dict(title='Jahr',
-                      tickformat='%Y',
-                      type='date'),
+            xaxis=dict(
+                title='Jahr',
+                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
+                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
+                tickvals=list(range(len(grouped.index))),
+                type='category'
+            ),
             yaxis=dict(title='Anteil der Altersgruppen', tickformat=',.0%'),
             legend=dict(title='Altersgruppen'),#, traceorder='reversed'),
             hovermode='x unified'
@@ -245,9 +249,13 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         
         layout = go.Layout(
             title=title,
-            xaxis=dict(title='Jahr',
-                      tickformat='%Y',
-                      type='date'),
+            xaxis=dict(
+                title='Jahr',
+                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
+                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
+                tickvals=list(range(len(grouped.index))),
+                type='category'
+            ),
             yaxis=dict(title='Anteil der Parteien', tickformat=',.0%'),
             barmode='stack',
             legend=dict(title='Parteien'),
@@ -271,9 +279,17 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             title=title, 
             barmode='stack', 
             yaxis=dict(tickformat=',.0%'),
-            xaxis=dict(title='Jahr',
-                      tickformat='%Y',
-                      type='date'),
+            #xaxis=dict(title='Jahr',
+            #          tickformat='%Y',
+            #          type='date'),
+
+            xaxis=dict(
+                title='Jahr',
+                #ticktext=[f"{wp} ({year})" for wp, year in enumerate(grouped.index, 1)],
+                ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
+                tickvals=list(range(len(grouped.index))),
+                type='category'
+            ),
             yaxis_title='Anteil',
             legend=dict(title=dimension),
             hovermode='x unified'
@@ -320,9 +336,6 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     
     grouped_reindexed['PARTEI_KURZ'] = pd.Categorical(grouped_reindexed['PARTEI_KURZ'], selected_parteien)
     grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_KURZ'], inplace=True)
-
-    print("---Selected Parteien:", selected_parteien)
-    print("---Unique Parteien in DataFrame:", grouped_reindexed['PARTEI_KURZ'].unique())
     
     fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_KURZ', color_discrete_sequence=LIST_OF_COLORS)
     fig.update_traces(line=dict(width=3))
