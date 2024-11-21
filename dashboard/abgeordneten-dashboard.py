@@ -25,6 +25,8 @@ from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+print(list_of_familienstand)
+
 # Styles
 SIDEBAR_STYLE = {
     'position': 'fixed',

@@ -40,8 +40,6 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
     # Alle anderen Werte ermitteln
     values_to_discard = df_mdb[dimension].value_counts().index.difference(values_to_keep).tolist()
     
-    # logging.info(f'[{dimension}]. keeping {values_to_keep}. replacing {values_to_discard[:3]} ... with <sonstige>')
-    
     # Nur ersetzen, wenn es tatsächlich Werte zu ersetzen gibt
     if values_to_discard:
         df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
@@ -56,15 +54,20 @@ def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
 list_of_parteien = ['SPD', 'CDU', 'CSU', 'FDP', 'BÜNDNIS 90/DIE GRÜNEN', 'DIE LINKE.', 'AfD']
 
 list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
+
+
+
 list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 18)
 
 
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
 
-list_of_familienstand = ['verheiratet', 'ledig', 'geschieden', 'verwitwet', 
-    'Lebenspartnerschaft', 'getrennt lebend', 'alleinerziehend', 
-    'sonstige', 'keine Angaben']
+#list_of_familienstand = ['verheiratet', 'ledig', 'geschieden', 'verwitwet', 
+#    'Lebenspartnerschaft', 'getrennt lebend', 'alleinerziehend', 
+#    'sonstige', 'keine Angaben']
+
+list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
+
 
 # Neue Liste für Kinder
 list_of_children = [
@@ -79,7 +82,8 @@ list_of_children = [
                             
 # append 'sonstige' to list of valid values
 for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
-    list_of_values += ['sonstige']
+    if 'sonstige' not in list_of_values:
+        list_of_values += ['sonstige']
 # TODO End
 
 
@@ -133,12 +137,12 @@ religion_mapping = {
     'Atheistin': 'konfessionslos',
     'muslimisch': 'muslimisch',
     'evangelisch-freikirchlich': 'evangelisch',
-    'freireligiös': 'sonstige',
+    'freireligiös': 'freireligiös',
     'Islam': 'muslimisch',
     'Atheist': 'konfessionslos',
-    'neuapostolisch': 'sonstige',
+    'neuapostolisch': 'neuapostolisch',
     'protestantisch': 'evangelisch',
-    'humanistisch': 'sonstige',
+    'humanistisch': 'humanistisch',
     'griechisch-orthodox': 'orthodox',
     'alevitisch': 'muslimisch',
     'alt-katholisch': 'katholisch',
@@ -373,7 +377,7 @@ beruf_klassifizierung = {
     'Technische Berufe': [
         'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech')
     ],
-    'Sonstige': [
+    'sonstige': [
         'hausfrau', 'student', 'rentner', 'angestellter', 'arbeiter', 'selbständiger',
         re.compile('dipl.*'), 'freiberufler'
     ]
@@ -387,7 +391,7 @@ def klassifiziere_beruf(beruf):
                 return kategorie
             elif isinstance(m, re.Pattern) and m.search(beruf_lower):
                 return kategorie
-    return 'Sonstige'
+    return 'sonstige'
 
 
 def get_color_for_party(party):
