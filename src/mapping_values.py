@@ -289,23 +289,26 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
 
 
 
-# neu mit hilfe von claude
 beruf_klassifizierung = {
     'Jurist*in': [
         'anwalt', 'anwäl', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
-        'staatsanwalt', 'volljurist'
+        'staatsanwalt', 'volljurist', 'wirtschaftsjurist'
     ],
     'Land-/Forstwirt*in': [
-        'landwirt', re.compile('^[a-z]bauer\s'), 'bauer', re.compile('agrar+'), 'forst', 'winzer', 'ökonomierat'
+        'landwirt', re.compile('^[a-z]bauer\s'), 'bauer', re.compile('agrar+'), 'forst', 'winzer', 'ökonomierat',
+        'land- und forstwirt', 'agraringenieur'
     ],
     'Unternehmer*in': [
-        'unternehmer', 'fabrikant', 'geschäftsführer'
+        'unternehmer', 'fabrikant', 'geschäftsführer', 'hauptgeschäftsführer', 'unternehmensberater', 
+        'selbständiger kaufmann'
     ],
     'Ingenieur*in': [
-        'ingenieur', 'maschinenbau', 'architekt', re.compile('dipl.*-ing'), 'bauingenieur', 'elektroingenieur'
+        'ingenieur', 'maschinenbau', 'architekt', re.compile('dipl.*-ing'), 'bauingenieur', 'elektroingenieur',
+        'wirtschaftsingenieur', 'maschinenschlosser'
     ],
     'Journalist*in': [
-        'journalist', 'redakteur', 'publizist', 'schriftsteller', 'pressesprecher', 'chefredakteur'
+        'journalist', 'redakteur', 'publizist', 'schriftsteller', 'pressesprecher', 'chefredakteur',
+        'buchhändler'
     ],
     'Verleger*in': [
         'verleger', 'verlags'
@@ -313,16 +316,18 @@ beruf_klassifizierung = {
     'Lehrer*in': [
         'erzieher', 'pädagog', 'lehrer', 'studienrat', 'studiendirektor', 'schulrat',
         'grundschul', 'hauptshul', 'sonderschul', 'waldorf', 'realschul', 'gymnasi',
-        'volkshochschu', 'berufsschul', 'fremdsprachen', 'schul', 'rektor', 'konrektor'
+        'volkshochschu', 'berufsschul', 'fremdsprachen', 'schul', 'rektor', 'konrektor',
+        'oberstudienrat', 'oberstudiendirektor'
     ],
     'Professor*in': [
         'dozent', 'professor', 'prof.', 'hochschull', 'hochschulpr', 'universitätsprofessor'
     ],
-    'Kaufmann/-frau': [
-        'kaufm', 'kauff', 'einzelhandel', 'großhandel', 'handelsfachwirt'
+    'Kaufmännische Berufe': [
+        'kaufm', 'kauff', 'einzelhandel', 'großhandel', 'handelsfachwirt', 'bankkaufmann',
+        'versicherungskaufmann', 'industriekaufmann', 'kaufmännische angestellte', 'prokurist'
     ],
     'Volkswirt*in': [
-        'volkswirt', re.compile('dipl.*-volkswirt')
+        'volkswirt', re.compile('dipl.*-volkswirt'), 'ökonom'
     ],
     'Berufspolitiker*in': [
         'regierungsangestellt', 'stadtamtmann', 'stadtoberinspektor', 'landesgeschäftsführer',
@@ -330,10 +335,13 @@ beruf_klassifizierung = {
         'regierungsrat', re.compile('regierungs(vize)*präs'), 'regierung',
         'stadtdirektor', 'ministerialdirektor', 'regierungsdirektor', 'gemeindedirektor',
         'minister', 'bundeskanz', 'bundestagsp', re.compile('präsident(in)* d\.*b\.*t\.*'),
-        'abgeordneter', 'parlamentarischer staatssekretär', 'staatsminister'
+        'abgeordneter', 'parlamentarischer staatssekretär', 'staatsminister', 'ministerpräsident',
+        'oberbürgermeister'
     ],
-    'Arzt/Ärztin': [
-        'arzt', 'ärzt', 'psycholog', 'psychother', 'apotheker', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt'
+    'Medizinische Berufe': [
+        'arzt', 'ärzt', 'psycholog', 'psychother', 'apotheker', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt',
+        'krankenschwester', 'krankenpfleger', 'pflegekraft', 'hebamme', 'sanitäter',
+        'medizinisch-technischer assistent'
     ],
     'Theolog*in': [
         'pfarrer', 'theolog', 'diakon', 'pastor', 'priester'
@@ -342,7 +350,7 @@ beruf_klassifizierung = {
         'betriebswirt', 'verwaltungs', 'steuerberater', 'bankdirektor', re.compile('dipl.*-betriebswirt')
     ],
     'Wirtschaftswissenschaftler*in': [
-        'wirtschaftsw', 'ökonom', 'prokurist', 'finanzwirt', 'wirtschaftsprüfer'
+        'wirtschaftsw', 'finanzwirt', 'wirtschaftsprüfer'
     ],
     'Geisteswissenschaftler*in': [
         'politolog', 'politikwiss', 'historik', 'philosoph', 'philolog', 'soziolog', 
@@ -359,28 +367,27 @@ beruf_klassifizierung = {
     ],
     'Militär': [
         'leutnant', re.compile('oberst(?!u)'), 'soldat', re.compile('general\s'), 'offizier', 
-        'hauptmann', 'major'
+        'hauptmann', 'major', 'oberstleutnant'
     ],
-    'Beamter': [
-        'beamter', 'beamtin', 'verwaltungsbeamter', 'polizeibeamter'
+    'Verwaltungsberufe': [
+        'beamter', 'beamtin', 'verwaltungsbeamter', 'polizeibeamter', 'verwaltungsangestellte',
+        'regierungsdirektor', 'ministerialrat', 'stadtoberinspektor', 'oberregierungsrat'
+    ],
+    'Gewerkschaftsberufe': [
+        'gewerkschaftssekretär'
     ],
     'Soziale Berufe': [
         'sozialarbeiter', 'sozialpädagoge', re.compile('dipl.*-sozi'), 'erzieher'
-    ],
-    'Medizinische Fachkräfte': [
-        'krankenschwester', 'krankenpfleger', 'pflegekraft', 'hebamme', 'sanitäter',
-        'medizinisch-technischer assistent'
     ],
     'Künstlerische Berufe': [
         'künstler', 'musiker', 'schauspieler', 'sänger', 'maler', 'bildhauer'
     ],
     'Technische Berufe': [
         'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech')
-    ]#,
-    #'sonstige': [
-    #    'hausfrau', 'student', 'rentner', 'angestellter', 'arbeiter', 'selbständiger',
-    #    re.compile('dipl.*'), 'freiberufler'
-    #]
+    ],
+    'Student*in': [
+        'student'
+    ]
 }
 
 def klassifiziere_beruf(beruf):
