@@ -1,0 +1,206 @@
+
+Demokratie in der Sackgasse: Wenn Volksvertreter nicht mehr aus dem Volk kommen
+
+Bundestagsmining offenbart: Wie unsere Volksvertretung sich von der Realität der Bevölkerung entfernte
+
+„Ein Parlament, das nur aus Beamten und Berufspolitikern besteht, kann nicht das Spiegelbild eines Volkes sein“ stellte einst Carlo Schmid, einer der „Väter des Grundgesetzes“ fest. Klingt schlüssig. Aber ist das nicht genau unsere Realität? Wenn ich – zugegeben mit Widerwillen – an unser Parla-Parla-Parlament denke, habe ich unwillkürlich das Gefühl, mir mehrere Hundertschaften von älteren Männern im Anzug vorstellen zu müssen, die beamtoid und trocken und außerdem völlig realitätsfern über Standards und Beschlüsse palavern, deren bürokratische Zwänge und Reglementierungen ein Handwerker auf dem Bau oder eine einfache Reinigungskraft schwerlich verstehen geschweige denn umsetzen können.
+
+Aber halt – als Data Scientistin versuche ich es doch grundsätzlich zu vermeiden, mich bei so einem Urteil auf eine gefühlte Wahrheit zu verlassen. Was sagen die Daten? Vielleicht sind unsere Politiker ja viel jünger und haben viel mehr hands-on Berufserfahrung, als das in meinem Hirn festgesetzte Klischee des weltfernen Berufspolitikers ohne relevante Lebenserfahrung in der „echten“ Welt außerhalb des Bundestages?
+
+Ein erster Blick auf die Liste der bekanntesten Politiker zeigt: die Popstars der Politik, die Menschen, die mit ihren Meinungen Lanz und die Tagesschau bevölkern, sind fast ausschließlich Beamte und Berufspolitiker – sofern man denn „Juristen“ auch unter diesen Begriff subsumiert (5 Juristen: Scholz, Merz, Pistorius, Faeser, Wissing und 4 Berufspolitiker: Lindner, Baerbock, Habeck, Wissler). Die einzige Ausnahme eines „Menschen aus der Mitte des Volkes“ unter den Top Ten der bekanntesten Politiker in Deutschland ist ausgerechnet der politisch gesehen eher „extreme“ Chrupalla mit seiner langjährigen Erfahrung als Malermeister und Unternehmer. Alle anderen sind im Wesentlichen Berufsbürokraten.
+
+Na gut. Das sind die Top 10. Aber vielleicht bin ich ja unfair. Vielleicht sind die ganzen anderen, weniger bekannten Volskvertreter ja Menschen, die tatsächlich selbst aus der Mitte der Bevölkerung kommen? Die sich ihre Hände in einem echten Beruf dreckig gemacht haben und die finanziellen und beruflichen Ängste und Nöte eines alleinerziehenden Vaters oder einer selbstständigen Unternehmerin kennen? Zum Glück haben wir ja das „Mit Abstand das größte demokratische Parlament der Welt“. Da lohnt sich dann auch eine quantitative Analyse. Ganz im Sinne von David Kriesels Spiegel-Mining und David Englerts Tageschau-Mining habe ich mir vorgenommen, möglichst wertungsfrei der Frage auf den Grund zu gehen, wie repräsentativ denn unsere Repräsentanten in statistischer Hinsicht aufgestellt sind.
+
+Die Daten zu den Abgeordneten (Alter, Geschlecht, Berufsausbildung, Familienstand, Religionszugehörigkeit) gibt es ja dankenswerterweise auf der Seite des Bundestags als XML-Download. Dieser lässt sich mit ein wenig Python Magie unkompliziert einlesen und auswerten. Ein paar Features werden uns geschenkt (Geschlecht), für einige muss man ein bisschen rechnen (Alter der Abgeordneten zu Beginn der Wahlperiode extrahieren) und für andere wiederum muss man ein bisschen tiefer in die Sprachanalyse-Trickkiste greifen: die Extraktion von Berufsgruppen aus den gegebenen, oft sehr verschachtelten Berufsbezeichnungen zum Beispiel. Burkhard Lischka ist z.B.: „Notar, Sprecher für Recht und Verbraucherschutz, Obmann im Parlamentarischen Kontrollgremium, Staatssekretär a. D.“ eine sehr lange Berufsbezeichnung für „Jurist*in“.
+
+Viele Daten. Viele Ideen. Zunächst habe ich mich darin verloren, einzelne Fragen visuell auszuwerten („wie viel Prozent der CSU sind eigentlich katholisch?“ und „Sind Grünen-Politiker wirklich so viel jünger als CDU-Politiker?“). Aber bald wird mir klar: ich will nicht einzelne dieser Fragen beantworten, sondern *alle*. Naja, fast alle. Zumindest will ich Plots für jede extrahierte Dimension und für jeder Kombination aus Parteien und Wahlperioden zuverlässig und unkompliziert erzeugen können. Das war die Geburtsstunde des Bundestagsreportsgenerators. Die entscheidenden Variablen haben hier alle ihren eigenen Plot bekommen.
+
+Der Clou: links könnt ihr die Wahlperioden und die Parteien aussuchen, die euch interessieren (ja: auch mehrere oder alle) und euch dann via „submit“ rechts den Report generieren, um zum Beispiel die gemeinsame Verteilung der Variablen von CDU und CSU in den letzten 4 Wahlperioden zu generieren.
+
+Der zweite Clou: die Werte innerhalb der Grafiken (z.B. Berufsbezeichnungen) können über Doppelklick auf die entsprechenden Felder der Legende an- und abgewählt werden. Diese nächste drill-down Ebene erlaubt es euch, z.B. zu visualisieren, wie sich der Anteil der Betriebswirte bei der Grünen in den 1990ern entwickelt hat.
+
+Der dritte Clou: unten in der Tabelle seht ihr die zugrundeliegenden Werte und könnt darin suchen. Klappt nicht immer (ich arbeite noch daran, die Filterlogik in den Callbacks meines Dashboards zu verbessern – pull requests welcome :)). Macht aber Spaß. Wenn man zum Beispiel in der Tabelle unten bei „Beruf“ nach „Data Scientist“ sucht, kriegt man alle 0 Data Scientisten angezeigt, die jemals im Parlament saßen. Dass es wirklich und ganz in echt 0 sind, hat dann selbst meine politikverdrossene Seele schockiert. Aber immerhin hatten wir in den 1990ern mit Ludwig Eich einmal einen echten „Datenverarbeitungskaufmann“ im Bundestag sitzen. Großartig. Scheinbar hat der dermaßen gründlich zu allen Datenfragen Stellung bezogen, dass man seitdem keinen weiteren Bedarf an Expertise aus dieser ja wohl kaum zukunfstrelevanten Branche gesehen hat. Ich glaube ja auch, dass das Thema „Daten“ relatives Neuland ist und das mit der KI in Zukunft wohl kaum eine Rolle für unsere Wirtschaft und Gesellschaft spielen wird. Dann lieber Juristen an die Macht!
+
+Die Frauenquote unterscheidet sich stark zwischen den Parteien
+Aber kommen wir erstmal zu den naheliegendsten statistisch zu untersuchenden Dimensionen: es gibt wenige Frauen im Parlament. Na klar. Alte Kamelle. Aber doch interessant, die Unterschied zwischen den Parteien zu sehen; während SPD und Linke erwartungsgemäß brav ihr Ideal der Gleichberechtigung hochhalten, die Frauenquote mit großer Anstrengung teils sogar über 50% Grenze hieven und durch die damit einhergehenden Diskriminierung männlicher Kandidaten unfreiwillig das heilige Prinzip der Gleichberechtigung ad adsurdum führen, wundert es dann auf der anderen Seite wieder nicht, dass bei CDU und CSU die Frauen an der 20%-Hürde knabbern. Auch bei FDP und AfD sieht man auf den ersten Blick, dass sie andere Werte als eine starre Geschlechterquote bevorzugen.
+
+
+Auf den gesamten Bundestag gesehen stabilisiert sich der Frauenanteil bei ca 40%
+
+Bei der CDU/CSU bleibt der Frauenanteil deutlich dahinter zurück..
+
+.. während die Grünen ideologiegerecht den Soll übererfüllen.
+Der Bundestag ist – verglichen mit der Grundverteilung in der Bevölkerung – absurd christlich
+Ähnlich verschieden sind die Verteilungen der Konfessionen zwischen den Parteien. Keine Überraschung: 80% der CSU-Politiker sind katholisch. Bei der CDU sind es dagegen „nur“ 50%! Aber auch dort ist man fast ausnahmslos christlich – es gibt hier nur 1% Konfessionslose. Was für eine irre Verteilung von Volksvertreter in einem Land, in dem inzwischen die Gruppe der Konfessionslosen mit 46% den Anteil der evangelischen (22%) und den der katholischen (24%) jeweils weit übertrifft.
+
+
+Die CSU ist ganz überwiegend katholisch. Hier gibt es keine Konfessionslosen.
+
+Bei der CDU darf man auch evangelisch sein. Aber auch hier gibt es kaum Anders- oder gar Ungläubige.
+Bei der SPD, Grüne und FDP fällt die Anzahl der Konfessionslosen auch noch deutlich hinter den der Christen zurück. Was im direkten Vergleich zur CDU/CSU auffällt: dass hier der Anteil der Abgeordneten mit „unbekannter“ Glaubensausrichtung so hoch ist, spiegelt vermutlich auch die fortgeschrittene Säkularisierung dieser Parteien wider. Bei diesen Parteien sieht man auch einen zunehmenden und inzwischen relevanten Anteil an Konfessionslosen.
+
+
+Bei der SPD überwiegen die evangelischen zahlenmäßig die Katholiken deutlich
+
+Bei der FDP ist das Verhältnis – inzwischen – ausgeglichener.
+Was aus einer aufgeklärt-sekularisierten Weltsicht positiv auffällt: Zu den jüngeren Parteien Linke und AfD hat sich inzwischen rumgesprochen, dass man nicht an Wunderheilungen und Kindermord aus Gottesliebe glauben muss, um dem Volk dienliche Entscheidungen in einem säkularen Staat zu treffen. Hier dominieren – wie im der Gesamtbevölkerung – die Konfessionslosen zahlenmäßig die bekennenden Christen. Ausgerechnet die vermeintlichen Randparteien sind also die Gruppierungen, die in statistischer Hinsicht die Bevölkerung am besten abbilden.
+
+
+Bei der LInken gibt es einen Anteil an bekennend Konfessionslosen, der dem in der Bevölkerung fast nahe kommt. Dafür sind hier die Christen unterrepräsentiert.
+
+Die Religionsverteilung bei der AfD ist der statistischen Verteilung in der Gesamtbevölkerung am ähnlichsten.
+Interessant übrigens, dass bei den „säkularen“ Parteien (also nicht-CDU/CSU) die Anteile an Abgeordneten mit unbekannter Konfession sehr groß aber abnehmend sind (die Abgeordneten bekennen sich hier zunehmend zu ihrer Konfessionslosigkeit), während diese Gruppe bei der CDU eher zunimmt. Schleicht sich hier unter dem Deckmantel der „unbekannten“ Religionszugehörigkeit etwa heimlich eine Gruppe von säkular-Denkenden ein, die sich eben nicht mehr als Christen empfinden? Das wäre ja skandalös! Jedenfalls scheint es dort nicht gerne gesehen zu sein, sich als „konfessionslos“ zu bezeichnen. 0 CSU-Abgeordnete und nur 1% der CDU Abgeordnete trauen sich das.
+
+Bemerkenswert ist übrigens auch, dass in keiner der Parteien Muslime oder andere Glaubensgemeinschaften irgendeinen nennenswerten Anteil ausmachen. Bei den Grünen, den Linken und SPD gibt es zwar inzwischen einen Anteil von ca 2-3% muslimischer Abgeordneter, aber bei allen anderen Parteien ist der Anteil nahezu (oder ganz) null. Und das in einem Land, in dem Muslime mit rund 7% die zweitgrößte religiöse Gruppe des Landes darstellen – diese Bevölkerungsgruppe fühlt sich also womöglich im Bundestag noch weniger repräsentiert als die Konfessionslosen. Ob das auf Dauer gut geht? Ich kann mir, mit Blick auf die verstaubt-konservative Kultur im Parlament kaum vorstellen, dass die „Volksparteien“ (insb. CDU/CSU) jemals einen Nennenswerten Anteil an Muslimen haben werden. Ich rate einfach mal, dass sich der wachsende Anteil muslimischer Deutscher stattdessen bald in Form einer explizit muslimisch ausgerichteten Partei selbst eine Stimme verleihen wird. Und ich rate einfach gleich mal mit, dass diese Menschen dann auch mal Gesetzesvorschlägen zustimmen werden, die die Parteien, die für eine Frauenquote sind, in ihrem Wertesystem herausfordern werden.
+
+Boah sind die alle verheiratet!
+Mein Gedanke beim Blick auf die familiäre Situation der Abgeordneten: boah, sind die alle verheiratet! Wenn man sich die Verteilung aller Abgeordneten über alle Parteien hinweg ansieht, gibt es zwar eine Zunahme von Geschiedenen und Singles… aber die Quote von Verheirateten liegt immer noch bei 62% und damit etwa doppelt so hoch wie in der Gesamtbevölkerung. Kein Wunder, dass in bürokratischer Hinsicht vom Ehegattensplitting bis hin zum Erbrecht alles auf die gute alte traditionelle Familie ausgelegt ist.
+
+
+Die Fraktion CDU/CSU ist nahezu vollständig verheiratet
+
+Die SPD ist ein bisschen weniger verheiratet.
+Bei der CDU ist die Welt noch in Ordnung: 73% der CDU Politiker im aktuellen Parlament sind noch verheiratet. Die FDP ist diesbezüglich mit 65% eine recht konservative Partei. Auch die SPD ist mit 59% noch sehr verheiratet. Ähnlich sieht es bei der konservativen AfD aus. Aber ausgerechnet die vermeintlich extreme Linke schafft es in diesem Punkt mit 30% ledigen und nur 40% verheirateten in eine Verteilung, die halbwegs der der Bevölkerung entspricht.
+
+
+Die Grünen sind schon etwas liberaler.
+
+Ausgerechnet die „extreme“ Partei die Linke bildet am ehesten die Verteilung aus der Mitte der Bevölkerung ab.
+Interessant ist der Trend über alle Parteien hinweg, dass der Anteil der Ledigen und Geschiedenen zunimmt, und die brav Verheirateten langsam ihre Mehrheit verlieren. Hier bildet das Parlament die Entwicklungen in der Gesellschaft ab, aber mit einer spürbaren zeitlichen Verzögerung.
+
+
+Immer weniger Verheiratete…
+
+… stehen einem wachsenden Anteil an Ledigen, Geschiedenen und in alternativen Partnerschaftsformen lebenden gegenüber.
+Abgeordnete haben ganz schön viele Kinder
+Unsere Abgeordneten sind nicht nur sehr verheiratet, sondern sie haben auch ganz schön viele Kinder. Bei der Anzahl der Kinder ergibt sich ein ähnliches Bild wie bezüglich des Familienstandes: die Parteien mit konservativem Familienbild (CDU, CSU und AfD) bilden diese Überzeugung auch in ihrem Privatleben ab und haben ganz überwiegend zwei oder mehr Kinder.
+
+
+In der CSU dominiert die 2-Kind-Familie.
+
+Bei der CDU gibt es außerdem viele 3+ Kinder-Familien.
+
+Auch die konservative AfD ist sehr kinderreich.
+Auch hier hat mich allerdings überrascht, dass die CSU eine deutlich sichtbare Entwicklung weg von der Großfamilie hin zum klassischen 2-Kind Modell durchlaufen hat. Hier könnte man mal untersuchen, ob diese Entwicklung eine generelle Modernisierung (hin zu arbeitenden Ehefrau) oder eher „Verspießerung“ (hin zur klassischen 2-Kind-Familie) des Familienmodells anzeigt.
+
+Bei der FDP und der SPD gibt es dagegen wesentlich mehr Abgeordnete mit einem oder sogar gar keinem Kind. Den größten Anteil an Kinderlosen findet man bei den Parteien, die auch für ein progressives Weltbild stehen (wollen): Linke und Grüne.
+
+
+Bei der SPD nimmt der Anteil der Kinderlosen stark zu…
+
+… der bei der FDP traditionell schon höher war und weiter steigt.
+
+Bei den Linken gibt es kaum Großfamilien
+
+Ebenso bei den Grünen
+Auch hier schließen sich vielversprechende weitere Forschungsfragen an: sind die Linken z.B. wirklich effektiv so viel kinderärmer, wenn man das Alter berücksichtigt? Wie wir später noch sehen werden, sind Grüne und Linke signifikant jünger als insbesondere die alten Parteien SPD und CDU/CSU. Vielleicht kriegen die Linken ihre Kinder erst noch. Um die Kinderanzahl fair zu bewerten, müsste man also eigentlich das Alter der Abgeordneten alignen.
+
+Insgesamt sieht man ist auch hier den Trend, dass die Verteilung sich langsam dem Trend der echten Menschen angleicht: überwog über die Parteien hinweg bis in die 1980er noch die Anzahl der Abgeordneten mit zwei oder mehr Kindern, ist inzwischen die Gruppe der Kinderlosen von 12 auf 33% gewachsen. Das Parlament bildet also vermutlich ganz gut unsere Gesellschaft von vor ein paar Jahrzehnten ab.
+
+
+Gesamtverteilung im Bundestag: die Kinderlose Fraktion wächst
+Besonders faszinierend finde ich übrigens den „Buckel“ in den 70ern, in dem es insgesamt kaum kinderlose Abgeordnete gab. Diesen Effekt kann man bei der Gesamtverteilung oder dem Plot für die CDU/CSU sehr gut nachvollziehen.
+
+Das AfD Paradox: Wie der Bundestag seine Mitte verlor – und die Ränder sie übernahmen
+Kleines Zwischenfazit: unsere Volksvertreter sind so verheiratet, kinderreich und christlich, wie man es in Deutschland vor ein paar Jahrzehnten eben noch war. Ein modernes, säkulares Deutschland, in dem die meisten nicht-verheiratet, kinderarm und nicht-christilich sind, bilden sie also rein statistisch gesehen nur mäßig gut ab. Das gilt insbesondere für die „großen“ bzw. „alten“ Parteien. Lediglich die Linke, die Grüne und die AfD schaffen es punktuell, realen Verteilungen abzubilden.
+
+Aber warum bilden denn die Abgeordneten die statistischen Verteilungen eines Deutschland von vor ein paar Jahrzehnten ab? Doch nicht etwa, weil sie schon seit ein paar Jahrzehnten an der Macht sind und damit das Wertesystem der letzten Generation vertreten? Das wäre ja erschütternd. <insert schocked Pikachu meme here>.
+
+„Politische Systeme scheitern nicht an ihren Gegnern, sondern an ihrer Unfähigkeit, sich selbst zu erneuern.“— Niklas Luhmann (1984)
+Werfen wir erstmal einen Blick auf die Altersverteilung der Abgeordneten. Stellt sich heraus: die meisten sind über 50. Das gilt vor allem für CDU und SPD. Echte Überraschung (zumindest für mich) hier: die CSU ist seit ein paar Wahlperioden jünger als die CDU.
+
+Die Grünen sind allerdings die einzigen, bei denen ein nennenswerter Anteil der Abgeordneten jünger als 40 ist. Autsch. Was zu erwarten war: die „neuen“ Parteien haben jüngere Abgeorndete.
+
+
+Die CDU ist überwiegend Ü50
+
+Die CSU auch – mit einer deutlichen Verjüngung in den letzten Jahren
+
+Bei der SPD sieht es nicht besser aus
+
+Die Linken war mal wesentlich jünger
+
+Die Grünen sind es noch
+Hier kommen wir langsam an den Kernpunkt der Analyse: wie die Betrachtung der Altersverteilung über alle Parteien hinweg zeigt, waren die meisten Abgeordneten in den 1970ern und 1980ern jung, sind aber – vermutlich – mit dem System gealtert, also nicht rechtzeitig durch junge Nachfolger ersetzt worden, so dass in den 1980ern dann die Ü-50-Fraktion überwog. Nur die verhältnismäßig jungen neuen Parteien Grüne und Linke konnten der Gesamtbewegung Richtung 50+ einen kleinen Shift-Effekt Richtung Verjüngung entgegensetzen.
+
+
+in den 1970ern und 80ern gab es recht viele „junge“ Abgeordnete. Die Solide schicht der U-50-Parlamentarier wurde aber in den 1990ern von en Ü-50-Menschen eingedellt.
+So meine Theorie. Aber das wird aus den obigen Statistiken noch nicht ableitbar. Es wäre ja auch möglich, dass es gar nicht dieselben Abegordeten sind, die im Übergang von den 70ern zu den 80ern gealtert sind, sondern dass Deutschland einfach in den 80ern ältere (neue) Abgeordnete gewählt hat. Können wir das in den Daten nachweisen oder widerlegen?
+
+Zunächst mal die Frage: Wie lange bleiben Abgeordnete eigentlich im Amt, bevor sie sich wieder einen Job suchen? Eine Betrachtung der Statistik „Anzahl der Jahre im Amt zu beginn der Wahlperiode “ zeigt: immer länger. Am Anfang muss die Kurve rein logisch gesehen für jede Partei bei 0 starten (jede Partei startet mit 0 Jahren Bundesttagserfahrung) und um dann schnell anzuwachsen. So weit so logisch. Dann würde man eine Sättigung an dem Punkt erwarten, der die durchschnittliche Verweildauer im Parlament anzeigt. Erwartungsgemäß wären das z.B. bei drei Wahlperioden 8 Jahre. (Im Schnitt wäre dann zu Beginn einer WP ein Parlamentarier bereits 8 Jahre im Amt gewesen und würde diese Verweildauer um 4 weitere Jahre verlängern).
+
+Das überraschende: bei den alten Parteien reißt die Steigung nicht ab! Sie strebt zur 10 oder geht (bei der CSU) sogar darüber hinaus. Das heißt, dass in diesen Parteien ein Abgeordneter mit > 10 Jahren Bundestagserfahrung in die neue Legislaturperiode startet also insgesamt 14 Jahre oder mehr im Parlament bleibt! Wer die typische Jobwechsel-Frequenz bei Umsetzungs- und Entscheidungsposten in der freien Wirtschaft kennt, kann sich seinen Teil dazu denken, was das über die Innovationskraft und die Verbreitung neuer Ideen im Team Bundestag heißt.
+
+
+Die Verweildauer der Alten Parteien ist auf einem hohen Niveau und steigt immer noch weiter
+
+Grüne und Linke zeigen eine ähnlich rasante Steigung
+
+Aktuell sieht es so aus, als würden alle Parteien die 10-Jahres-Hürde knacken.
+„Ein Parlament aus Berufspolitikern ist wie ein Unternehmen ohne Konkurrenz – es wird ineffizient und selbstgefällig.“— Ludwig Erhard (1957)
+Wer für 8, 12 oder 16 Jahre im Parlament sitzt, wird das wohl kaum als vorübergehende Lebensphase verstehen, in der er seine Lebenserfahrung aus dem Leben davor zum Wohle des Volkes in die Gestaltung des Landes einfließen lässt, sondern das Treiben dort vielmehr als seinen dauerhaften „Beruf“ wahrnehmen – etwas, das ihm dauerhaft seinen Arbeitsalltag füllt und seinen Lebensunterhalt einbringt. Nicht überraschend, dass die von diesem Parlament an Berufspolitikern beschlossenen Neuerungen – gelinde gesagt – nicht vor Innovationskraft und Lebensnähe strotzen.
+
+Jetzt bliebe nur noch zu hoffen, dass zumindest vor dem Anfang der Politker-Karriere bei den meisten Abgeordneten mal eine handfest, lebensnahe Biographie in der Mitte der Gesellschaft stand, aus deren Erfahrungen sie die lange Verweildauer im Parlament über zehren können.
+
+Paragraph statt Praxis: Die Juristenrepublik
+Nun also die zentrale Frage: was waren die Menschen, die uns als Volk vertreten, eigentlich von Beruf, bevor sie Berufspolitker wurden?
+
+Die Antwort ist ganz einfach: Juristen. Unsere gesamt gesellschaftliche Vielfalt von künstlerischen, handwerklichen, akademischen und sozialen Berufen wird abgebildet durch: Juristen. Nicht nur ist das die absolut größte Berufsgruppe im Parlament. Sie wächst auch noch und wandert bei der CDU/CSU stramm auf die 40% Hürde zu. Auch bei der FDP ist das die mit abstand größte Berufsgruppe. Nachgefolgt von so praktischen Tätigkeitsfeldern wie Volkswirtschaft und Betriebswirtschaft.
+
+
+Von Juristen regiert – jeder fünfte der Abgeordneten kommt inzwischen aus dem Legal Bereich.
+
+Bei der CDU/CSU erreicht die Juristenquote bald spektakuläre 40%.
+
+Dass der Anteil an Juristen bei der FDP sehr hoch ist, ist wenig überraschend.
+Dagegen scheint die SPD die Partei der Beamten, Lehrer und Geisteswissenschaftler zu sein. Und ich dachte immer, es sei die Partei der Arbeiter. Hier gab es mal relevant viele Unternehmer und zwischenzeitlich auch ein paar Gewerkschafter. Heute halt eher Geisteswissenschaftler und Betriebswirte.
+
+
+Bei der SPD wird die Dominanz an Lehrern in letzter Zeit durch Geisteswissenschaftler abgelöst
+Die Vergeisteswissenschaflerung sieht man auch bei den Linken und Grünen. Hier kannibalisiert diese größte Berufsgruppe zunehmend die der Volks- und Betriebswirte. Man sieht in der Entwicklung einen starke Homogenisierungseffekt der ehemals eher „bunten“ Parteien; während in den 200ern noch eine recht Bunte Palette an Land- und Forstwirten, Gewerkschaftern, Journalisten und sogar Handwerkern hier vertreten war, wird das Bild inzwischen von Juristen, Lehrern und vor allem Geisteswissenschafltlern dominiert.
+
+
+
+Ausgerechnet die verpönte AfD ist die einzige Partei mit einem nennenswerten Anteil an Naturwissenschaftlern. Ansonsten vor allem: Juristen, Kaufleute, Volkswirte (also eher wirtschaftlich interessiert als geisteswissenschaftlich).
+
+
+Die AfD ist die einzige Partei mit einem nennenswerten Anteil von Naturwissenschaftler und sonst beruflich relativ divers aufgestellt.
+Ein gesammelter Plot über die Parteien hinweg zeigt: der Anteil an „Laberjobs“ (meint: Bürjobs ohne hands-on Erfahrung mit Dreck, Körperflüssigkeiten oder anderen handfesten Elementen des Lebens) ist nicht nur wahnsinnig hoch, sondern auch noch zunehmend: über 60% der Abgeordneten verfolgen white-Collar Jobs wie die Juristerei, Betriebswirtschaft oder Volkswirtschaft.
+
+
+Während CDU/CSU und FDP Parteien der Juristen sind, ist bei den Grünen, SPD und der Linken ist der größte (und rapide wachsende) Anteil der der Geisteswissenschaftler.
+
+
+CDU/CSU und FDP verjuristen…
+
+— während SPD, Linke und Grüne zur Partei der Geisteswissenschaftler werden
+Aber fehlt da nicht was? Was ist mit praktischen Berufen aus dem Sozialen, Pflegerischen und Medizinischen Bereich? Zeigt sich: für ganz handfeste Ausbildungsberufe (Reinigungskräfte, Gastronomie, Bau) ist die Gruppe so klein bis nicht vorhanden, dass sie in der Statistik gar nicht auftauchen. Andere Gruppen (Forst- und Landwirte) waren wohl mal im Bundestag vertreten, verlieren aber zunehmend an Bedeutung.
+
+
+Der Anteil an Hände-Dreckig-Mach-Berufen ist von ehemals ca 15% auf unter die Hälfte davon gesunken
+
+Und der, der „sozialen Berufe“ (Pädagog*in, Sozialarbeiter*in, Erzieher*in) lag einfach immer schon bei satten 1%)
+
+Der Akademisierungsgrad des Bundestages nimmt dagegen deutlich zu.
+Alt, männlich, Jurist sucht… die traurige Wahrheit über eine Volksvertretung, die nicht aus dem Volk stammt.
+Also wir fassen mal zusammen: Unser Parlament ist ganz überwiegend männlich, alt, verheiratet, kinderreich, christlich und wahnsinnig akademisch. Hier wird der muslimische Jungunternehmer genau so wenig vertreten wie die alleinerziehende Kindergärtnerin. In einigen Dimensionen erreicht die Lebenswirklichkeit das Parlament (es gibt eine zunehmende Anzahl Geschiedener und Konfessionsloser), in anderen entfernt sich das Parlament sogar noch von der typischen Biographie aus der Mitte der Bevölkerung (die Abgeordneten werden älter und – in eklatantem Maße – akademischer). Wir werden regiert von Juristen und Geisteswissenschaftlern. Wenn man das im Hinterkopf behält, wundert einen vielleicht das lähmende Ausmaß der Bürokratie, die alle Prozesse dieses Landes ausbremst und auch die irrwitzige Komplexität von Regelungen, die im Wesentlichen aus unnötig verschachtelten Entscheidungsbäumen bestehen, die kafkaeske Behördenerfahrungen zum Alltag machen, nicht mehr so sehr.
+
+Interessant (und eigentlich logisch) ist es, dass ausgerechnet das Personal der vermeintlich „radikalen“ neuen Parteien (Linke, AfD und teilweise auch die Grünen) dagegen einen weniger ausgeprägten Mummifizierungsgrad aufweisen. Dort gibt es Junge, Unverheiratete, Geschiedene und Konfessionslose. Aber hinsichtlich der Berufsverteilung sieht es hier ähnlich aus wie bei den Altparteien; viele Juristen und Geisteswissenschaftler, sehr wenige Handwerker und Abgeordnete mit sozialen Berufen.
+
+Aber was heißt das denn jetzt Gesamthistorisch gesehen? Was passiert, wenn ein Parlament so groß, alt, langsam, weltfremd und realitätsfern geworden ist, dass es das Volk weder repräsentiert noch erreicht?
+Eine Variante wäre: das Parlament erneuert sich selbst. Die politikverdrossenen Deutschen wählen die inzestuöse und von der echten Welt abgekapselte Politikerblase einfach ab und verleiht sich seine Stimme durch junge, ungestüme Protestparteien, die unbequeme Wahrheiten ausspricht und neue Ideen in den Elfenbeinturm der nabelschauenden Altpolitiker trägt. Diese Idee hat in Deutschland bekanntermaßen in den letzten Jahren eine gewisse Dynamik gewonnen. Kein Wunder, dass die dem verkalkten Altsystem selbst entsprungenen und zu einem gewissen Teil auch hörigen öffentlich rechtlichen Medien dieses Aufbäumen des Volkswillens gerne mit allen Mittel der Rhetorik zu diskredietieren versuchen – wird so doch das überkommene Altsystem in aller Grundsätzlichkeit in Frage gestellt und somit existentiell in Gefahr gebracht. Aber Fakt ist: die Neuwahlen werden diesem Erneuerungswunsch Ausdruck verleihen. Jeder billige Versuch, das medial zu leugnen, abzuurteilen oder zu diskreditieren gleicht dem Versuch des konservativen Vaters, seinem Teenager-Kind Disco und Alkohol als „Teufelszeug“ zu verbieten. Gerade weil man vorschreiben will, was „nicht geht“ wird es gemacht. Die staatlichen Medien realisieren gar nicht, dass noch mehr immer gleiche Widerholungen der fast schon propagandaartigen schematischen Weltdarstellung das unwillige Volk nicht mehr zur „richtigen“ Meinung bekehren kann.
+
+Das wählende Volk sucht nicht nach noch mehr starren Regeln und Denkverboten, sondern aufregende neue Erfahrungen, mutige Vordenker und auch die Freiheit, dumme Entscheidungen zu treffen. Manchmal will man eben mit den Schmuddelkindern spielen, um dem engstirnigen Elternhaus zu entkommen. Das wird also unvermeidlich passieren.
+
+Ob das „alles“ ist oder „nur der Anfang“ lässt sich aktuell schwer vorhersagen. Aber eines ist klar:
+
+Die Fetten Jahre sind vorbei
+Schon Polybius war im zweiten Jahrhundert vor Christus bei der Betrachtung der ihm zugänglichen historischen Daten klar, dass Systeme sich spiralartig entwickeln und ähnliche Phasen immer wieder durchlaufen: selbst auf den edelsten König folgt irgendwann ein blutrünstiger Tyrann, auf die feinsinnigste Aristokratie eine Herrschaft durch eine korrupte Elite und auf die best ausgebauteste Demokratie wird irgendwann zur unschönen Ochlokratie. Die Erkenntnis war also schon vor deutlich über 2000 Jahren da: in einer organisch sich entwickelnden Welt kann kein Zustand ein Endzustand sein; eine einstmals hart erkämpfte guter Herrschaftskonstellation muss über eine Phase der Stabilisierung irgendwann zur Verweichlichung und Niedergang der herrschenden Elite führen, bevor eine neue Generation sich einen neuen „guten“ Zustanden erkämpft. Hegel und Marx haben ähnliche Muster gefunden. Auch die deutsche Demokratie stellt kein Gegenbeispiel zu diesem ewigen dialektischen Zyklus der Geschichte dar. Von Oswald Sprenglers Theorie einer zyklischen Abfolge von Aufstieg, Blüte und Verfall einer Kultur über Joseph Schumpeters Theorie der „kreativen Zerstörung“ bis hin zu Vilfredo Paretos „Zirkulation der Eliten“: alle haben sie das gleiche gesehen: ein einmal erkämpftes gutes System wird ohne permanente Erneuerung erstarren, versteinern und verkalken. Wenn das erstmal passiert ist, muss das alte mal weg, bevor etwas neues, schöpferisches wieder seinen Raum einnehmen kann. Dass unser System den Prozess der permanenten Erneuerung in den letzten Jahrzehnten nicht hinreichend bedient hat, mag man mit Blick auf die oben gezeigten Grafiken (oder generell die Merkel-Jahre und alles, was danach kam) erahnen. Insofern „kann“ es nicht sein, dass die nächste Wahl alles auf den Kopf stellt. Es „muss“ so sein. Historische Notwendigkeit. Kann keine noch so gut gestylte Wahlcampagne der Altparteien etwas gegen tun. Der Zug ist längst abgefahren.
+
+Gerade hinsichtlich der beruflichen Biografien hat sich da etwas zusammengeklumpt, was die biographische Bandbreite unserer Gesellschaft kaum abzubilden vermag. Der Akademisierungsgrad ist dermaßen hoch, dass es nicht verwundert, dass die Diskussionen und auch Gesetzesänderungen das „normale Volk“ kaum erreichen. Und selbst innerhalb der Akademiker-Bubble wird der Großteil der (naturwissenschaftlichen, datengetriebenen, IT-nahen) Interessen und Themen kaum im angemessenen Maße vertreten sehen. Der Anteil an Geisteswissenschaftlern im Parlament ist ca 4 mal so groß, wie der der Naturwissenschaftler. Und Softwareentwickler, IT Experten findet man faktisch gar nicht. Dabei hätten sie vermutlich ähnlich viele relevante Perspektiven (und Domänenwissen!) beizutragen, wie die nicht vertretene Gruppe der Sozialen Berufe und der Handwerker.
+
+Bei all der Kritik am Parla-Parla-Parlament muss ich verteidigend hinzufügen: unsere Berufspolitiker sind mit dem Phänomen nicht alleine. Unsere gesamte Gesellschaft mummifiziert gerade vor sich hin. Aus meiner Erfahrung als Data Scientist / KI-Expertin kann ich durchaus berichten, dass gerade in großen deutschen Konzernen die Produktivität der meisten Softwareentwicklungsteams durch denselben Krebs zerfressen wird: Projektmanager, die keine Ahnung von dem haben, was sie managen. Statt bei der Entwicklung von Anwendungen und Analysen diejenigen in die Produktentwicklung mit einzubeziehen, die Ahnung von der Domäne haben (Endanwender) oder die eigentliche Arbeit machen und die technische Architektur durchblicken (Softwareentwickler) wächst die Zahl und die Dominanz des Auftretens von Projektmanagern, die von beiden Seiten (Technologischer Umsetzung oder Nutzen für den einfachen Mann an der Anwendungseite der App) haben wenig verstehen. Projektmanager sind die Berufspolitiker der freien Wirtschaft: erfahrungsarm, machtorientiert, opportunistisch und gar nicht interessiert an der Schaffung eines schlanken Prozesses, der sie ja selbst überflüssig machen würde. So wie sich unsere Abgeordneten in parlamentarischen Debatten verlieren, und sich gleichzeitig an immer mehr Eigenvergünstigungen und klientelpolitischen Schachzügen selbst überfressen statt echte Innovation mit messbarem Mehrwert für die Bevölkerung auf die Strasse zu bringen, wird auch dort Energie in Powerpoints und Meetings gesteckt, die man für die Produktion echten Codes viel besser brauchen würde.
+
+Nur: Juristische Texte, Powerpoints, Emails… das alles werden sehr zeitnah die LLMs für uns übernehmen (oder tun es schon). All das Verwalten, Debattieren und Meeten müssen wir bald nicht mehr selber machen. Was wir aber nach wie vor (zumindest: ein paar Jahre länger) brauchen werden, sind Menschen, die die Strassen bauen, die kranken pflegen und selbst in den Daten (vor allem in den schmutzigen) wühlen, um Zusammenhänge rauszupulen. Vielleicht wird das der eigentliche Umsturz: nicht die AfD übernimmt die Macht sondern die LLMs.
+
+In dem Sinne: macht euch die Hände schmutzig! Werdet nicht Berufspolitiker oder Projektmanager. Werdet Kindergärtner, Kellner und Krankenfpleger und lernt etwas zu züchten, zu produzieren oder zu erhalten. Die nächste Revolution kommt bestimmt. Dann ists vorbei mit den Bullshit Jobs (im Parlament und anderswo). Ich weiß selbst, dass ich die 2030er wohl kaum als Data Scientistin betreten werden und freue mich schon auf meine Zeit als Erzieherin im Waldkindergarten. 🙂
