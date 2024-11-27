@@ -10,6 +10,8 @@
 4. auf cloud run deployen
 > gcloud run deploy bundestag-dashboard --image gcr.io/bundestag-miner/bundestag-dashboard --platform managed
 
+(pick appropriate region e.g. europe-west3 / 20)
+
 ## Basic Commands
 
 ### Build Container
