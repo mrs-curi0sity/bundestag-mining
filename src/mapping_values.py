@@ -286,107 +286,208 @@ def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
     df[column] = df[column].apply(lambda x: x.strip())
     return df 
 
-
-
-
 beruf_klassifizierung = {
+    'Professor*in & Wissenschaft': [
+        'dozent', 'professor', 'prof.', 'hochschull', 'hochschulpr', 'universitätsprofessor',
+        'wissenschaftlicher assistent', 'wissenschaftlicher mitarbeiter', 'wissenschaftliche mitarbeiterin',
+        'wissenschaftlicher referent', 'wissenschaftliche referentin', 'institutsleiter', 
+        'wissenschaftsmanager', 'lehrbeauftragter', 'forschungsbeauftragter', 'akademischer oberrat', 'akademischer rat',
+        'akademieleiter', 'studienleiter', 'studienleiterin', 'konservator', 'wiss. mitarbeiter', 'lehrbeaufttagte'
+    ],
+    
     'Jurist*in': [
         'anwalt', 'anwäl', 'jurist', 'richter', 'notar', re.compile('dr.*\s*jur.*'), 'syndikus', 'rechtsberater',
-        'staatsanwalt', 'volljurist', 'wirtschaftsjurist'
+        'staatsanwalt', 'volljurist', 'wirtschaftsjurist', 'völkerrechtler', 'rechtsreferendar',
+        'rechtsassessor', 'rechtswissenschaftler', 'oberlandesgerichtsrat', 'steuerrechtler'
     ],
-    'Land-/Forstwirt*in': [
-        'landwirt', re.compile('^[a-z]bauer\s'), 'bauer', re.compile('agrar+'), 'forst', 'winzer', 'ökonomierat',
-        'land- und forstwirt', 'agraringenieur'
+    
+    'Ärzt*in & Psycholog*in': [
+        'arzt', 'ärzt', 'psycholog', 'psychlogin', 'psychother', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt',
+        'internist', 'chirurg', 'kieferorthopäde', 'kreisveterrinärrat'
     ],
-    'Unternehmer*in': [
-        'unternehmer', 'fabrikant', 'geschäftsführer', 'hauptgeschäftsführer', 'unternehmensberater', 
-        'selbständiger kaufmann'
+    
+    'Volkswirt*in': [
+        'volkswirt', re.compile('dipl.*-volkswirt'), 'diplom-volkswirt', 'dipl. volkswirt'
     ],
+    
+    'Betriebswirt*in': [
+        'betriebswirt', 'steuerberater', 'bankdirektor', re.compile('dipl.*-betriebswirt'),
+        'betriebsleiter', 'wirtschaftsassessor', 'wirtschaftsberater', 'finanzwirt', 'finanzberater',
+        'finanzbuchhalter', 'finanzcontroller', 'wirtschaftssachverständiger', 'vermögensberater'
+    ],
+    
+    'Wirtschaftswissenschaftler*in': [
+        'ökonom', re.compile('dipl.*-ökonom'), 'wirtschaftswissenschaftler', 'wirtschaftsprüfer',
+        'ing.-ökonom', 'sozialökonom', 'staatswissenschaftler', 'statistiker'
+    ],
+    
+    'Geisteswissenschaftler*in': [
+        'politolog', 'politikwiss', 'historik', 'philosoph', 'philolog', 'soziolog', 
+        'sozialwissensch', 'kulturwissenschaft', 'sprachwissenschaftler', 'asienwissenschaft',
+        'islamwissenschaft', 'literaturwissenschaft', 'gesellschaftswissenschaft', 'kommunikationswissenschaft',
+        'medienwissenschaftler', 'kunstwissenschaftler', 'friedens- und konfliktforscher',
+        'sozial- und kulturanthropologe', 'internationale beziehungen', 'ethnolog', 'umweltwissenschaft',
+        'geograph', 'magister artium', 'geopolitik', 'system-analytiker'
+    ],
+    
+    'Naturwissenschaftler*in': [
+        'chemik', 'chemie', 'physik', 'geophysik', 'biolog', 'mathemat',
+        'geologe', 'biochemiker', 'biotechnolog', 'ernährungswissenschaft', 'geowissenschaftler', 'geologe',
+        'milchindustrielaborant', 
+    ],
+    
     'Ingenieur*in': [
         'ingenieur', 'maschinenbau', 'architekt', re.compile('dipl.*-ing'), 'bauingenieur', 'elektroingenieur',
-        'wirtschaftsingenieur', 'maschinenschlosser'
+        'wirtschaftsingenieur', 'maschinenschlosser', 'baumeister', 'technischer zeichner'
     ],
-    'Journalist*in': [
-        'journalist', 'redakteur', 'publizist', 'schriftsteller', 'pressesprecher', 'chefredakteur',
-        'buchhändler'
-    ],
-    'Verleger*in': [
-        'verleger', 'verlags'
-    ],
+    
     'Lehrer*in': [
-        'erzieher', 'pädagog', 'lehrer', 'studienrat', 'studiendirektor', 'schulrat',
+        'erzieher', 'pädagog', 'lehrer', 'studienr', 'studiendirektor', 'schulrat',
         'grundschul', 'hauptshul', 'sonderschul', 'waldorf', 'realschul', 'gymnasi',
         'volkshochschu', 'berufsschul', 'fremdsprachen', 'schul', 'rektor', 'konrektor',
-        'oberstudienrat', 'oberstudiendirektor'
+        'oberstudienrat', 'oberstudiendirektor', 'seminarleiter', 'studienassessor',
+        'verbandsbildungsleiter', 'unterrichtsschwester'
     ],
-    'Professor*in': [
-        'dozent', 'professor', 'prof.', 'hochschull', 'hochschulpr', 'universitätsprofessor'
+    
+    'Theolog*in': [
+        'pfarrer', 'theolog', 'diakon', 'pastor', 'priester', 'militärseelsorger', 'diözesansekretär',
+        'oberkirchenrat', 'diakonin'
     ],
-    'Kaufmännische Berufe': [
-        'kaufm', 'kauff', 'einzelhandel', 'großhandel', 'handelsfachwirt', 'bankkaufmann',
-        'versicherungskaufmann', 'industriekaufmann', 'kaufmännische angestellte', 'prokurist'
-    ],
-    'Volkswirt*in': [
-        'volkswirt', re.compile('dipl.*-volkswirt'), 'ökonom'
-    ],
+    
     'Berufspolitiker*in': [
         'regierungsangestellt', 'stadtamtmann', 'stadtoberinspektor', 'landesgeschäftsführer',
         re.compile('landr(at|ätin)'), re.compile('ministerialr(a|ä)t'), 'staatssekret', 'bürgermeist', 
-        'regierungsrat', re.compile('regierungs(vize)*präs'), 'regierung',
+        'regierungsrat', re.compile('regierungs(vize)*präs'), 'regierung', 'stadtrat', 'stadträt', 'senator',
         'stadtdirektor', 'ministerialdirektor', 'regierungsdirektor', 'gemeindedirektor',
         'minister', 'bundeskanz', 'bundestagsp', re.compile('präsident(in)* d\.*b\.*t\.*'),
-        'abgeordneter', 'parlamentarischer staatssekretär', 'staatsminister', 'ministerpräsident',
-        'oberbürgermeister'
+        'abgeordnete', 'parlamentarischer staatssekretär', 'staatsminister', 'ministerpräsident',
+        'oberbürgermeister', 'politiker', 'poltiker','mdb', 'mdep', 'bezirksstadtrat', 'kreisbeigeordnet',
+        'beigeordnet', 'mitglied des landtages', 'staatsrat', 'migrantenbeauftragte',
+        'landespräsident', 'eg-kommissar', 'parteisekretä', 'parteifunktionär', 
+        'vorsitzender der spd', 'präsident des deutschen bundestages', 'präsident des bundesverfassungsgericht',
+        'bundesmin. f. besond. aufgaben'
     ],
-    'Medizinische Berufe': [
-        'arzt', 'ärzt', 'psycholog', 'psychother', 'apotheker', 'mediziner', 'facharzt', 'zahnarzt', 'tierarzt',
-        'krankenschwester', 'krankenpfleger', 'pflegekraft', 'hebamme', 'sanitäter',
-        'medizinisch-technischer assistent'
+    
+    'Verwaltungsberufe': [
+        'beamter', 'beamtin', 'verwaltungsbeamter', 'verwaltungsoberinspek', 'verwaltungsangestellte',
+        'regierungsdirektor', 'ministerialrat', 'stadtoberinspektor', 'oberregierungsrat',
+        'oberpostrat', 'polizeipräsident', 'bundesbahnoberinspektor', 'bundesbahnbetriebsinspektor',
+        'obertelegrafensekretär', 'referent', 'referatsleiter', 'hauptreferent', 'kreisinspektorin',
+        'postoberinspektor', 'polizeioberrat', 'kriminaloberrat', 'kriminaloberkommissar',
+        'bezirksamtsleiter', re.compile('dipl.*-verwaltungswirt'), 'verwaltungswirt', 'verwaltungswiss', 'amtsrat',
+        'stadtinspektor', 'stadtkämmerer', 'verwaltungsrat', 'verwaltungsamtmann', 'verwaltungsinspektor',
+        'polizeihauptkommissar', 'bundesbankamtsinspektor', 'steueramtmann', 'oberamtsrat',
+        'knappschaftsamtmann', 'postrat', 'bundesbahnamtmann', 'polizist', 'polizeibeamter', 'City-Managerin', 'gemeinderat', 'gemeinderät'
     ],
-    'Theolog*in': [
-        'pfarrer', 'theolog', 'diakon', 'pastor', 'priester'
+
+    'Diplomat*in': [
+        'diplomat', 'vortragender legationsrat', 'botschafter'
     ],
-    'Betriebswirt*in': [
-        'betriebswirt', 'verwaltungs', 'steuerberater', 'bankdirektor', re.compile('dipl.*-betriebswirt')
+    
+    'Unternehmer*in': [
+        'unternehmer', 'fabrikant', 'geschäftsführer', 'hauptgeschäftsführer', 'unternehmensberater', 
+        'selbständiger kaufmann', 'geschäftsführender gesellschafter', 'freiberuflicher planer',
+        'selbständig', 'selbstständig', 'organisationsberater', 'personalberater', 'industrieberater',
+        'vorstandsvorsitzender', 'generalbevollmächtigter', 'persönlich haftender gesellschafter',
+        'gutsbesitzer', 'vorstand', 'geschäftsleiter', 'baustoffgroßhändler'
     ],
-    'Wirtschaftswissenschaftler*in': [
-        'wirtschaftsw', 'finanzwirt', 'wirtschaftsprüfer'
+    
+    'Kaufmännische Berufe': [
+        'kaufm', 'kauff', 'einzelhandel', 'großhandel', 'handelsfachwirt', 'bankkaufmann', 'bankier', 
+        'bankfachwirt', 'finanzfachwirt','fachwirt im gastgewerbe', 'versicherungsfachwirt', 'sparkassenfachwirt', 
+        'versicherungskaufmann', 'industriekaufmann', 'kaufmännische angestellte', 'prokurist',
+        'account manager', 'vertriebsleiter', 'vertriebsmanager', 'marketing- und kommunikationsmanager',
+        'projektmanager', 'produktmanager', 'geschäftsstellenleiter', 'hotelfachfrau', 'marktforscher',
+        'verkaufsleiter', 'handelsvertreter', 'einzelhändler', 'ecommerce manager',
+        'immobilienmakler', 'grundstücksmakler',  'buchhalter', 'finanzbuchhalter'
     ],
-    'Geisteswissenschaftler*in': [
-        'politolog', 'politikwiss', 'historik', 'philosoph', 'philolog', 'soziolog', 
-        'sozialwissensch', 'kulturwissenschaft', 'sprachwissenschaftler'
+    
+    'IT & Digitalisierung': [
+        'informat', 'it-berater', 'it-account-manager', 'software', 'programmierer', 'data scientist',
+        'systemadministrator', 'netzwerkadministrator', 'webentwickler'
     ],
-    'Naturwissenschaftler*in': [
-        'chemik', 'chemie', 'physik', 'geophysik', 'biolog', 'mathemat', 'informat',
-        'geologe', 'biochemiker'
+
+    'Journalist*in & Medien': [
+        'journalist', 'redakteur', 'publizist', 'schriftsteller', 'pressesprecher', 'chefredakteur',
+        'buchhändler', 'auslandskorrespond', 'autor', 'pressefotograf', 'moderator', 'dramaturg',
+        'kulturmanager', 'pr-berater', 'kommunikationswirt', 'hauptschriftleiter', 'kommunikationsberater',
+        'fundraiser', 'verlags', 'verleger'
     ],
+    
     'Handwerker*in': [
         'elektro', 'fahrzeug', 'handwerk', 'mechanik', 'schlosser', 'maurer', 'beton', 
         'maler', 'lackier', 'tischler', 'schreiner', 'bäcker', 'konditor', 'koch', 'köchin', 
-        'müller', 'bergmann', 'werkzeugmacher', 'zimmermann', 'fleischer', 'metzger'
+        'müller', 'bergmann', 'werkzeugmacher', 'zimmermann', 'fleischer', 'metzger',
+        'schriftsetzer', 'buchdrucker', 'glasermeister', 'bezirksschornsteinfegermeister',
+        'schuhmachermeister', 'zimmermeister', 'setzer', 'former', 'friseurmeister',
+        'zerspanungsfacharbeiter', 'goldschmied', 'drucker', 'elektrikerin', 'restaurantfachmann',
+        'lagerist', 'installateurmeister', 'schmiedemeister', 'kartonagenmeister', 'schweißer',
+        'dreher', 'klempner', 'starkstromelektriker', 'glasschmelzer', 'fliesenleger',
+        'tapeziermeister', 'karosseriebaumeister', 'metallarbeiter', 'werkzeugdreher',
+        'hochdruckschweißer', 'polsterer', 'optiker', 'stukkateurmeister', 'stellmacher',
+        'fotografenmeister', 'hafenfacharbeiter', 'installateur', 'stukkteurmeister'
     ],
+    
+    'Technische Berufe': [
+        'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech'),
+        'werkmeister', 'lokomotivführer', 'facharbeiter für eisenbahntransporttechnik',
+        'technischer angestellter', 'abwassermeister', 'pilot', 'betriebsmeister',
+        'baustofftechnolog'
+    ],
+    
+    'Land-/Forstwirt*in': [
+        'landwirt', re.compile('^[a-z]bauer\s'), 'bauer', re.compile('agrar+'), 'forst', 'winzer', 'ökonomierat',
+        'land- und forstwirt', 'agraringenieur', 'ökologischer gärtner', 'gärtnermeister', 'revierförster',
+        'landliche hauswirtschaft', 'bäuerin', 'landfrau', 'meisterin der ländlichen hauswirtschaft'
+    ],
+    
+    'Pflege- & Sozialberufe': [
+        'krankenschwester', 'krankenpfleger', 'pflegekraft', 'hebamme', 'sanitäter',
+        'medizinisch-technischer assistent', 'heilpraktiker', 'fachassistent für röntgendiagnostik',
+        'kinderpfleger', 'sozialarbeiter', 'sozialpädagoge', re.compile('dipl.*-sozi'), 'erzieher',
+        'fürsorgerin', 'sozialversicherungsfachangestellt', 'apotheker', 'apothekenhelferin',
+        'krankengymnast', 'physiotherapeut', 'sporttherapeut', 'pflegedienstleitung',
+        'qualif. kindertagespflegeperson', 'altenpfleger', 'wohlfahrtpfleger', 'logopäde',
+        'gesundheitsberater', 'familienmanager', 'stadtaltenpfleger', 'angehörigenpfleger', 'päd. mitarbeiter'
+    ],
+    
     'Militär': [
         'leutnant', re.compile('oberst(?!u)'), 'soldat', re.compile('general\s'), 'offizier', 
-        'hauptmann', 'major', 'oberstleutnant'
+        'hauptmann', 'major', 'oberstleutnant', 'fregattenkapitän', 'kapitän', 'vizeadmiral'
     ],
-    'Verwaltungsberufe': [
-        'beamter', 'beamtin', 'verwaltungsbeamter', 'polizeibeamter', 'verwaltungsangestellte',
-        'regierungsdirektor', 'ministerialrat', 'stadtoberinspektor', 'oberregierungsrat'
-    ],
+    
     'Gewerkschaftsberufe': [
-        'gewerkschaftssekretär'
+        'gewerkschaftssekretär', 'arbeitersekretär', 'gewerkschaftsvorsitzender',
+        'gewerkschaftskreisvorsitzender', 'gesamtbetriebsratvorsitzender', 'gewerkschafter',
+        'betriebsrat', 'gewerkschaftlicher politikberater', 'landesbezirksvorsitzender des dgb',
+        'vorsitzender der gewerkschaft', 'landesvorsitzender des dgb'
     ],
-    'Soziale Berufe': [
-        'sozialarbeiter', 'sozialpädagoge', re.compile('dipl.*-sozi'), 'erzieher'
-    ],
+    
     'Künstlerische Berufe': [
-        'künstler', 'musiker', 'schauspieler', 'sänger', 'maler', 'bildhauer'
+        'künstler', 'musiker', 'schauspieler', 'sänger', 'maler', 'bildhauer',
+        'regisseur', 'mediengestalter', re.compile('dipl.*-designer'), 'pr-manager',
+        'harfenist', 'diplom-musiker', 'modedesigner'
     ],
-    'Technische Berufe': [
-        'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech')
+    
+    'Angestellte': [
+        'angestellt', 'sachbearbeiter', 'bürokraft', 'büroangestellte', 'sekretär',
+        'leitender angestellter', 'assistent', 'übersetzer', 'referent', 'sprachmittler',
+        'bibliothekarin', 'büroleiter', 'vorarbeiter', 'helferin in steuersachen',
+        'freier mitarbeiter'
     ],
+    
+    'Hausfrau/Hausmann': [
+        'hausfrau', 'hausmann', 'siedlerfrau'
+    ],
+    
     'Student*in': [
-        'student'
+        'student', 'studentin'
+    ],
+    
+    'Sonstige': [
+        'rentner', 'seemann', 'spediteur', 'gästeführer', 'feuerwehrmann', 'ohne angaben',
+        'keine angaben', 'unbekannt', 'bestatter', 'ohne beruf', 'ohne angabe', 'vorkalkulator',
+        'bergbauinvalide', 'gastwirt'
     ]
 }
 
