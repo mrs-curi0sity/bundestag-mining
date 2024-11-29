@@ -57,7 +57,7 @@ list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige
 
 
 
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 21)
+list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 24)
 
 
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
@@ -340,6 +340,18 @@ beruf_klassifizierung = {
         'ingenieur', 'maschinenbau', 'architekt', re.compile('dipl.*-ing'), 'bauingenieur', 'elektroingenieur',
         'wirtschaftsingenieur', 'maschinenschlosser', 'baumeister', 'technischer zeichner'
     ],
+
+    'Informatik & IT': [
+        'informatik', 'software', 'programm', 'entwickler', 'developer', 'data scientist',
+        'datenanalyst', 'systemadministrator', 'netzwerk', 'datenbankadministrator',
+        'it-berater', 'it berater', 'it-consultant', 'it-architekt', 'it-spezialist',
+        'webentwickler', 'web-entwickler', 'fullstack', 'backend', 'frontend',
+        'künstliche intelligenz', 'machine learning', 'ki-experte', 'ki experte',
+        'it-sicherheit', 'cybersicherheit', 'security', 'system engineer',
+        'cto', 'chief technical officer', 'cio', 'edv', 'computertechnik',
+        'wirtschaftsinformatik', 'bioinformatik', 'informationstechnik',
+        'fachinformatiker', 'datenbank'
+    ],
     
     'Lehrer*in': [
         'erzieher', 'pädagog', 'lehrer', 'studienr', 'studiendirektor', 'schulrat',
@@ -402,10 +414,6 @@ beruf_klassifizierung = {
         'immobilienmakler', 'grundstücksmakler',  'buchhalter', 'finanzbuchhalter'
     ],
     
-    'IT & Digitalisierung': [
-        'informat', 'it-berater', 'it-account-manager', 'software', 'programmierer', 'data scientist',
-        'systemadministrator', 'netzwerkadministrator', 'webentwickler'
-    ],
 
     'Journalist*in & Medien': [
         'journalist', 'redakteur', 'publizist', 'schriftsteller', 'pressesprecher', 'chefredakteur',
@@ -428,12 +436,12 @@ beruf_klassifizierung = {
         'fotografenmeister', 'hafenfacharbeiter', 'installateur', 'stukkteurmeister'
     ],
     
-    'Technische Berufe': [
-        'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech'),
-        'werkmeister', 'lokomotivführer', 'facharbeiter für eisenbahntransporttechnik',
-        'technischer angestellter', 'abwassermeister', 'pilot', 'betriebsmeister',
-        'baustofftechnolog'
-    ],
+   # 'Technische Berufe': [
+   #     'techniker', 'mechatroniker', 'elektroniker', re.compile('dipl.*-tech'),
+   #     'werkmeister', 'lokomotivführer', 'facharbeiter für eisenbahntransporttechnik',
+   #     'technischer angestellter', 'abwassermeister', 'pilot', 'betriebsmeister',
+   #     'baustofftechnolog'
+   # ],
     
     'Land-/Forstwirt*in': [
         'landwirt', re.compile('^[a-z]bauer\s'), 'bauer', re.compile('agrar+'), 'forst', 'winzer', 'ökonomierat',
