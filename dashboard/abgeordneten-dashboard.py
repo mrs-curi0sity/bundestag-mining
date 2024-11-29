@@ -25,29 +25,32 @@ from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-print(list_of_familienstand)
-
-# Styles
-SIDEBAR_STYLE = {
-    'position': 'fixed',
-    'top': 0,
-    'left': 0,
-    'bottom': 0,
-    'width': '20%',
-    'padding': '20px 10px',
-    'background-color': '#f8f9fa'
-}
 
 CONTENT_STYLE = {
-    'margin-left': '25%',
-    'margin-right': '5%',
+    'margin-left': '4%',  # reduziert von 25%
+    'margin-right': '4%', # reduziert von 5%
     'padding': '20px 10px'
+}
+
+# Neue Style für die unterschiedlichen Plot-Größen
+PLOT_STYLE_HALF = {
+    'height': 550  # für die 2-spaltigen Plots
+}
+
+PLOT_STYLE_FULL = {
+    'height': 700  # für Berufe-Plot
 }
 
 TEXT_STYLE = {
     'textAlign': 'center',
-    'color': '#191970'
+    'color': '#191970',  # Dunkles Marineblau
+    'marginBottom': '20px',
+    'marginTop': '10px',
+    'fontFamily': 'Arial, sans-serif',
+    'fontSize': '24px',
+    'fontWeight': 'bold'
 }
+
 
 # Globale Variable für gefilterte Daten
 filtered_df = pd.DataFrame()
@@ -77,117 +80,139 @@ def create_button(id, label, color='primary'):
         className='w-100',
     )
 
-
-
-# Layout components
-# Layout components
-sidebar = html.Div([
-   html.H2('Filter', style=TEXT_STYLE),
-   html.Hr(),
-   html.P('Wahlperioden', style={'textAlign': 'center'}),
-   html.Label("von:", style={'marginBottom': '5px'}),
-   create_dropdown('wp_start', [], 1),
-   html.Label("bis:", style={'marginTop': '10px', 'marginBottom': '5px'}),
-   create_dropdown('wp_end', [], MAX_WP),
-   html.Br(),
-   html.P('Parteien', style={'textAlign': 'center'}),
-   create_checklist('check_list_parteien', list_of_parteien, list_of_parteien),
-   create_button('select_all_parteien', 'Select All'),
-   html.Br(),
-   html.Br(),  # Extra Abstand
-   create_button('submit_button', 'Submit', color='warning')
-], style=SIDEBAR_STYLE)
-
-content = html.Div([
-    html.H2('Bundestagsmining', style=TEXT_STYLE),
-    html.Hr(),
-    dbc.Row([
-        dbc.Col(dcc.Graph(id='party'), md=6),
-        dbc.Col(dcc.Graph(id='gender'), md=6)
-    ]),
-    dbc.Row([
-        dbc.Col(dcc.Graph(id='familienstand'), md=6),
-        dbc.Col(dcc.Graph(id='kinder'), md=6)  # Neue Zeile
-    ]),
-    dbc.Row([
-        dbc.Col(dcc.Graph(id='alter'), md=6),
-        dbc.Col(dcc.Graph(id='num_years_in_bt'), md=6)
-    ]),
-    dbc.Row([
-        dbc.Col(dcc.Graph(id='beruf'), md=6),    # Verschoben in gleiche Row
-        dbc.Col(dcc.Graph(id='religion'), md=6)
-    ]),
+filter_panel = dbc.Card([
+    dbc.CardHeader("Filter"),
+    dbc.CardBody([
         html.Div([
-        dash_table.DataTable(
-            id='selected_records',
-            columns=[
-                {
-                    'name': 'ALTER' if colname == 'START_AGE_IN_YEARS_MAPPED' else colname,
-                    'id': colname,
-                    'presentation': 'markdown' if colname == 'VITA_KURZ' else 'input',
-                    'type': 'text',
-                } for colname in COLUMNS_FOR_DISPLAY
-            ],
-            page_size=20,
-            page_current=0,
-            page_action='custom',
-            filter_action='custom',
-            filter_query='',
-            sort_action='custom',
-            sort_mode='multi',
-            sort_by=[{'column_id': 'WP', 'direction': 'desc'}],  # Default sorting
-            style_table={'overflowX': 'auto'},
-            style_cell={
-                'fontFamily': 'Arial, sans-serif',
-                'fontSize': '14px',
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis',
-                'maxWidth': 0,
-                'minWidth': '120px',
-                'whiteSpace': 'normal',
-                'height': 'auto',
-                'textAlign': 'left'
-            },
-            style_cell_conditional=[
-                {
-                    'if': {'column_id': 'VITA_KURZ'},
-                    'maxWidth': '700px',
-                    'minWidth': '600px',
-                },
-            ] + [
-                {
-                    'if': {'column_id': colname},
-                    'maxWidth': '150px',
-                } for colname in COLUMNS_FOR_DISPLAY if colname != 'VITA_KURZ'
-            ],
-            style_data={
-                'whiteSpace': 'normal',
-                'height': 'auto',
-                'padding': '5px'
-            },
-            style_header={
-                'backgroundColor': 'rgb(230, 230, 230)',
-                'fontWeight': 'bold'
-            },
-            css=[{
-                'selector': '.dash-spreadsheet td div',
-                'rule': '''
-                    line-height: 15px;
-                    max-height: 250px;
-                    min-height: 30px;
-                    height: auto;
-                    white-space: normal;
-                    overflow-y: auto;
-                '''
-            }],
-        )
-    ]),
-    html.Div(id='pagination-info')
-], style=CONTENT_STYLE)
+            html.Label("Wahlperioden:"),
+            dbc.Row([
+                dbc.Col([
+                    html.Label("von:", className="mr-2"),
+                    create_dropdown('wp_start', [], 1)
+                ], md=6),
+                dbc.Col([
+                    html.Label("bis:", className="mr-2"),
+                    create_dropdown('wp_end', [], MAX_WP)
+                ], md=6)
+            ]),
+        ], className="mb-3"),
+        html.Div([
+            html.Label("Parteien:"),
+            create_checklist('check_list_parteien', list_of_parteien, list_of_parteien),
+            create_button('select_all_parteien', 'Alle auswählen/abwählen'),
+        ], className="mb-3"),
+        create_button('submit_button', 'Anwenden', color='warning')
+    ])
+])
+
+
 
 # Initialize app
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-app.layout = html.Div([sidebar, content])
+app.layout = html.Div([
+    html.H2('Bundestagsmining', style=TEXT_STYLE),
+    html.Hr(),
+    
+    # Erste Zeile: Filter und Partei
+    dbc.Row([
+        dbc.Col(filter_panel, md=6),
+        dbc.Col(dcc.Graph(id='party', config={'displayModeBar': False}), md=6)
+    ], className="mb-4"),
+    
+    # Zweite Zeile: Geschlecht und Religion
+    dbc.Row([
+        dbc.Col(dcc.Graph(id='gender', config={'displayModeBar': False}), md=6),
+        dbc.Col(dcc.Graph(id='religion', config={'displayModeBar': False}), md=6)
+    ], className="mb-4"),
+    
+    # Dritte Zeile: Alter und Bleibedauer
+    dbc.Row([
+        dbc.Col(dcc.Graph(id='alter', config={'displayModeBar': False}), md=6),
+        dbc.Col(dcc.Graph(id='num_years_in_bt', config={'displayModeBar': False}), md=6)
+    ], className="mb-4"),
+    
+    # Vierte Zeile: Familienstand und Kinder
+    dbc.Row([
+        dbc.Col(dcc.Graph(id='familienstand', config={'displayModeBar': False}), md=6),
+        dbc.Col(dcc.Graph(id='kinder', config={'displayModeBar': False}), md=6)
+    ], className="mb-4"),
+    
+    # Fünfte Zeile: Berufe (volle Breite)
+    dbc.Row([
+        dbc.Col(dcc.Graph(id='beruf', config={'displayModeBar': False}), md=12)
+    ], className="mb-4"),
+    
+    # Sechste Zeile: Datentabelle
+    dbc.Row([
+        dbc.Col([
+            dash_table.DataTable(
+                id='selected_records',
+                columns=[
+                    {
+                        'name': 'ALTER' if colname == 'START_AGE_IN_YEARS_MAPPED' else colname,
+                        'id': colname,
+                        'presentation': 'markdown' if colname == 'VITA_KURZ' else 'input',
+                        'type': 'text',
+                    } for colname in COLUMNS_FOR_DISPLAY
+                ],
+                page_size=20,
+                page_current=0,
+                page_action='custom',
+                filter_action='custom',
+                filter_query='',
+                sort_action='custom',
+                sort_mode='multi',
+                sort_by=[{'column_id': 'WP', 'direction': 'desc'}],
+                style_table={'overflowX': 'auto'},
+                style_cell={
+                    'fontFamily': 'Arial, sans-serif',
+                    'fontSize': '14px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                    'minWidth': '120px',
+                    'whiteSpace': 'normal',
+                    'height': 'auto',
+                    'textAlign': 'left'
+                },
+                style_cell_conditional=[
+                    {
+                        'if': {'column_id': 'VITA_KURZ'},
+                        'maxWidth': '700px',
+                        'minWidth': '600px',
+                    },
+                ] + [
+                    {
+                        'if': {'column_id': colname},
+                        'maxWidth': '150px',
+                    } for colname in COLUMNS_FOR_DISPLAY if colname != 'VITA_KURZ'
+                ],
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto',
+                    'padding': '5px'
+                },
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold'
+                },
+                css=[{
+                    'selector': '.dash-spreadsheet td div',
+                    'rule': '''
+                        line-height: 15px;
+                        max-height: 250px;
+                        min-height: 30px;
+                        height: auto;
+                        white-space: normal;
+                        overflow-y: auto;
+                    '''
+                }],
+            ),
+            html.Div(id='pagination-info')
+        ], md=12)
+    ])
+], style=CONTENT_STYLE)
+
 
 # Callbacks
 @app.callback(
@@ -216,13 +241,15 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
        filter_text = f"Gefiltert nach Partei: {', '.join(sorted(selected_parteien))}"
     else:
        filter_text = f"Gefiltert nach Parteien: {', '.join(sorted(selected_parteien))}"
-    #filter_text += f"\nWahlperioden: {WP_START[start_date-1]} - {WP_START[end_date]}"
+    
+    # Initialize traces list
+    traces = []
     
     # Gemeinsame Layout-Parameter
     layout_params = dict(
         title=title,
-        height=600,  # Mehr Platz für Plot und Annotation
-        margin=dict(b=150),  # Mehr Platz unten für Filter-Text
+        height=600 if dimension == 'BERUF_MAPPED' else 550,
+        margin=dict(b=150),
         xaxis=dict(
             title='Jahr',
             ticktext=[f"{year}" for wp, year in enumerate(grouped.index, 1)],
@@ -234,18 +261,36 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
             xref="paper",
             yref="paper",
             x=0,
-            y=-0.3,  # Position weiter unten
+            y=-0.3,
             showarrow=False,
             align="left",
-            font=dict(size=10)  # Kleinere Schriftgröße
+            font=dict(size=10)
         )],
         hovermode='x unified'
     )
     
+    # Spezielle Layout-Parameter für den Berufe-Plot
+# Spezielle Layout-Parameter für den Berufe-Plot
+    if dimension == 'BERUF_MAPPED':
+        layout_params.update(dict(
+            height=700,  # oder welche Höhe du gewählt hast
+            legend=dict(
+                traceorder="normal",
+                font=dict(size=10),
+                yanchor="top",
+                y=1,
+                xanchor="left",
+                x=1,
+                bgcolor="white",
+                bordercolor="gray",
+                borderwidth=1,
+                nrow=7,     # 7 Zeilen pro Spalte
+                ncol=2      # 3 Spalten
+            )
+        ))
+
     if dimension == 'START_AGE_IN_YEARS_MAPPED':
         age_groups = list_of_altersklassen
-        traces = []
-
         for age_group in age_groups:
             trace = go.Scatter(
                 x=grouped.index,
@@ -264,7 +309,6 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
         ))
         
     elif dimension == 'PARTEI_MAPPED':
-        traces = []
         for party in values_to_keep:
             if party in grouped.columns:
                 trace = go.Bar(
@@ -284,12 +328,12 @@ def update_graph(n_clicks, start_date, end_date, selected_parteien, dimension, v
     else:
         color_palette = get_color_palette(len(values_to_keep))
         
-        traces = [go.Bar(
+        traces.extend([go.Bar(
             x=grouped.index, 
             y=grouped[value] if value in grouped.columns else [0] * len(grouped.index), 
             name=value,
             marker_color=color_palette[i]
-        ) for i, value in enumerate(reversed(values_to_keep))]
+        ) for i, value in enumerate(reversed(values_to_keep))])
         
         layout_params.update(dict(
             yaxis=dict(title='Anteil', tickformat=',.0%'),
@@ -434,18 +478,18 @@ def apply_filters(df, filter_query):
             dff[col_name] = dff[col_name].astype(str)
         
         if op in ('eq', 'ne', 'lt', 'le', 'gt', 'ge'):
-            # Handle numeric comparisons
             try:
                 filter_value = float(filter_value)
                 dff = dff.loc[getattr(dff[col_name], op)(filter_value)]
             except ValueError:
                 dff = dff.loc[getattr(dff[col_name], op)(filter_value)]
         elif op == 'contains':
-            # Case-insensitive contains
-            dff = dff[dff[col_name].str.contains(filter_value, case=False, na=False)]
+            # Case-insensitive partial string match
+            filter_value = str(filter_value).lower()
+            dff = dff[dff[col_name].str.lower().str.contains(filter_value, regex=False, na=False)]
         elif op == 'scontains':
-            # Case-sensitive contains
-            dff = dff[dff[col_name].str.contains(filter_value, case=True, na=False)]
+            # Case-sensitive contains (falls noch benötigt)
+            dff = dff[dff[col_name].str.contains(filter_value, regex=False, na=False)]
         elif op == 'datestartswith':
             dff = dff[dff[col_name].str.startswith(filter_value, na=False)]
         
