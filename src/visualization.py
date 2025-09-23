@@ -100,6 +100,85 @@ def create_animated_barplot(data, title, xlabel, ylabel, filename):
     return fig
 
 
+
+
+def create_interactive_histogram(data, title, xlabel, filename, 
+                               bins=30, color_scheme='blues', height=600):
+    """
+    Erstellt ein interaktives Plotly-Histogramm
+    
+    Args:
+        data: pandas Series mit numerischen Werten
+        title: Titel des Plots
+        xlabel: Label für x-Achse
+        filename: Dateiname (ohne Endung)
+        bins: Anzahl der Bins
+        color_scheme: Plotly-Farbschema
+        height: Höhe des Plots
+    """
+    fig = go.Figure()
+    
+    fig.add_trace(go.Histogram(
+        x=data.dropna(),  # NaN-Werte entfernen
+        nbinsx=bins,
+        marker=dict(
+            color='rgba(58, 71, 80, 0.6)',
+            line=dict(color='rgba(58, 71, 80, 1.0)', width=1)
+        ),
+        hovertemplate='<b>Alter: %{x:.1f} Jahre</b><br>' +
+                     'Anzahl: %{y}<br>' +
+                     '<extra></extra>'
+    ))
+    
+    # Layout anpassen
+    fig.update_layout(
+        title=dict(
+            text=title,
+            x=0.5,
+            font=dict(size=24, color='#2c3e50')
+        ),
+        xaxis=dict(
+            title=dict(text=xlabel, font=dict(size=16)),
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.1)'
+        ),
+        yaxis=dict(
+            title=dict(text='Anzahl', font=dict(size=16)),
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.2)'
+        ),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='white',
+        height=height,
+        margin=dict(t=80, b=60, l=80, r=40),
+        showlegend=False,
+        hovermode='x'
+    )
+    
+    # Statistiken als Annotations hinzufügen
+    mean_age = data.mean()
+    median_age = data.median()
+    
+    fig.add_annotation(
+        x=0.02, y=0.98,
+        xref='paper', yref='paper',
+        text=f'Durchschnitt: {mean_age:.1f} Jahre<br>Median: {median_age:.1f} Jahre',
+        showarrow=False,
+        font=dict(size=12),
+        bgcolor='rgba(255,255,255,0.8)',
+        bordercolor='rgba(0,0,0,0.2)',
+        borderwidth=1
+    )
+    
+    # Speichern und anzeigen
+    fig.write_html(PLOTS_DIR / f'{filename}.html')
+    fig.show()
+    
+    return fig
+
+
+
+
 def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'):
 
     # Wahlperiode und Partei auswählen

@@ -235,58 +235,79 @@ def map_age_to_group(age):
         return '> 60'
 
 
-def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
+def basic_cleaning_berufe(df, column='BERUF_MAPPED'):
+    """
+    Bereinigt Berufsbezeichnungen für bessere Kategorisierung.
+    Entfernt Titel, Zusätze und normalisiert Gender-Formen.
+    """
     df = df.copy()
     
-    # leere einträge durch <unbekannt> ersetzen
-    df[column].fillna('unbekannt', inplace=True)
-    
-    # lowercase everything
+    # SCHRITT 1: Grundbereinigung
+    # PANDAS FIX: Nicht inplace auf Series, sondern auf DataFrame
+    df[column] = df[column].fillna('unbekannt')  # Statt .fillna('unbekannt', inplace=True)
     df[column] = df[column].str.lower()
 
-    # Geschäftsführer, Parl. Staatssekretär => Geschäftsführer, Rechtsanwalt, Parl. Staatssekretär a. D.' = 'Rechtsanwalt'
+    # SCHRITT 2: Klammern-Inhalte entfernen
+    # Regex: \( = öffnende Klammer, [^)]* = alles außer schließender Klammer, \) = schließende Klammer
+    # Beispiel: "Ingenieur (FH)" -> "Ingenieur "
+    df[column] = df[column].apply(lambda x: re.sub(r'\([^)]*\)', '', x))
+    
+    # SCHRITT 3: Mehrfachberufe aufteilen - nur ersten Teil behalten
     df[column] = df[column].apply(lambda beruf: beruf.split(',')[0])
-
-    #Bäckermeister und Konditor  => Bäckermeister, Rechtsanwalt und Fachanwalt für Steuerrecht  => Rechtsanwalt
     df[column] = df[column].apply(lambda beruf: beruf.split(' und ')[0])
-    
-    #Ingenieur für Maschinenbau => Ingenieur, Arzt für Allgemeinmedizin => Arzt
     df[column] = df[column].apply(lambda beruf: beruf.split(' für ')[0])
-    
-    # Kaufmann / Informatiker => Kaufmann
     df[column] = df[column].apply(lambda beruf: beruf.split(' / ')[0])
 
-    # Dipl.-Kaufmann => Kaufmann, Dipl.-Ingenieur => Ingenieur usw
-    df[column] = df[column].apply(lambda x: re.sub("dipl(om|\.*)", '', x))
+    # SCHRITT 4: Titel und Abschlüsse entfernen
+    # Regex: dipl(om|\.*-*) = "dipl" gefolgt von "om" ODER beliebigen Punkten und Bindestrichen
+    # Beispiele: "dipl.-kaufmann", "diplom-ingenieur" -> "kaufmann", "ingenieur"
+    df[column] = df[column].apply(lambda x: re.sub(r'dipl(om|\.*-*)', '', x))
     
-    # Ingenieur (FH) => ingenieur
-    df[column] = df[column].apply(lambda x: re.sub('\(*f\.*h\.*\)*', '', x))
+    # Regex: \s* = beliebige Leerzeichen, \(* = optionale Klammern
+    # [fm] = f oder m (für FH/MA), [hasbc] = h,a,s,b,c (für verschiedene Abschlüsse)
+    # Entfernt: "FH", "MA", "MSc", "BA", etc.
+    #df[column] = df[column].apply(lambda x: re.sub(r'\s*\(*[fm]\.*\s*[hasbc]\.*[asc]*\.*\)*', '', x))
     
-    # Polotologe BA => Politologe
-    df[column] = df[column].apply(lambda x: re.sub('\s\(*b\.*\s*a\.*\)*', '', x))
+    # Regex: \s = Leerzeichen, \(* = optionale Klammern, b\.*\s*a\.* = "B.A." in verschiedenen Schreibweisen
+    df[column] = df[column].apply(lambda x: re.sub(r'\s\(*b\.*\s*a\.*\)*', '', x))
     
-    # Philosoph M BA => 
-    df[column] = df[column].apply(lambda x: re.sub('\s\(*m\.*\s*b\.*a\.*\)*', '', x))
+    # Regex für Master-Abschlüsse: M.A., M.Sc., M.B.A., etc.
+    df[column] = df[column].apply(lambda x: re.sub(r'\s\(*m\.*\s*[abs]\.*[asc]*\.*\)*', '', x))
     
-    # Msc M.Sc.
-    df[column] = df[column].apply(lambda x: re.sub('\s\(*m\.*\s*s\.*c\.*\)*', '', x))
+    # Regex: \(* = optionale Klammern, a\.*\s*d\.* = "a.D." (außer Dienst)
+    df[column] = df[column].apply(lambda x: re.sub(r'\(*a\.*\s*d\.*\)*', '', x))
+    
+    # Regex: i\.*\s*r\. = "i.R." (im Ruhestand)
+    df[column] = df[column].apply(lambda x: re.sub(r'i\.*\s*r\.', '', x))
+    
+    # SCHRITT 5: Gender-Normalisierung 
+    # Nur explizite Zuordnungen - kein generisches Ersetzen!
+    gender_replacements = {
+        'ärztin': 'arzt', 
+        'anwältin': 'anwalt', 
+        'lehrerin': 'lehrer',
+        'professorin': 'professor', 
+        'ingenieurin': 'ingenieur',
+        'juristin': 'jurist',
+        'redakteurin': 'redakteur',
+        'geschäftsführerin': 'geschäftsführer',
+        'kauffrau': 'kaufmann',
+        'industriekauffrau': 'industriekaufmann',
+        'bankkauffrau': 'bankkaufmann',
+        'politikwissenschaftlerin':'politikwissenschaftler',
+        'pädagogin':'pädagoge'
+    }
+    
+    for female, male in gender_replacements.items():
+        df[column] = df[column].str.replace(female, male, regex=False)
+    
+    # SCHRITT 6: Whitespace-Bereinigung
+    # Regex: \s+ = ein oder mehr aufeinanderfolgende Whitespace-Zeichen
+    # Ersetzt durch ein einzelnes Leerzeichen, dann strip() für Ränder
+    df[column] = df[column].apply(lambda x: re.sub(r'\s+', ' ', x.strip()))
+    
+    return df
 
-    # a.D. a.d. ad
-    df[column] = df[column].apply(lambda x: re.sub('\(*a\.*\s*d\.*\)*', '', x))
-    
-    # i.r.
-    # df[column] = df[column].apply(lambda x: re.sub('\(*i\.*\s*r\.*\)*', '', x))
-    
-    # ärztin => artz, anwältin => anwalt. sonst klappt fast immer: in => ''
-    df[column] = df[column].str.replace('ärztin', 'arzt', regex=False)
-    df[column] = df[column].str.replace('anwältin', 'anwalt', regex=False)
-    df[column] = df[column].str.replace('frau', 'mann', regex=False) # e.g. kauffrau => kaufmann
-     
-    # letztes 'in' weglassen (ends with in)
-    df[column] = df[column].apply(lambda x: re.sub("in$", '', x))
-    
-    df[column] = df[column].apply(lambda x: x.strip())
-    return df 
 
 beruf_klassifizierung = {
     'Professor*in & Wissenschaft': [
