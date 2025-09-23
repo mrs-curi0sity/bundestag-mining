@@ -49,6 +49,12 @@ DF_MDB_WP_PATH = DATA_PATH / CURRENT_YEAR / 'output' / 'df_mdb_wp.csv'
 # startdaten der Wahlperioden
 DF_MDB_WP_STARTDATEN_PATH = DATA_PATH / CURRENT_YEAR / 'output' / 'wp_startdaten.csv'
 
+
+# In src/config.py hinzufügen:
+PLOTS_DIR = Path(__file__).parent.parent / 'plots'
+PLOTS_DIR.mkdir(exist_ok=True)
+
+
 # display List 
 PAGE_SIZE = 8
 COLUMNS_FOR_DISPLAY = ['NACHNAME', 'VORNAME', 'GESCHLECHT', 'GEBURTSDATUM', 'START_AGE_IN_YEARS_MAPPED', 'PARTEI_KURZ', 'FAMILIENSTAND', 'RELIGION', 'BERUF', 'BERUF_MAPPED', 'VITA_KURZ', 'WP']

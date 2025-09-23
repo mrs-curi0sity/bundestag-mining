@@ -113,33 +113,46 @@ partei_mapping = {
 }
 
 
-
 religion_mapping = {
-    'ohne Angaben': 'unbekannt',
+    # Evangelisch/Protestantisch (~1400 nach Mapping)
     'evangelisch': 'evangelisch',
+    'evangelisch-lutherisch': 'evangelisch',
+    'evangelisch-reformiert': 'evangelisch',
+    'evangelisch-freikirchlich': 'evangelisch',
+    'protestantisch': 'evangelisch',
+    'evangelisch-altreformiert': 'evangelisch',
+    'christlich-freikirchlich': 'evangelisch',
+    'evangelisch-protestantisch': 'evangelisch',
+    
+    # Katholisch (~1300 nach Mapping)
     'katholisch': 'katholisch',
     'römisch-katholisch': 'katholisch',
-    'UNBEKANNT': 'unbekannt',
-    'evangelisch-lutherisch': 'evangelisch',
-    'konfessionslos': 'konfessionslos',
-    'evangelisch-reformiert': 'evangelisch',
-    'religionslos': 'konfessionslos',
-    'Atheistin': 'konfessionslos',
-    'muslimisch': 'muslimisch',
-    'evangelisch-freikirchlich': 'evangelisch',
-    'freireligiös': 'freireligiös',
-    'Islam': 'muslimisch',
-    'Atheist': 'konfessionslos',
-    'neuapostolisch': 'neuapostolisch',
-    'protestantisch': 'evangelisch',
-    'humanistisch': 'humanistisch',
-    'griechisch-orthodox': 'orthodox',
-    'alevitisch': 'muslimisch',
     'alt-katholisch': 'katholisch',
-    'orthodox': 'orthodox',
-    'russisch-orthodox': 'orthodox'
-}
 
+    # Unbekannt/Keine Angaben (~1600 nach Mapping)
+    'ohne Angaben': 'unbekannt',
+    'UNBEKANNT': 'unbekannt',
+    
+    # Konfessionslos (~250 nach Mapping)
+    'konfessionslos': 'konfessionslos',
+    'religionslos': 'konfessionslos',
+    'Atheist': 'konfessionslos',
+    'Atheistin': 'konfessionslos',
+    
+    # Muslimisch (~16 nach Mapping)
+    'muslimisch': 'muslimisch',
+    'Islam': 'muslimisch',
+    'alevitisch': 'muslimisch',
+    
+    # Orthodox (~4 nach Mapping)
+    'griechisch-orthodox': 'orthodox',
+    'russisch-orthodox': 'orthodox',
+    
+    # Kleine Kategorien (jeweils 2-3)
+    'freireligiös': 'freireligiös',
+    'neuapostolisch': 'neuapostolisch',
+    'humanistisch': 'humanistisch',
+}
 
 def map_family_status(status):
     """

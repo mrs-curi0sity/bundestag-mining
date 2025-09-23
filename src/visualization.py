@@ -1,11 +1,107 @@
 import pandas as pd
-
+import matplotlib.pyplot as plt
 from plotly import graph_objs as go
+
+import plotly.express as px
+from plotly.subplots import make_subplots
+
 from src.config import LIST_OF_COLORS
-from src.mapping_values import df_mdb, df_mdb_wp, MAX_WP, WP_START
+from src.mapping_values import WP_START
+import seaborn as sns
+from src.config import PLOTS_DIR  # Annahme: du hast PLOTS_DIR in config definiert
+
+def create_barplot_with_values(data, title, xlabel, ylabel, filename, 
+                              figsize=(14, 8), show_values=True, grid=True):
+    """
+    Erstellt ein Balkendiagramm mit Werten über den Balken
+    
+    Args:
+        data: pandas Series oder dict mit Index/Keys als x-Werte und Values als y-Werte
+        title: Titel des Plots
+        xlabel: Label für x-Achse
+        ylabel: Label für y-Achse
+        filename: Dateiname (ohne Endung, wird als SVG gespeichert)
+        figsize: Tuple für Figur-Größe
+        show_values: Bool, ob Werte über Balken angezeigt werden
+        grid: Bool, ob Grid angezeigt wird
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Balkendiagramm erstellen
+    if hasattr(data, 'index') and hasattr(data, 'values'):
+        # pandas Series
+        x_data, y_data = data.index, data.values
+    else:
+        # dict oder andere iterables
+        x_data, y_data = list(data.keys()), list(data.values())
+    
+    sns.barplot(x=x_data, y=y_data, ax=ax)
+    
+    # Beschriftungen
+    ax.set_title(title, fontsize=20)
+    ax.set_xlabel(xlabel, fontsize=14)
+    ax.set_ylabel(ylabel, fontsize=14)
+    
+    # Werte über Balken
+    if show_values:
+        for i, v in enumerate(y_data):
+            ax.text(i, v + max(y_data) * 0.01, f'{int(v)}', ha='center', va='bottom')
+    
+    # Y-Achse anpassen
+    y_max = max(y_data)
+    ax.set_ylim(0, y_max * 1.1)
+    
+    # Grid
+    if grid:
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # Layout und speichern
+    plt.tight_layout()
+    plt.savefig(PLOTS_DIR / f'{filename}.svg', format='svg', dpi=300, bbox_inches='tight')
+    plt.show()
+
+
+
+def create_animated_barplot(data, title, xlabel, ylabel, filename):
+    """Animated Plotly-Version mit Übergangseffekten"""
+    
+    fig = px.bar(
+        x=data.index.astype(str),
+        y=data.values,
+        title=title,
+        labels={'x': xlabel, 'y': ylabel},
+        color=data.values,
+        color_continuous_scale='Blues',
+        text=data.values
+    )
+    
+    # Text-Formatierung
+    fig.update_traces(
+        texttemplate='%{text}',
+        textposition='outside',
+        textfont_size=12,
+        hovertemplate='<b>Wahlperiode %{x}</b><br>' +
+                     'Anzahl: %{y}<br><extra></extra>'
+    )
+    
+    # Erweiterte Layout-Optionen
+    fig.update_layout(
+        title_x=0.5,
+        title_font_size=24,
+        font_family="Arial",
+        plot_bgcolor='rgba(240,240,240,0.3)',
+        coloraxis_showscale=False,
+        height=600,
+        transition_duration=500
+    )
+    
+    fig.write_html(PLOTS_DIR / f'{filename}.html')
+    fig.show()
+    return fig
 
 
 def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimension='GESCHLECHT', modus='count'):
+
     # Wahlperiode und Partei auswählen
     selected_df = df_mdb_wp[(df_mdb_wp['WP'] >= start_date) & (df_mdb_wp['WP'] <= end_date)]
     selected_df = selected_df[selected_df['PARTEI_MAPPED'].isin(selected_parteien)]
@@ -42,6 +138,7 @@ def select_vis_data(df_mdb_wp, start_date, end_date, selected_parteien, dimensio
         grouped = grouped.div(grouped.sum(axis=1), axis=0)
     
     return grouped
+
 
 
 def compute_traces(grouped, start_date, end_date, values_to_keep, dimension='GESCHLECHT'):
