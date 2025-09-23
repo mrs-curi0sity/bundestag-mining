@@ -164,22 +164,28 @@ def map_family_status(status):
     Returns:
         tuple: (relationship status, children category)
     """
+
+    if pd.isna(status):
+        return 'keine Angaben', 'keine Angaben'
+    
     status = str(status).lower().strip()
     
-    # Initialisierung der Rückgabewerte
+    # Initialisierung
     relationship_status = 'keine Angaben'
     children_status = 'ohne Kinder'
     
-    # Zähle Kinder
+    # Kinderanzahl extrahieren (verbessert)
     num_children = 0
-    if 'kind' in status or 'kinder' in status or 'pflegekind' in status or 'adoptivkind' in status:
-        # Suche nach Zahlen im String
-        import re
-        numbers = re.findall(r'\d+', status)
+    if any(word in status for word in ['kind', 'pflege', 'adoptiv']):
+        # Alle Zahlen finden und summieren
+        numbers = re.findall(r'\b(\d+)\s*(?:kind|pflege|adoptiv)', status)
         if numbers:
             num_children = sum(int(num) for num in numbers)
+        elif any(word in status for word in ['kind', 'pflege', 'adoptiv']):
+            # Falls "kind" erwähnt aber keine Zahl: mindestens 1
+            num_children = 1
     
-    # Mappe Kinderanzahl auf Kategorien
+    # Kinderanzahl kategorisieren
     if num_children == 1:
         children_status = 'mit einem Kind'
     elif num_children == 2:
@@ -187,35 +193,26 @@ def map_family_status(status):
     elif num_children > 2:
         children_status = '> zwei Kinder'
     
-    # Beziehungsstatus mapping
+    # Beziehungsstatus mapping (unverändert)
     if status in ['nan', 'keine angaben', 'ohne angaben', 'unbekannt', '']:
         relationship_status = 'keine Angaben'
         children_status = 'keine Angaben'
-    
     elif 'verheiratet' in status:
         relationship_status = 'verheiratet'
-    
     elif 'ledig' in status:
         relationship_status = 'ledig'
-    
     elif 'geschieden' in status:
         relationship_status = 'geschieden'
-    
     elif 'verwitwet' in status:
         relationship_status = 'verwitwet'
-    
     elif any(x in status for x in ['lebensgemeinschaft', 'verpartnert', 'eingetragene lebenspartnerschaft']):
         relationship_status = 'Lebenspartnerschaft'
-    
     elif 'getrennt lebend' in status:
         relationship_status = 'getrennt lebend'
-    
     elif 'alleinerziehend' in status:
         relationship_status = 'alleinerziehend'
-    
     elif 'verlobt' in status:
         relationship_status = 'ledig'
-    
     else:
         relationship_status = 'sonstige'
     
