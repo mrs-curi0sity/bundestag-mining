@@ -36,7 +36,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = PROJECT_ROOT / 'data'
 PLOT_PATH = PROJECT_ROOT / 'plots'
 
-CURRENT_YEAR = '2024'  # oder '2024' für aktuelle Daten
+CURRENT_YEAR = '2025'
 
 MDB_XML_PATH = DATA_PATH / CURRENT_YEAR / 'input' / 'MDB_STAMMDATEN.XML'
 

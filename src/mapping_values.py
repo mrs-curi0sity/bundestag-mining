@@ -11,53 +11,42 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 from src.config import DF_MDB_PATH, DF_MDB_WP_PATH, DF_MDB_WP_STARTDATEN_PATH
 
-df_mdb = pd.read_csv(DF_MDB_PATH)
-df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
+# df_mdb = pd.read_csv(DF_MDB_PATH)
+# df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
+# fMAX_WP = df_mdb_wp.WP.max()
 
-
-MAX_WP = df_mdb_wp.WP.max()
 WP_START = [1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, 2021, 2025]
 
 
-
-def replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep=7):
+def replace_sonstige(df, dimension, num_keep=7):
     """
     Behält maximal num_keep der am häufigsten vorkommenden Werte,
     ersetzt andere Werte durch "sonstige".
     Wenn weniger als num_keep verschiedene Werte vorhanden sind,
     werden alle vorhandenen Werte behalten.
     """
+    df = df.copy()
     
-    # Anzahl der einzigartigen Werte ermitteln
-    unique_values = df_mdb_wp[dimension].nunique()
-    
-    # num_keep auf die tatsächliche Anzahl einzigartiger Werte begrenzen
+    # Häufigkeiten aus dem Wide-Format berechnen
+    # (berücksichtigt Mehrfachmitgliedschaften automatisch)
+    unique_values = df[dimension].nunique()
     actual_num_keep = min(num_keep, unique_values)
     
-    # Die häufigsten `actual_num_keep` Werte ermitteln
-    values_to_keep = df_mdb_wp[dimension].value_counts().nlargest(actual_num_keep).index.tolist()
+    values_to_keep = df[dimension].value_counts().nlargest(actual_num_keep).index.tolist()
+    values_to_discard = df[dimension].value_counts().index.difference(values_to_keep).tolist()
     
-    # Alle anderen Werte ermitteln
-    values_to_discard = df_mdb[dimension].value_counts().index.difference(values_to_keep).tolist()
-    
-    # Nur ersetzen, wenn es tatsächlich Werte zu ersetzen gibt
     if values_to_discard:
-        df_mdb[dimension].replace(values_to_discard, 'sonstige', inplace=True)
-        df_mdb_wp[dimension].replace(values_to_discard, 'sonstige', inplace=True)
+        df[dimension].replace(values_to_discard, 'sonstige', inplace=True)
     
-    return values_to_keep, values_to_discard, df_mdb, df_mdb_wp
+    return values_to_keep, values_to_discard, df
     
 
-# TODO start move to objects or at least dict
-#list_of_parteien, list_of_parteien_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='PARTEI_KURZ', num_keep = 7)
+#list_of_parteien = ['SPD', 'CDU', 'CSU', 'FDP', 'die Grünen', 'DIE LINKE.', 'AfD']
 
-list_of_parteien = ['SPD', 'CDU', 'CSU', 'FDP', 'die Grünen', 'DIE LINKE.', 'AfD']
-
-list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
+#list_of_religion, list_of_religion_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='RELIGION_MAPPED', num_keep = 5) 
 
 
-
-list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 24)
+#list_of_beruf, list_of_beruf_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='BERUF_MAPPED', num_keep = 24)
 
 
 list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
@@ -66,7 +55,12 @@ list_of_altersklassen = ['< 30', '30 - 40', '40 - 50', '50 - 60', '> 60']
 #    'Lebenspartnerschaft', 'getrennt lebend', 'alleinerziehend', 
 #    'sonstige', 'keine Angaben']
 
-list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
+#list_of_familienstand, list_of_familienstand_discard, df_mdb, df_mdb_wp = replace_sonstige(df_mdb, df_mdb_wp, dimension='FAMILIENSTAND_MAPPED', num_keep = 8)
+
+# append 'sonstige' to list of valid values
+#for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
+#    if 'sonstige' not in list_of_values:
+#        list_of_values += ['sonstige']
 
 
 # Neue Liste für Kinder
@@ -78,13 +72,6 @@ list_of_children = [
     'keine Angaben'
 ]
 
-
-                            
-# append 'sonstige' to list of valid values
-for list_of_values in [list_of_parteien, list_of_religion, list_of_familienstand, list_of_beruf]:
-    if 'sonstige' not in list_of_values:
-        list_of_values += ['sonstige']
-# TODO End
 
 
 wp_startdaten = {
@@ -107,19 +94,22 @@ wp_startdaten = {
     17:datetime(2009, 10, 27), # Der 17. Deutsche Bundestag bestand zwischen dem 27. Oktober 2009[1] und dem 22. Oktober 2013
     18:datetime(2013, 10, 22), # Der 18. Deutsche Bundestag bestand vom 22. Oktober 2013 bis zum 24. Oktober 2017
     19:datetime(2017, 10, 24), #  Seine konstituierende Sitzung fand am 24. Oktober 2017 statt,
-    20:datetime(2021, 10, 26) #Die Wahlperiode begann mit der konstituierenden Sitzung am 26. Oktober 2021
+    20:datetime(2021, 10, 26), #Die Wahlperiode begann mit der konstituierenden Sitzung am 26. Oktober 2021
+    21:datetime(2025, 2, 23) #Die Wahlperiode begann mit der konstituierenden Sitzung am 26. Oktober 2021
 }
 
-df_wp_startdaten=pd.DataFrame(wp_startdaten, index=[0]).T
-df_wp_startdaten.columns =[ 'START_DATE']
-print(df_wp_startdaten.head())
-df_wp_startdaten.to_csv(DF_MDB_WP_STARTDATEN_PATH) # TODO; move to NB
+#df_wp_startdaten=pd.DataFrame(wp_startdaten, index=[0]).T
+#df_wp_startdaten.columns =[ 'START_DATE']
+#print(df_wp_startdaten.head())
+#df_wp_startdaten.to_csv(DF_MDB_WP_STARTDATEN_PATH) # TODO; move to NB
 
 
 partei_mapping = {
     'BÜNDNIS 90/DIE GRÜNEN': 'die Grünen',
     'DIE GRÜNEN/BÜNDNIS 90': 'die Grünen',
     'GRÜNE': 'die Grünen',
+    'PDS': 'DIE LINKE.',           # Parteifusion 2007
+    'PDS/LL': 'DIE LINKE.',        # Übergangsbezeichnung vor Fusion
 }
 
 
@@ -236,6 +226,8 @@ def map_age_to_group(age):
 
 
 def basic_cleaning_berufe(df, column = 'BERUF_MAPPED'):
+    df = df.copy()
+    
     # leere einträge durch <unbekannt> ersetzen
     df[column].fillna('unbekannt', inplace=True)
     
