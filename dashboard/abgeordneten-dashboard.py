@@ -400,15 +400,28 @@ def update_graph_num_years_in_bt(n_clicks, start_date, end_date, selected_partei
     grouped_reindexed = grouped.reindex(new_index, fill_value=0)
     grouped_reindexed.reset_index(inplace=True)
     
-    grouped_reindexed['PARTEI_MAPPED'] = pd.Categorical(grouped_reindexed['PARTEI_MAPPED'], selected_parteien)
-    grouped_reindexed.sort_values(by=['START_DATE', 'PARTEI_MAPPED'], inplace=True)
+    # Erstelle Figure manuell statt px.line zu verwenden
+    fig = go.Figure()
     
-    fig = px.line(grouped_reindexed, x='START_DATE', y='NUM_YEARS_IN_BT', color='PARTEI_MAPPED', color_discrete_sequence=LIST_OF_COLORS)
-    fig.update_traces(line=dict(width=3))
+    # Füge für jede Partei eine separate Linie hinzu mit korrekter Farbe
+    for partei in selected_parteien:
+        partei_data = grouped_reindexed[grouped_reindexed['PARTEI_MAPPED'] == partei]
+        fig.add_trace(go.Scatter(
+            x=partei_data['START_DATE'],
+            y=partei_data['NUM_YEARS_IN_BT'],
+            mode='lines',
+            name=partei,
+            line=dict(
+                color=get_color_for_party(partei),
+                width=3
+            )
+        ))
+    
     fig.update_layout(
         title='Bleibedauer der Abgeordneten im Bundestag',
         xaxis_title='',
-        yaxis_title='Jahre im BT bei Beginn der WP'
+        yaxis_title='Jahre im BT bei Beginn der WP',
+        hovermode='x unified'
     )
     return fig
 
