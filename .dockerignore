@@ -1,0 +1,41 @@
+# Ignore legacy data folders
+data/2021/
+data/2022/
+data/2023/
+data/2024/
+
+# Ignore development files
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+README.md
+*.md
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore poetry files if switching to requirements.txt
+poetry.lock
+pyproject.toml
