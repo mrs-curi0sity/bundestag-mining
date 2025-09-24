@@ -7,6 +7,35 @@
     --orange-shadow: rgba(210, 105, 30, 0.3);
 }
 
+
+.reveal .image-container {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.reveal .portrait-image {
+  width: 300px !important;
+  height: auto !important;
+}
+
+.reveal .overlay-label {
+  position: absolute !important;
+  top: 60% !important;
+  right: -15px !important;
+  transform: rotate(12deg) !important;
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+  padding: 8px 25px !important;
+  font-weight: bold !important;
+  font-size: 1.3em !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4) !important;
+  border: 2px solid #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  z-index: 10 !important;
+}
+
 /* Horizontaler Workflow Container - FIXE Zeile */
 .reveal .workflow-container {
     display: flex !important;
@@ -20,23 +49,51 @@
     overflow-x: auto !important; /* Scrollen falls zu schmal */
 }
 
-/* Workflow Steps - kompakter für FESTE horizontale Zeile */
+/* Workflow Steps - GRÖSSERE Boxen */
 .reveal .workflow-step {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 0.4rem !important;
-    padding: 0.8rem 0.6rem !important;
+    gap: 0.6rem !important;
+    padding: 1.5rem 1rem !important; /* Mehr Padding */
     background: linear-gradient(135deg, var(--very-light-orange), #fff5f0) !important;
     border-radius: 10px !important;
     box-shadow: 0 3px 10px var(--orange-shadow) !important;
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;
     border-top: 3px solid var(--primary-orange) !important;
     margin-bottom: 0 !important;
-    min-width: 90px !important;
-    max-width: 110px !important;
+    min-width: 120px !important; /* Breiter: von 120px auf 160px */
+    max-width: 160px !important; /* Breiter: von 180px auf 220px */
     text-align: center !important;
-    flex-shrink: 0 !important; /* Verhindert Schrumpfen */
+    flex-shrink: 0 !important;
+}
+
+/* Step Numbers - größere Kreise */
+.reveal .step-number {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 45px !important; /* Größer: von 35px auf 45px */
+    height: 45px !important; /* Größer: von 35px auf 45px */
+    background: linear-gradient(135deg, var(--primary-orange), var(--dark-orange)) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    font-weight: bold !important;
+    font-size: 1.4rem !important; /* Größere Schrift: von 1.1rem auf 1.4rem */
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 6px var(--orange-shadow) !important;
+}
+
+/* Step Content - größere Schrift */
+.reveal .step-content {
+    font-size: 0.9rem !important; /* Größere Schrift: von 0.75rem auf 0.9rem */
+    font-weight: 600 !important;
+    color: var(--dark-orange) !important;
+    margin: 0 !important;
+    text-align: center !important;
+    line-height: 1.3 !important;
+    word-wrap: break-word !important;
 }
 
 /* Hervorgehobener Workflow Step */
@@ -84,33 +141,7 @@
     flex-shrink: 0 !important; /* Verhindert Schrumpfen */
 }
 
-/* Step Numbers - kompakter */
-.reveal .step-number {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 35px !important;
-    height: 35px !important;
-    background: linear-gradient(135deg, var(--primary-orange), var(--dark-orange)) !important;
-    color: white !important;
-    border-radius: 50% !important;
-    font-weight: bold !important;
-    font-size: 1.1rem !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    box-shadow: 0 2px 6px var(--orange-shadow) !important;
-}
 
-/* Step Content - kompakter */
-.reveal .step-content {
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    color: var(--dark-orange) !important;
-    margin: 0 !important;
-    text-align: center !important;
-    line-height: 1.2 !important;
-    word-wrap: break-word !important;
-}
 
 /* Fragment Animation - RevealJS specific */
 .reveal .workflow-step.fragment:not(.visible),
@@ -194,7 +225,7 @@
 /* Mining Images - kleinere Bilder */
 .reveal .mining-image {
     width: 100% !important;
-    max-width: 250px !important;
+    max-width: 350px !important;
     height: auto !important;
     border-radius: 6px !important;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
