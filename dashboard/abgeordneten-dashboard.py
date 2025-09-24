@@ -14,17 +14,34 @@ import plotly.express as px
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
-from src.mapping_values import (
-    df_mdb_wp, MAX_WP, WP_START, list_of_parteien, list_of_religion, list_of_children,
-    list_of_familienstand, list_of_beruf, list_of_altersklassen, get_color_for_party, get_color_for_age_group, get_color_palette
+from src.config import (
+    LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY,
+    DF_MDB_PATH, DF_MDB_WP_PATH, WP_START,
+    LIST_OF_PARTEIEN as list_of_parteien,
+    LIST_OF_RELIGION as list_of_religion,
+    LIST_OF_CHILDREN as list_of_children, 
+    LIST_OF_FAMILIENSTAND as list_of_familienstand,
+    LIST_OF_BERUF as list_of_beruf,
+    LIST_OF_ALTERSKLASSEN as list_of_altersklassen
 )
 from src.visualization import select_vis_data, compute_traces
-from src.config import LIST_OF_COLORS, PAGE_SIZE, COLUMNS_FOR_DISPLAY
+
+from src.mapping_values import (
+    get_color_for_party, 
+    get_color_for_age_group, 
+    get_color_palette 
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+df_mdb = pd.read_csv(DF_MDB_PATH)
+df_mdb_wp = pd.read_csv(DF_MDB_WP_PATH)
+MAX_WP = df_mdb_wp.WP.max()
+
+# Globale Variable für gefilterte Daten
+filtered_df = pd.DataFrame()
 
 CONTENT_STYLE = {
     'margin-left': '4%',  # reduziert von 25%
@@ -52,16 +69,18 @@ TEXT_STYLE = {
 }
 
 
-# Globale Variable für gefilterte Daten
-filtered_df = pd.DataFrame()
-
 # Helper functions
 def create_dropdown(id, options, value):
     return dcc.Dropdown(
         id=id,
-        options=[{'label': f"{WP_START[x-1]} - {WP_START[x]}", 'value': x} for x in range(1, MAX_WP+1)],
+        options=[
+            {'label': f"{WP_START[x-1]} - {WP_START[x]}", 'value': x} 
+            for x in range(1, len(WP_START))  # Bis len(WP_START) statt MAX_WP+1
+        ],
         value=value
     )
+
+
 
 def create_checklist(id, options, value):
     return dbc.Card([

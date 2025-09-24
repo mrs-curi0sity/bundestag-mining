@@ -1,0 +1,80 @@
+{
+  "parteien": [
+    "CDU",
+    "FDP",
+    "SPD",
+    "sonstige",
+    "CSU",
+    "die Grünen",
+    "DIE LINKE.",
+    "AfD"
+  ],
+  "religion": [
+    "katholisch",
+    "evangelisch",
+    "unbekannt",
+    "konfessionslos",
+    "sonstige",
+    "muslimisch"
+  ],
+  "familienstand": [
+    "keine Angaben",
+    "verheiratet",
+    "ledig",
+    "verwitwet",
+    "sonstige",
+    "geschieden",
+    "getrennt lebend",
+    "Lebenspartnerschaft",
+    "alleinerziehend"
+  ],
+  "kinder": [
+    "keine Angaben",
+    "> zwei Kinder",
+    "ohne Kinder",
+    "mit zwei Kindern",
+    "mit einem Kind"
+  ],
+  "beruf": [
+    "Jurist*in",
+    "Verwaltungsberufe",
+    "Ärzt*in & Psycholog*in",
+    "Naturwissenschaftler*in",
+    "Gewerkschaftsberufe",
+    "Land-/Forstwirt*in",
+    "Berufspolitiker*in",
+    "Lehrer*in",
+    "Handwerker*in",
+    "Journalist*in & Medien",
+    "Militär",
+    "Unternehmer*in",
+    "Kaufmännische Berufe",
+    "sonstige",
+    "Ingenieur*in",
+    "Volkswirt*in",
+    "Pflege- & Sozialberufe",
+    "Professor*in & Wissenschaft",
+    "Hausfrau/Hausmann",
+    "Diplomat*in",
+    "Angestellte",
+    "Wirtschaftswissenschaftler*in",
+    "Geisteswissenschaftler*in",
+    "Theolog*in",
+    "Betriebswirt*in",
+    "Künstlerische Berufe",
+    "Sonstige",
+    "Informatik & IT",
+    "Student*in"
+  ],
+  "geschlecht": [
+    "männlich",
+    "weiblich"
+  ],
+  "altersklassen": [
+    "< 30",
+    "30 - 40",
+    "40 - 50",
+    "50 - 60",
+    "> 60"
+  ]
+}

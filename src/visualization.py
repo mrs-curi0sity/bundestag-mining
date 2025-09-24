@@ -4,11 +4,9 @@ from plotly import graph_objs as go
 
 import plotly.express as px
 from plotly.subplots import make_subplots
-
-from src.config import LIST_OF_COLORS
-from src.mapping_values import WP_START
 import seaborn as sns
-from src.config import PLOTS_DIR  # Annahme: du hast PLOTS_DIR in config definiert
+
+from src.config import LIST_OF_COLORS, WP_START, PLOTS_DIR  
 
 def create_barplot_with_values(data, title, xlabel, ylabel, filename, 
                               figsize=(14, 8), show_values=True, grid=True):
