@@ -1,54 +1,35 @@
-FROM python:3.11-slim-bullseye as builder
+# Use Python 3.11 slim image
+FROM python:3.11-slim
 
-RUN apt-get update && apt-get install -y gnupg
-RUN apt-key adv --refresh-keys --keyserver keyserver.ubuntu.com
-RUN apt-get clean
+# Set working directory
+WORKDIR /app
 
-# System-Abhängigkeiten installieren
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Poetry installieren
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Copy requirements first (for better Docker layer caching)
+COPY requirements.txt .
 
-# Poetry zum PATH hinzufügen
-ENV PATH="/root/.local/bin:$PATH"
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
+# Copy only necessary source files
+COPY src/ ./src/
+COPY dashboard/ ./dashboard/
 
-# Nur pyproject.toml und poetry.lock kopieren (falls vorhanden)
-COPY pyproject.toml poetry.lock* ./
+# Copy only the data you need
+COPY data/2025/output/ ./data/2025/output/
 
-# Abhängigkeiten installieren
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+# Create non-root user
+RUN useradd -m dashuser && chown -R dashuser:dashuser /app
 
-# Restliche Projektdateien kopieren
-COPY . .
+# Switch to non-root user
+USER dashuser
 
-# Produktions-Image
-FROM python:3.11-slim-bullseye
+# Expose port
+EXPOSE 8080
 
-WORKDIR /app
-
-# Kopieren Sie die installierten Abhängigkeiten und Projektdateien
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /app /app
-
-# Erstellen Sie einen nicht-root Benutzer
-RUN useradd -m myuser
-
-# Stellen Sie sicher, dass alle notwendigen Verzeichnisse existieren und die richtigen Berechtigungen haben
-RUN mkdir -p /app/data/2024/output /app/plots \
-    && chown -R myuser:myuser /app
-
-# Wechseln Sie zum nicht-root Benutzer
-USER myuser
-
-# Exponieren Sie den Port
-EXPOSE 8050
-
-# Führen Sie die Anwendung aus
-CMD ["python3", "./dashboard/abgeordneten-dashboard.py"]
+# Run the application
+CMD ["python", "dashboard/abgeordneten-dashboard.py"]
