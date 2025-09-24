@@ -1,0 +1,1 @@
+quarto preview /Users/lena/code/bundestag-mining/presentation/2025_09_25_THAugsburg_ProfRichard.ipynb --no-browser 

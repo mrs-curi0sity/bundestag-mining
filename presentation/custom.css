@@ -1,0 +1,173 @@
+/* RevealJS-spezifische Selektoren für bessere Priorität */
+
+.reveal .image-container {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.reveal .portrait-image {
+  width: 400px !important;
+  height: auto !important;
+}
+
+.reveal .overlay-label {
+  position: absolute !important;
+  top: 15px !important;
+  right: -15px !important;
+  transform: rotate(12deg) !important;
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+  padding: 8px 25px !important;
+  font-weight: bold !important;
+  font-size: 1.3em !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4) !important;
+  border: 2px solid #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  z-index: 10 !important;
+}
+
+/* Orange-basiertes Farbschema */
+:root {
+    --primary-orange: #d2691e;
+    --light-orange: #f4a460;
+    --dark-orange: #b8561a;
+    --very-light-orange: #ffeee6;
+    --orange-shadow: rgba(210, 105, 30, 0.3);
+}
+
+/* Horizontaler Workflow Container - FIXE Zeile */
+.reveal .workflow-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.8rem !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 1.5rem 0.5rem !important;
+    flex-wrap: nowrap !important; /* KEINE Umbrüche! */
+    overflow-x: auto !important; /* Scrollen falls zu schmal */
+}
+
+/* Workflow Steps - kompakter für FESTE horizontale Zeile */
+.reveal .workflow-step {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    padding: 0.8rem 0.6rem !important;
+    background: linear-gradient(135deg, var(--very-light-orange), #fff5f0) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 10px var(--orange-shadow) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    border-top: 3px solid var(--primary-orange) !important;
+    margin-bottom: 0 !important;
+    min-width: 90px !important;
+    max-width: 110px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important; /* Verhindert Schrumpfen */
+}
+
+.reveal .workflow-step:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 24px rgba(210, 105, 30, 0.4) !important;
+    background: linear-gradient(135deg, #fff0e6, var(--very-light-orange)) !important;
+}
+
+/* Workflow-Pfeile - kompakter */
+.reveal .workflow-arrow {
+    font-size: 2.2rem !important;
+    color: var(--primary-orange) !important;
+    font-weight: bold !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 0.3rem !important;
+    min-width: 30px !important;
+    height: 50px !important;
+    line-height: 1 !important;
+    text-shadow: 0 2px 4px var(--orange-shadow) !important;
+    flex-shrink: 0 !important; /* Verhindert Schrumpfen */
+}
+
+/* Step Numbers - kompakter */
+.reveal .step-number {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 35px !important;
+    height: 35px !important;
+    background: linear-gradient(135deg, var(--primary-orange), var(--dark-orange)) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 6px var(--orange-shadow) !important;
+}
+
+/* Step Content - kompakter */
+.reveal .step-content {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--dark-orange) !important;
+    margin: 0 !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+    word-wrap: break-word !important;
+}
+
+/* Fragment Animation - RevealJS specific */
+.reveal .workflow-step.fragment:not(.visible),
+.reveal .workflow-arrow.fragment:not(.visible) {
+    opacity: 0 !important;
+    transform: scale(0.8) !important;
+}
+
+.reveal .workflow-step.fragment.visible,
+.reveal .workflow-arrow.fragment.visible {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
+/* Responsive Design für kleinere Bildschirme */
+@media (max-width: 1200px) {
+    .reveal .workflow-container {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .reveal .workflow-step {
+        min-width: 100px !important;
+        padding: 0.8rem !important;
+    }
+    
+    .reveal .step-number {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 1rem !important;
+    }
+    
+    .reveal .step-content {
+        font-size: 0.8rem !important;
+    }
+    
+    .reveal .workflow-arrow {
+        font-size: 1.5rem !important;
+        margin: 0 0.2rem !important;
+    }
+}
+
+/* Sehr kleine Bildschirme - vertikaler Fallback */
+@media (max-width: 768px) {
+    .reveal .workflow-container {
+        flex-direction: column !important;
+    }
+    
+    .reveal .workflow-arrow {
+        transform: rotate(90deg) !important;
+        margin: 0.5rem 0 !important;
+    }
+}
