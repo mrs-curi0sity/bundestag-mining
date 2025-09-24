@@ -44,8 +44,9 @@ This guide outlines the steps to deploy updated code to Google Cloud Run using t
 
    ```
    gcloud run deploy bundestag-dashboard --image gcr.io/bundestag-miner/btm --platform managed
-   ```
 
+   ```
+   chose region europe west3 / nr 21
 
 5. **Configuration**
 

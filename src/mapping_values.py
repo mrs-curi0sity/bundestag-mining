@@ -307,7 +307,9 @@ beruf_klassifizierung = {
     ],
     
     'Volkswirt*in': [
-        'volkswirt', re.compile('dipl.*-volkswirt'), 'diplom-volkswirt', 'dipl. volkswirt'
+        'volkswirt', 
+        re.compile('dipl.*-volkswirt'), 
+        'dipl. volkswirt' 
     ],
     
     'Betriebswirt*in': [
