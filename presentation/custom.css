@@ -10,11 +10,10 @@
 
 .reveal .image-container {
   position: relative !important;
-  display: inline-block !important;
 }
 
 .reveal .portrait-image {
-  width: 300px !important;
+  width: 400px !important;
   height: auto !important;
 }
 
@@ -258,4 +257,28 @@
     font-size: 1.8rem !important;
     margin-bottom: 1rem !important;
     text-align: center !important;
+}
+
+.content-container {
+  position: relative;
+}
+
+.meme-corner {
+  position: absolute;
+  bottom: 80px;    /* weiter oben */
+  right: 20px;
+  opacity: 0.8;
+}
+
+
+.info-box {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-left: 4px solid #e74c3c;
 }

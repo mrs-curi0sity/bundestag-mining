@@ -286,6 +286,10 @@ def basic_cleaning_berufe(df, column='BERUF_MAPPED'):
     return df
 
 
+# TODOs und unklarheiten
+# - geographie: Geistes- oder Naturwissenschaft?
+
+
 beruf_klassifizierung = {
     'Professor*in & Wissenschaft': [
         'dozent', 'professor', 'prof.', 'hochschull', 'hochschulpr', 'universitätsprofessor',
