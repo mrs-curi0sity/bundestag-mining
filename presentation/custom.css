@@ -19,9 +19,9 @@
 
 .reveal .overlay-label {
   position: absolute !important;
-  top: 60% !important;
-  right: -15px !important;
-  transform: rotate(12deg) !important;
+  top: 50% !important;
+  left: 20% !important;
+  transform: translate(-50%, -50%) rotate(12deg) !important;
   background: linear-gradient(135deg, #dc3545, #c82333) !important;
   color: white !important;
   padding: 8px 25px !important;
