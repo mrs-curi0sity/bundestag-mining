@@ -566,7 +566,15 @@ Lena Aretz (yourcupofdata.com <br> aretzlena@gmail.com)
 <section id="berufe-3" class="slide level2">
 <h2>Berufe</h2>
 
-<img data-src="./images/preproc_berufe_mapping.png" class="r-stretch"></section></section>
+<img data-src="./images/preproc_berufe_mapping.png" class="r-stretch"></section>
+<section id="berufe-4" class="slide level2">
+<h2>Berufe</h2>
+
+<img data-src="./images/preproc_berufe_bereinigt.png" class="r-stretch"></section>
+<section id="berufe-5" class="slide level2">
+<h2>Berufe</h2>
+
+<img data-src="./images/preproc_berufe_sonstige.png" class="r-stretch"></section></section>
 <section>
 <section id="datenvisualisierung" class="title-slide slide level1 center">
 <h1>Datenvisualisierung</h1>
@@ -658,6 +666,72 @@ Lena Aretz (yourcupofdata.com <br> aretzlena@gmail.com)
 <h2>gender</h2>
 
 <img data-src="./images/gender_03.png" class="r-stretch"></section>
+<section id="familienstand-1" class="slide level2">
+<h2>Familienstand</h2>
+
+<img data-src="./images/dash_familienstand.png" class="r-stretch"></section>
+<section id="kinder" class="slide level2">
+<h2>Kinder</h2>
+
+<img data-src="./images/dash_kinder.png" class="r-stretch"></section>
+<section id="feature-engineering" class="slide level2">
+<h2>Feature Engineering</h2>
+<div class="workflow-container">
+<div class="workflow-step fragment" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border-top: 3px solid #c0392b;">
+<div class="step-number" style="background: linear-gradient(135deg, #c0392b, #a93226);">
+<p>📝</p>
+</div>
+<div class="step-content" style="color: white;">
+<p>“verheiratet, 2 Kinder”<br>
+“ledig, kinderlos”<br>
+“geschieden, 1 Kind”</p>
+</div>
+</div>
+</div>
+<div class="workflow-container">
+<div class="workflow-arrow fragment" style="color: #e74c3c;">
+<p>↙</p>
+</div>
+<div class="workflow-arrow fragment" style="color: #e74c3c;">
+<p>↘</p>
+</div>
+</div>
+<div class="workflow-container">
+<div class="workflow-step fragment" style="background: linear-gradient(135deg, #3498db, #2980b9); border-top: 3px solid #2980b9;">
+<div class="step-number" style="background: linear-gradient(135deg, #2980b9, #21618c);">
+<p>1</p>
+</div>
+<div class="step-content" style="color: white;">
+<p><strong>Dimension 1</strong><br>
+Familienstand:<br>
+verheiratet, ledig, geschieden</p>
+</div>
+</div>
+<div class="workflow-step fragment" style="background: linear-gradient(135deg, #27ae60, #229954); border-top: 3px solid #229954;">
+<div class="step-number" style="background: linear-gradient(135deg, #229954, #1e8449);">
+<p>2</p>
+</div>
+<div class="step-content" style="color: white;">
+<p><strong>Dimension 2</strong><br>
+Kinder:<br>
+Anzahl_Kinder: 2, 0, 1<br>
+Hat_Kinder: True, False</p>
+</div>
+</div>
+</div>
+<div class="fragment info-box">
+<p><strong>Transformation:</strong> Eine unstrukturierte → Zwei strukturierte Dimensionen</p>
+</div>
+</section></section>
+<section>
+<section id="workflow-extended" class="title-slide slide level1 center">
+<h1>Workflow Extended</h1>
+
+<img data-src="./images/workflow_extended.png" class="r-stretch"></section>
+<section id="alter" class="slide level2">
+<h2>Alter</h2>
+
+<img data-src="./images/dash_alter.png" class="r-stretch"></section>
 <section id="verweildauer-im-parlament" class="slide level2">
 <h2>Verweildauer im Parlament</h2>
 
@@ -674,6 +748,14 @@ Lena Aretz (yourcupofdata.com <br> aretzlena@gmail.com)
 <h2>Schäuble-Faktor</h2>
 
 <img data-src="./images/klebefaktor_04.png" class="r-stretch"></section>
+<section id="schäuble-faktor-2" class="slide level2">
+<h2>Schäuble-Faktor</h2>
+
+<img data-src="./images/dash_familienstand.png" class="r-stretch"></section>
+<section id="schäuble-faktor-3" class="slide level2">
+<h2>Schäuble-Faktor</h2>
+
+<img data-src="./images/dash_kinder.png" class="r-stretch"></section>
 <section id="juristen" class="slide level2">
 <h2>Juristen</h2>
 
@@ -764,15 +846,10 @@ Lena Aretz (yourcupofdata.com <br> aretzlena@gmail.com)
 <h2>Docker</h2>
 
 <img data-src="./images/deployment_docker_push.png" class="r-stretch"></section>
-<section id="cloud-1" class="slide level2">
-<h2>CLoud</h2>
+<section id="google-cloud" class="slide level2">
+<h2>(google) Cloud</h2>
 
 <img data-src="./images/deployment_google_cloud.png" class="r-stretch"></section></section>
-<section id="workflow-extended" class="title-slide slide level1 center">
-<h1>Workflow Extended</h1>
-
-<img data-src="./images/workflow_extended.png" class="r-stretch"></section>
-
 <section id="projektaufwand" class="title-slide slide level1 center">
 <h1>Projektaufwand</h1>
 
@@ -801,29 +878,20 @@ Lena Aretz (yourcupofdata.com <br> aretzlena@gmail.com)
 <section id="dinge-die-ihr-wirklich-braucht" class="slide level2">
 <h2><strong>3 Dinge, die ihr wirklich braucht:</strong></h2>
 <div class="fragment">
-<h3 id="schaut-euch-die-daten-an">1. Schaut euch die Daten an</h3>
-<ul>
-<li>Ausführliche “manuelle” Datenexploration</li>
-<li>Sauberes Preprocessing</li>
-</ul>
+<p><strong>1. Schaut euch die Daten an</strong><br>
+Ausführliche Datenexploration + sauberes Preprocessing</p>
 </div>
 <div class="fragment">
-<h3 id="lernt-python-pandas">2. Lernt Python + Pandas</h3>
-<ul>
-<li>Setup: pandas + plotly / seaborn / matplotlib + Jupyter + git</li>
-</ul>
+<p><strong>2. Lernt Python + Pandas</strong><br>
+Setup: pandas + plotly/seaborn + Jupyter + git</p>
 </div>
 <div class="fragment">
-<h3 id="macht-es-interaktiv">3. Macht es interaktiv</h3>
-<ul>
-<li>Lernt ein Web-App-Framework: Dash, Streamlit oder Gradio</li>
-</ul>
+<p><strong>3. Macht es interaktiv</strong><br>
+Web-App-Framework: Dash, Streamlit oder Gradio</p>
 </div>
 <div class="fragment">
-<h3 id="und-wenn-ihr-der-king-sein-wollt">… und wenn ihr der King sein wollt</h3>
-<ul>
-<li>Lernt Deployment / Devops</li>
-</ul>
+<p><strong>… und wenn ihr der King sein wollt:</strong><br>
+Lernt Deployment / DevOps</p>
 </div>
 
 </section></section>
