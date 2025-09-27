@@ -286,8 +286,13 @@ def basic_cleaning_berufe(df, column='BERUF_MAPPED'):
     return df
 
 
-# TODOs und unklarheiten
+# TODOs für nächste Iteration
+# - vereinheitlichung Sonstige / sonstige
 # - geographie: Geistes- oder Naturwissenschaft?
+# -Land- und Forstwirt  muss noch korrekt gemappt werden
+# - Diplom Mathematiker wird nicht korrekt erkannt
+# - Projektmanager anders einsortieren?
+# - Polizei zu Militär zuordnen?
 
 
 beruf_klassifizierung = {
@@ -479,7 +484,7 @@ beruf_klassifizierung = {
     
     'Künstlerische Berufe': [
         'künstler', 'musiker', 'schauspieler', 'sänger', 'maler', 'bildhauer',
-        'regisseur', 'mediengestalter', re.compile('dipl.*-designer'), 'pr-manager',
+        'regisseur', 'mediengestalter', re.compile('dipl.*designer'), 'pr-manager',
         'harfenist', 'diplom-musiker', 'modedesigner'
     ],
     
@@ -491,18 +496,18 @@ beruf_klassifizierung = {
     ],
     
     'Hausfrau/Hausmann': [
-        'hausfrau', 'hausmann', 'siedlerfrau'
+        'hausfrau', 'hausmann'#, 'siedlerfrau' KI Fail?
     ],
     
     'Student*in': [
         'student', 'studentin'
-    ],
-    
-    'Sonstige': [
-        'rentner', 'seemann', 'spediteur', 'gästeführer', 'feuerwehrmann', 'ohne angaben',
-        'keine angaben', 'unbekannt', 'bestatter', 'ohne beruf', 'ohne angabe', 'vorkalkulator',
-        'bergbauinvalide', 'gastwirt'
     ]
+    
+#    'Sonstige': [ # KI fail: inkonsistenz Schreibweise und funktion von sonstige / Sonstige
+#    'rentner', 'seemann', 'spediteur', 'gästeführer', 'feuerwehrmann', 'ohne angaben',
+#        'keine angaben', 'unbekannt', 'bestatter', 'ohne beruf', 'ohne angabe', 'vorkalkulator',
+#        'bergbauinvalide', 'gastwirt'
+#    ]
 }
 
 def klassifiziere_beruf(beruf):
